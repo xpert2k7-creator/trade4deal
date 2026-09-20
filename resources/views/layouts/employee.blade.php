@@ -313,7 +313,7 @@
                 <i class="bi bi-inbox"></i> Leads
             </a>
             <a href="{{ route('employee.users.index') }}" class="{{ request()->routeIs('employee.users.*') ? 'active' : '' }}">
-                <i class="bi bi-people"></i> User Plans
+                <i class="bi bi-people"></i> Users
             </a>
             <a href="{{ route('home') }}" target="_blank">
                 <i class="bi bi-box-arrow-up-right"></i> Public site

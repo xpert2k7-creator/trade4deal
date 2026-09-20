@@ -1,4 +1,5 @@
 *.log
+.ftpquota
 .DS_Store
 .env
 .env.backup

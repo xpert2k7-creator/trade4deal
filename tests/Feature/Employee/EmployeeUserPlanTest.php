@@ -42,7 +42,7 @@ class EmployeeUserPlanTest extends TestCase
         $this->actingAs($this->employee())
             ->get(route('employee.users.index'))
             ->assertOk()
-            ->assertSee('User Plans')
+            ->assertSee('Users')
             ->assertSee('Market Buyer');
     }
 

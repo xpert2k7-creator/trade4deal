@@ -70,6 +70,9 @@ Route::middleware(['auth', 'role:admin|employee'])->prefix('employee')->name('em
     Route::post('/leads/{lead}/reject', [LeadModerationController::class, 'reject'])->name('leads.reject');
 
     Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
+    Route::get('/users/{user}/edit', [UserManagementController::class, 'edit'])->name('users.edit');
+    Route::put('/users/{user}', [UserManagementController::class, 'update'])->name('users.update');
+    Route::delete('/users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
     Route::patch('/users/{user}/plan', [UserManagementController::class, 'updatePlan'])->name('users.plan.update');
 });
 

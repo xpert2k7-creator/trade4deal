@@ -16,6 +16,21 @@ class UserPolicy
 
     public function updatePlan(User $actor, User $target): bool
     {
+        return $this->canManageMarketplaceUser($actor, $target);
+    }
+
+    public function update(User $actor, User $target): bool
+    {
+        return $this->canManageMarketplaceUser($actor, $target);
+    }
+
+    public function delete(User $actor, User $target): bool
+    {
+        return $this->canManageMarketplaceUser($actor, $target);
+    }
+
+    private function canManageMarketplaceUser(User $actor, User $target): bool
+    {
         if (! $actor->canModerateLeads()) {
             return false;
         }

@@ -1,7 +1,7 @@
 @extends('layouts.employee')
 
 @section('title', 'Users')
-@section('page-title', 'User Plans')
+@section('page-title', 'Users')
 
 @section('content')
 <div class="panel mb-3">
@@ -27,6 +27,7 @@
                     <th>Company</th>
                     <th>Current plan</th>
                     <th>Change plan</th>
+                    <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -64,6 +65,25 @@
                                 <button type="submit" class="btn btn-sm btn-primary-t4d">Update</button>
                             </form>
                         </td>
+                        <td>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a href="{{ route('employee.users.edit', array_filter(['user' => $user, 'q' => $search])) }}"
+                                   class="btn btn-sm btn-outline-secondary">
+                                    Edit
+                                </a>
+                                <form method="POST"
+                                      action="{{ route('employee.users.destroy', $user) }}"
+                                      class="d-inline user-delete-form"
+                                      data-user-name="{{ $user->name }}">
+                                    @csrf
+                                    @method('DELETE')
+                                    @if ($search)
+                                        <input type="hidden" name="q" value="{{ $search }}">
+                                    @endif
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                </form>
+                            </div>
+                        </td>
                     </tr>
                 @endforeach
                 </tbody>
@@ -98,6 +118,15 @@
             }
 
             if (! confirm(message)) {
+                event.preventDefault();
+            }
+        });
+    });
+
+    document.querySelectorAll('.user-delete-form').forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            const userName = form.dataset.userName;
+            if (! confirm('Delete ' + userName + '? This cannot be undone from this screen.')) {
                 event.preventDefault();
             }
         });
