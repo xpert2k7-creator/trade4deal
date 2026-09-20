@@ -66,6 +66,22 @@ class LeadService
         return $this->leadRepository->getRecentVisible($viewer, $limit);
     }
 
+    /**
+     * @return Collection<int, Lead>
+     */
+    public function getMatchingLeadsForSeller(User $seller, int $limit = 6): Collection
+    {
+        return $this->leadRepository->getMatchingVisibleForSeller($seller, $limit);
+    }
+
+    /**
+     * @return Collection<int, string>
+     */
+    public function matchingCategoriesForSeller(User $seller): Collection
+    {
+        return $this->leadRepository->matchingCategoriesForSeller($seller);
+    }
+
     public function paginateLeadsForViewer(?User $viewer, int $perPage = 10): LengthAwarePaginator
     {
         return $this->leadRepository->paginateVisible($viewer, $perPage);

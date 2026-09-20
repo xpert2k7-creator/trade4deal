@@ -9,6 +9,7 @@ use App\Domains\Lead\Repositories\Contracts\LeadRepositoryInterface;
 use App\Models\User;
 use App\Support\Enums\RecordStatus;
 use App\Support\Enums\UserPlan;
+use BackedEnum;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
@@ -46,6 +47,34 @@ class LeadRepository implements LeadRepositoryInterface
             ->latest('published_at')
             ->limit($limit)
             ->get();
+    }
+
+    public function getMatchingVisibleForSeller(User $seller, int $limit = 6): Collection
+    {
+        $categories = $this->matchingCategoriesForSeller($seller);
+
+        if ($categories->isEmpty()) {
+            return collect();
+        }
+
+        return $this->visibleQuery($seller)
+            ->whereIn('product_type', $categories->all())
+            ->latest('published_at')
+            ->limit($limit)
+            ->get();
+    }
+
+    public function matchingCategoriesForSeller(User $seller): Collection
+    {
+        $industryCategories = collect($seller->industries ?? []);
+        $productCategories = $seller->products()->pluck('product_type');
+
+        return $industryCategories
+            ->merge($productCategories)
+            ->map(fn ($category) => $category instanceof BackedEnum ? $category->value : (string) $category)
+            ->filter()
+            ->unique()
+            ->values();
     }
 
     public function paginateVisible(?User $viewer, int $perPage = 10): LengthAwarePaginator

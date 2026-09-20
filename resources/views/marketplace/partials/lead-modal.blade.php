@@ -28,7 +28,7 @@
                                 </li>
                                 <li class="d-flex align-items-start gap-2 mb-3">
                                     <i class="bi bi-globe2 mt-1"></i>
-                                    <span>Gold members see new leads instantly on the homepage</span>
+                                    <span>Gold suppliers get instant verified buyer details</span>
                                 </li>
                                 <li class="d-flex align-items-start gap-2">
                                     <i class="bi bi-clock-history mt-1"></i>

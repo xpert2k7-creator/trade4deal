@@ -507,6 +507,153 @@
             flex-shrink: 0;
         }
 
+        .footer-contact {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.7rem 1.25rem;
+            align-items: center;
+        }
+
+        .footer-main {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.8rem 1.5rem;
+        }
+
+        .footer-contact a,
+        .footer-contact span,
+        .footer-links a {
+            color: var(--t4d-muted);
+            text-decoration: none;
+        }
+
+        .footer-contact a:hover,
+        .footer-links a:hover {
+            color: var(--t4d-primary);
+        }
+
+        .footer-contact i {
+            color: var(--t4d-primary);
+        }
+
+        .testimonial-strip {
+            border-top: 1px solid var(--t4d-border);
+            background:
+                linear-gradient(180deg, rgba(11, 58, 110, 0.035), rgba(14, 116, 144, 0.055)),
+                var(--t4d-bg);
+        }
+
+        .testimonial-slider {
+            position: relative;
+            padding-bottom: 2.75rem;
+        }
+
+        .testimonial-card {
+            height: 100%;
+            min-height: 265px;
+            padding: 1.35rem;
+            border: 1px solid var(--t4d-border);
+            border-radius: 14px;
+            background: var(--t4d-card);
+            box-shadow: var(--t4d-shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .testimonial-quote {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            background: linear-gradient(135deg, var(--t4d-primary), var(--t4d-accent));
+            flex: 0 0 auto;
+        }
+
+        .testimonial-card p {
+            color: var(--t4d-dark);
+            line-height: 1.62;
+        }
+
+        .testimonial-person {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+        }
+
+        .testimonial-avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 800;
+            background: var(--t4d-primary);
+            box-shadow: 0 10px 24px rgba(11, 58, 110, 0.18);
+        }
+
+        .testimonial-rating {
+            color: #F59E0B;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+        }
+
+        .testimonial-slider .carousel-indicators {
+            bottom: 0;
+            margin-bottom: 0;
+        }
+
+        .testimonial-slider .carousel-indicators [data-bs-target] {
+            width: 9px;
+            height: 9px;
+            border-radius: 999px;
+            background-color: var(--t4d-primary);
+        }
+
+        .testimonial-control {
+            width: 42px;
+            height: 42px;
+            top: auto;
+            bottom: -0.85rem;
+            opacity: 1;
+        }
+
+        .testimonial-control.carousel-control-prev {
+            left: auto;
+            right: 52px;
+        }
+
+        .testimonial-control.carousel-control-next {
+            right: 0;
+        }
+
+        .testimonial-control span {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background-color: var(--t4d-primary);
+            background-size: 48%;
+            box-shadow: var(--t4d-shadow);
+        }
+
+        @media (max-width: 767px) {
+            .testimonial-card {
+                min-height: 245px;
+            }
+
+            .testimonial-control {
+                display: none;
+            }
+        }
+
         .modal-lead .modal-content {
             border: none;
             border-radius: 20px;
@@ -771,13 +918,200 @@
 
         @include('marketplace.partials.lead-modal')
 
+        <section class="testimonial-strip py-5" aria-labelledby="testimonialTitle">
+            <div class="container">
+                <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-4">
+                    <div>
+                        <span class="badge rounded-pill text-bg-primary px-3 py-2 mb-2">Testimonials</span>
+                        <h2 class="section-title mb-2" id="testimonialTitle">Trusted by growing trade businesses</h2>
+                        <p class="text-muted mb-0" style="max-width: 620px;">
+                            Practical feedback from buyers, sellers, and sourcing teams using Trade4Deal to move conversations faster.
+                        </p>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 text-muted small">
+                        <i class="bi bi-shield-check text-primary"></i>
+                        Global B2B marketplace support
+                    </div>
+                </div>
+
+                <div id="testimonialCarousel" class="carousel slide testimonial-slider" data-bs-ride="carousel" data-bs-interval="5500">
+                    <div class="carousel-indicators">
+                        <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Testimonials page 1"></button>
+                        <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="1" aria-label="Testimonials page 2"></button>
+                        <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="2" aria-label="Testimonials page 3"></button>
+                    </div>
+
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <div class="row g-3">
+                                <div class="col-lg-4">
+                                    <article class="testimonial-card">
+                                        <div class="d-flex justify-content-between align-items-start gap-3">
+                                            <span class="testimonial-quote"><i class="bi bi-quote"></i></span>
+                                            <span class="testimonial-rating">★★★★★</span>
+                                        </div>
+                                        <p class="mb-0">Trade4Deal helped us find serious machinery buyers without wasting days on cold outreach. The lead quality felt relevant and easy to follow up.</p>
+                                        <div class="testimonial-person">
+                                            <span class="testimonial-avatar">AS</span>
+                                            <div>
+                                                <div class="fw-bold">Amit Sharma</div>
+                                                <div class="small text-muted">Apex Industrial Supplies, India</div>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </div>
+                                <div class="col-lg-4">
+                                    <article class="testimonial-card">
+                                        <div class="d-flex justify-content-between align-items-start gap-3">
+                                            <span class="testimonial-quote"><i class="bi bi-quote"></i></span>
+                                            <span class="testimonial-rating">★★★★★</span>
+                                        </div>
+                                        <p class="mb-0">We posted a textile sourcing requirement and received supplier responses that matched our quantity and payment preferences. It made comparison much simpler.</p>
+                                        <div class="testimonial-person">
+                                            <span class="testimonial-avatar">NK</span>
+                                            <div>
+                                                <div class="fw-bold">Nisha Kapoor</div>
+                                                <div class="small text-muted">Urban Loom Exports, Delhi NCR</div>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </div>
+                                <div class="col-lg-4">
+                                    <article class="testimonial-card">
+                                        <div class="d-flex justify-content-between align-items-start gap-3">
+                                            <span class="testimonial-quote"><i class="bi bi-quote"></i></span>
+                                            <span class="testimonial-rating">★★★★★</span>
+                                        </div>
+                                        <p class="mb-0">The platform is clean, professional, and focused on business. Our sales team uses Trade4Deal to track fresh international enquiries every week.</p>
+                                        <div class="testimonial-person">
+                                            <span class="testimonial-avatar">RK</span>
+                                            <div>
+                                                <div class="fw-bold">Rahul Khanna</div>
+                                                <div class="small text-muted">Nova Components Pvt. Ltd.</div>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="carousel-item">
+                            <div class="row g-3">
+                                <div class="col-lg-4">
+                                    <article class="testimonial-card">
+                                        <div class="d-flex justify-content-between align-items-start gap-3">
+                                            <span class="testimonial-quote"><i class="bi bi-quote"></i></span>
+                                            <span class="testimonial-rating">★★★★★</span>
+                                        </div>
+                                        <p class="mb-0">For export enquiries, timing matters. Trade4Deal gave us a steady way to discover buyer interest before competitors reached the same conversation.</p>
+                                        <div class="testimonial-person">
+                                            <span class="testimonial-avatar">MP</span>
+                                            <div>
+                                                <div class="fw-bold">Mehul Patel</div>
+                                                <div class="small text-muted">Patel Agro Traders, Gujarat</div>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </div>
+                                <div class="col-lg-4">
+                                    <article class="testimonial-card">
+                                        <div class="d-flex justify-content-between align-items-start gap-3">
+                                            <span class="testimonial-quote"><i class="bi bi-quote"></i></span>
+                                            <span class="testimonial-rating">★★★★★</span>
+                                        </div>
+                                        <p class="mb-0">Our procurement team liked the direct contact flow. We could explain requirements clearly and connect with sellers for pricing and samples quickly.</p>
+                                        <div class="testimonial-person">
+                                            <span class="testimonial-avatar">FA</span>
+                                            <div>
+                                                <div class="fw-bold">Farhan Ali</div>
+                                                <div class="small text-muted">GulfStar Trading LLC, Dubai</div>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </div>
+                                <div class="col-lg-4">
+                                    <article class="testimonial-card">
+                                        <div class="d-flex justify-content-between align-items-start gap-3">
+                                            <span class="testimonial-quote"><i class="bi bi-quote"></i></span>
+                                            <span class="testimonial-rating">★★★★★</span>
+                                        </div>
+                                        <p class="mb-0">Trade4Deal gave our packaging business a better online presence. The seller profile and product listing pages look trustworthy to new buyers.</p>
+                                        <div class="testimonial-person">
+                                            <span class="testimonial-avatar">PG</span>
+                                            <div>
+                                                <div class="fw-bold">Priya Gupta</div>
+                                                <div class="small text-muted">PrimePack Solutions, Noida</div>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="carousel-item">
+                            <div class="row g-3">
+                                <div class="col-lg-6">
+                                    <article class="testimonial-card">
+                                        <div class="d-flex justify-content-between align-items-start gap-3">
+                                            <span class="testimonial-quote"><i class="bi bi-quote"></i></span>
+                                            <span class="testimonial-rating">★★★★★</span>
+                                        </div>
+                                        <p class="mb-0">We needed reliable electronics component suppliers. Trade4Deal made it easier to shortlist companies by category and start focused discussions.</p>
+                                        <div class="testimonial-person">
+                                            <span class="testimonial-avatar">SM</span>
+                                            <div>
+                                                <div class="fw-bold">Sarah Mitchell</div>
+                                                <div class="small text-muted">BrightLine Retail Group, UK</div>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </div>
+                                <div class="col-lg-6">
+                                    <article class="testimonial-card">
+                                        <div class="d-flex justify-content-between align-items-start gap-3">
+                                            <span class="testimonial-quote"><i class="bi bi-quote"></i></span>
+                                            <span class="testimonial-rating">★★★★★</span>
+                                        </div>
+                                        <p class="mb-0">The lead board is simple but useful. We can see buyer intent, product category, country, and payment details before starting the conversation.</p>
+                                        <div class="testimonial-person">
+                                            <span class="testimonial-avatar">VT</span>
+                                            <div>
+                                                <div class="fw-bold">Vikram Taneja</div>
+                                                <div class="small text-muted">Taneja BuildMart, Rajasthan</div>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="carousel-control-prev testimonial-control" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev" aria-label="Previous testimonials">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    </button>
+                    <button class="carousel-control-next testimonial-control" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next" aria-label="Next testimonials">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
         <footer class="t4d-footer">
-            <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
-                <div>&copy; {{ date('Y') }} Trade4Deal. Global B2B Marketplace.</div>
-                <div class="d-flex gap-3">
-                    <a href="#" class="text-decoration-none text-muted">Privacy</a>
-                    <a href="#" class="text-decoration-none text-muted">Terms</a>
-                    <a href="#" class="text-decoration-none text-muted">Support</a>
+            <div class="container">
+                <div class="footer-main">
+                    <div>&copy; {{ date('Y') }} Trade4Deal. Global B2B Marketplace.</div>
+                    <div class="footer-contact">
+                        <a href="tel:+911204633260"><i class="bi bi-telephone me-1"></i>+91 120 463 3260</a>
+                        <a href="mailto:info@trade4deal.com"><i class="bi bi-envelope me-1"></i>info@trade4deal.com</a>
+                        <span><i class="bi bi-geo-alt me-1"></i>India</span>
+                        <span><i class="bi bi-globe2 me-1"></i>UK</span>
+                        <span><i class="bi bi-buildings me-1"></i>Dubai</span>
+                    </div>
+                    <div class="footer-links d-flex gap-3">
+                        <a href="#">Privacy</a>
+                        <a href="#">Terms</a>
+                        <a href="{{ url('/contact') }}">Contact</a>
+                    </div>
                 </div>
             </div>
         </footer>

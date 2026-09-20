@@ -66,9 +66,10 @@
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label for="min_order_qty" class="form-label">Min. order</label>
-                            <input id="min_order_qty" name="min_order_qty" type="text" class="form-control"
+                            <label for="min_order_qty" class="form-label">Minimum qty</label>
+                            <input id="min_order_qty" name="min_order_qty" type="text" class="form-control @error('min_order_qty') is-invalid @enderror"
                                    value="{{ old('min_order_qty', $product->min_order_qty ?? '') }}" placeholder="e.g. 100">
+                            @error('min_order_qty')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         <div class="col-md-4">
                             <label for="price_from" class="form-label">Price from</label>

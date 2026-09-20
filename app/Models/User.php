@@ -19,7 +19,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Laravel\Cashier\Billable;
 use Spatie\Permission\Traits\HasRoles;
@@ -40,6 +39,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'phone',
+        'designation',
+        'secondary_phone',
         'company_name',
         'slug',
         'logo_path',
@@ -47,8 +48,16 @@ class User extends Authenticatable implements MustVerifyEmail
         'tagline',
         'about',
         'website',
+        'gstin',
+        'cin',
+        'pan',
         'address',
+        'address_house_block',
+        'address_area_street',
         'city',
+        'district',
+        'state',
+        'pin_code',
         'industries',
         'year_established',
         'employees_range',
@@ -158,12 +167,12 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function logoUrl(): ?string
     {
-        return $this->logo_path ? Storage::disk('public')->url($this->logo_path) : null;
+        return $this->logo_path ? '/uploads/'.ltrim($this->logo_path, '/') : null;
     }
 
     public function coverImageUrl(): ?string
     {
-        return $this->cover_image_path ? Storage::disk('public')->url($this->cover_image_path) : null;
+        return $this->cover_image_path ? '/uploads/'.ltrim($this->cover_image_path, '/') : null;
     }
 
     /**
@@ -186,6 +195,8 @@ class User extends Authenticatable implements MustVerifyEmail
             filled($this->about),
             filled($this->country),
             filled($this->city),
+            filled($this->designation),
+            filled($this->address_house_block) || filled($this->address),
             filled($this->logo_path),
             filled($this->website) || filled($this->phone),
             ! empty($this->industries),

@@ -2,18 +2,22 @@
 
 declare(strict_types=1);
 
-namespace App\Domains\Seller\Requests;
+namespace App\Http\Requests;
 
+use App\Models\User;
 use App\Support\Enums\EmployeesRange;
 use App\Support\Enums\ProductType;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class UpdateSellerProfileRequest extends FormRequest
+class UpdateSellerDetailsRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        $seller = $this->route('user');
+
+        return $seller instanceof User
+            && $this->user()?->can('updateSellerDetails', $seller);
     }
 
     /**
@@ -21,13 +25,15 @@ class UpdateSellerProfileRequest extends FormRequest
      */
     public function rules(): array
     {
+        $seller = $this->route('user');
+
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => [
                 'required',
                 'email',
                 'max:255',
-                Rule::unique('users', 'email')->ignore($this->user()?->id),
+                Rule::unique('users', 'email')->ignore($seller?->id),
             ],
             'designation' => ['nullable', 'string', 'max:120'],
             'company_name' => ['required', 'string', 'max:180'],
@@ -62,8 +68,6 @@ class UpdateSellerProfileRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'name' => $this->input('name', $this->user()?->name),
-            'email' => $this->input('email', $this->user()?->email),
             'is_public' => $this->boolean('is_public'),
             'remove_logo' => $this->boolean('remove_logo'),
             'remove_cover' => $this->boolean('remove_cover'),

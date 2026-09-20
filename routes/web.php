@@ -9,9 +9,16 @@ use App\Http\Controllers\Web\LeadController;
 use App\Http\Controllers\Web\PlanController;
 use App\Http\Controllers\Web\SellerProfileController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Cashier\Http\Controllers\WebhookController;
 
 Route::get('/', HomeController::class)->name('home');
+Route::view('/contact', 'marketplace.contact')->name('contact');
+Route::get('/uploads/{path}', function (string $path) {
+    abort_unless(Storage::disk('public')->exists($path), 404);
+
+    return Storage::disk('public')->response($path);
+})->where('path', '.*')->name('uploads.public');
 Route::post('/leads', [LeadController::class, 'store'])
     ->middleware('throttle:10,1')
     ->name('leads.store');
@@ -74,6 +81,8 @@ Route::middleware(['auth', 'role:admin|employee'])->prefix('employee')->name('em
     Route::put('/users/{user}', [UserManagementController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
     Route::patch('/users/{user}/plan', [UserManagementController::class, 'updatePlan'])->name('users.plan.update');
+    Route::get('/users/{user}/seller', [UserManagementController::class, 'editSeller'])->name('users.sellers.edit');
+    Route::put('/users/{user}/seller', [UserManagementController::class, 'updateSeller'])->name('users.sellers.update');
 });
 
 Route::middleware('auth')->group(function () {

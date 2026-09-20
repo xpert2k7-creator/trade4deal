@@ -51,7 +51,7 @@ class PlanController extends Controller
 
         return redirect()
             ->route('dashboard')
-            ->with('success', 'Welcome to Trade4Deal Gold! You now have instant access to new leads.');
+            ->with('success', 'Welcome to Trade4Deal Gold! You now have instant verified buyer details and supplier benefits.');
     }
 
     public function cancel(): RedirectResponse

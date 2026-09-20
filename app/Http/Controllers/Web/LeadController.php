@@ -49,7 +49,7 @@ class LeadController extends Controller
 
         return redirect()
             ->route('leads.show', $lead)
-            ->with('success', 'Your message has been sent to the dealer. They can reply to you by email.');
+            ->with('success', 'Your message has been sent to the supplier. They can reply to you by email.');
     }
 
     public function store(

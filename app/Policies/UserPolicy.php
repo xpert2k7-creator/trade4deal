@@ -29,6 +29,11 @@ class UserPolicy
         return $this->canManageMarketplaceUser($actor, $target);
     }
 
+    public function updateSellerDetails(User $actor, User $target): bool
+    {
+        return $actor->isAdmin() && $target->user_type === UserType::Seller;
+    }
+
     private function canManageMarketplaceUser(User $actor, User $target): bool
     {
         if (! $actor->canModerateLeads()) {

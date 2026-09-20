@@ -13,7 +13,6 @@ use App\Support\Models\BaseModel;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Product extends BaseModel
@@ -98,7 +97,7 @@ class Product extends BaseModel
             return null;
         }
 
-        return Storage::disk('public')->url($this->image_path);
+        return '/uploads/'.ltrim($this->image_path, '/');
     }
 
     public function isLive(): bool

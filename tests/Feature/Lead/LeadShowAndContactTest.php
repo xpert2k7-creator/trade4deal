@@ -38,7 +38,7 @@ class LeadShowAndContactTest extends TestCase
             ->assertOk()
             ->assertSee('Copper Wire Lots')
             ->assertSee('Visible Dealer Co')
-            ->assertSee('Contact the dealer')
+            ->assertSee('Contact supplier')
             ->assertDontSee('+1 555 SECRET');
     }
 

@@ -76,6 +76,19 @@
         color: var(--t4d-dark);
         margin: 0 .3rem .35rem 0;
     }
+    .verified-supplier-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        padding: .32rem .7rem;
+        border-radius: 999px;
+        background: rgba(245, 130, 32, .14);
+        border: 1px solid rgba(245, 130, 32, .35);
+        color: #9A4B09;
+        font-size: .76rem;
+        font-weight: 800;
+        margin-bottom: .45rem;
+    }
     .store-panel {
         background: var(--t4d-surface);
         border: 1px solid var(--t4d-border);
@@ -207,6 +220,12 @@
                             <span class="store-chip"><i class="bi bi-people"></i> {{ $seller->employees_range->label() }}</span>
                         @endif
                     </div>
+                    @if ($seller->userPlan()->isGold())
+                        <div class="verified-supplier-badge">
+                            <i class="bi bi-patch-check-fill"></i>
+                            Verified supplier by Trade4Deal
+                        </div>
+                    @endif
                     <h1 class="seller-title">{{ $seller->company_name }}</h1>
                     <p class="seller-tagline">{{ $seller->tagline ?: 'Verified Trade4Deal seller' }}</p>
                 </div>
@@ -281,16 +300,45 @@
                         <div class="meta-grid">
                             <div class="meta-item">
                                 <div class="label">Contact</div>
-                                <div class="value">{{ $seller->name }}</div>
+                                <div class="value">
+                                    {{ $seller->name }}
+                                    @if ($seller->designation)
+                                        <div class="small text-muted fw-normal">{{ $seller->designation }}</div>
+                                    @endif
+                                </div>
                             </div>
                             <div class="meta-item">
                                 <div class="label">Country</div>
                                 <div class="value">{{ $seller->country }}</div>
                             </div>
+                            @if ($seller->state)
+                                <div class="meta-item">
+                                    <div class="label">State</div>
+                                    <div class="value">{{ $seller->state }}</div>
+                                </div>
+                            @endif
+                            @if ($seller->district)
+                                <div class="meta-item">
+                                    <div class="label">District</div>
+                                    <div class="value">{{ $seller->district }}</div>
+                                </div>
+                            @endif
                             @if ($seller->city)
                                 <div class="meta-item">
                                     <div class="label">City</div>
                                     <div class="value">{{ $seller->city }}</div>
+                                </div>
+                            @endif
+                            @if ($seller->gstin)
+                                <div class="meta-item">
+                                    <div class="label">GSTIN</div>
+                                    <div class="value">{{ $seller->gstin }}</div>
+                                </div>
+                            @endif
+                            @if ($seller->cin)
+                                <div class="meta-item">
+                                    <div class="label">CIN</div>
+                                    <div class="value">{{ $seller->cin }}</div>
                                 </div>
                             @endif
                             @if ($seller->website)

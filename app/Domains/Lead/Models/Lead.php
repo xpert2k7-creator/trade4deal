@@ -16,7 +16,6 @@ use Database\Factories\LeadFactory;
 use Illuminate\Database\Eloquent\Casts\AsEnumCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Storage;
 
 class Lead extends BaseModel
 {
@@ -73,7 +72,7 @@ class Lead extends BaseModel
             return null;
         }
 
-        return Storage::disk('public')->url($this->product_image_path);
+        return '/uploads/'.ltrim($this->product_image_path, '/');
     }
 
     /**

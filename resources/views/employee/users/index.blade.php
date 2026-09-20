@@ -1,7 +1,7 @@
 @extends('layouts.employee')
 
 @section('title', 'Users')
-@section('page-title', 'Users')
+@section('page-title', auth()->user()->isAdmin() ? 'Admin Panel' : 'User Plans')
 
 @section('content')
 <div class="panel mb-3">
@@ -27,15 +27,24 @@
                     <th>Company</th>
                     <th>Current plan</th>
                     <th>Change plan</th>
-                    <th>Actions</th>
+                    <th class="text-end">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
                 @foreach ($users as $user)
                     <tr>
                         <td>
-                            <div class="fw-semibold">{{ $user->name }}</div>
-                            <div class="small text-muted">{{ $user->email }}</div>
+                            <div class="d-flex align-items-center gap-2">
+                                @if ($user->logoUrl())
+                                    <img src="{{ $user->logoUrl() }}" alt="{{ $user->company_name ?? $user->name }}" class="rounded border" style="width:40px;height:40px;object-fit:cover;">
+                                @else
+                                    <div class="rounded border bg-light d-flex align-items-center justify-content-center text-muted" style="width:40px;height:40px;"><i class="bi bi-building"></i></div>
+                                @endif
+                                <div>
+                                    <div class="fw-semibold">{{ $user->name }}</div>
+                                    <div class="small text-muted">{{ $user->email }}</div>
+                                </div>
+                            </div>
                         </td>
                         <td>{{ $user->user_type?->label() }}</td>
                         <td>{{ $user->company_name ?? '—' }}</td>
@@ -65,23 +74,28 @@
                                 <button type="submit" class="btn btn-sm btn-primary-t4d">Update</button>
                             </form>
                         </td>
-                        <td>
-                            <div class="d-flex flex-wrap gap-2">
-                                <a href="{{ route('employee.users.edit', array_filter(['user' => $user, 'q' => $search])) }}"
-                                   class="btn btn-sm btn-outline-secondary">
-                                    Edit
-                                </a>
-                                <form method="POST"
-                                      action="{{ route('employee.users.destroy', $user) }}"
-                                      class="d-inline user-delete-form"
-                                      data-user-name="{{ $user->name }}">
-                                    @csrf
-                                    @method('DELETE')
-                                    @if ($search)
-                                        <input type="hidden" name="q" value="{{ $search }}">
-                                    @endif
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                                </form>
+                        <td class="text-end">
+                            <div class="d-flex flex-wrap gap-2 justify-content-end">
+                                @can('update', $user)
+                                    <a href="{{ route('employee.users.edit', array_filter(['user' => $user, 'q' => $search])) }}"
+                                       class="btn btn-sm btn-outline-secondary">Edit</a>
+                                @endcan
+                                @can('updateSellerDetails', $user)
+                                    <a href="{{ route('employee.users.sellers.edit', $user) }}" class="btn btn-sm btn-outline-secondary">Seller profile</a>
+                                @endcan
+                                @can('delete', $user)
+                                    <form method="POST"
+                                          action="{{ route('employee.users.destroy', $user) }}"
+                                          class="d-inline user-delete-form"
+                                          data-user-name="{{ $user->name }}">
+                                        @csrf
+                                        @method('DELETE')
+                                        @if ($search)
+                                            <input type="hidden" name="q" value="{{ $search }}">
+                                        @endif
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                @endcan
                             </div>
                         </td>
                     </tr>
@@ -125,8 +139,7 @@
 
     document.querySelectorAll('.user-delete-form').forEach(function (form) {
         form.addEventListener('submit', function (event) {
-            const userName = form.dataset.userName;
-            if (! confirm('Delete ' + userName + '? This cannot be undone from this screen.')) {
+            if (! confirm('Delete ' + form.dataset.userName + '? This cannot be undone from this screen.')) {
                 event.preventDefault();
             }
         });

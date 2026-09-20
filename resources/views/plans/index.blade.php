@@ -7,7 +7,7 @@
     <div class="container">
         <div class="text-center mb-5">
             <h1 class="section-title mb-2">Choose your plan</h1>
-            <p class="text-muted mb-0">Unlock instant access to new business leads on the homepage.</p>
+            <p class="text-muted mb-0">Unlock verified buyer access, supplier trust signals, and export support.</p>
             @auth
                 <p class="mt-2 mb-0">Current plan: <span class="badge {{ auth()->user()->userPlan()->badgeClass() }}">{{ auth()->user()->userPlan()->label() }}</span></p>
             @endauth
@@ -48,12 +48,13 @@
                             <div class="text-warning small fw-bold text-uppercase">Gold</div>
                             <span class="badge bg-warning text-dark">Popular</span>
                         </div>
-                        <h2 class="fw-bold mb-3">$29 <span class="fs-6 text-muted fw-normal">/ month</span></h2>
+                        <h2 class="fw-bold mb-3">$174 <span class="fs-6 text-muted fw-normal">/ half year</span></h2>
                         <ul class="list-unstyled mb-4">
-                            <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i><strong>Instant</strong> access to new leads</li>
-                            <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i>See leads as soon as they publish</li>
-                            <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i>Priority marketplace visibility</li>
-                            <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i>Cancel anytime via Stripe</li>
+                            <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i><strong>Instant</strong> verified buyer details</li>
+                            <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i>Verified supplier tag mark by Trade4Deal</li>
+                            <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i>Weekly 14 verified buy leads</li>
+                            <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i>Relationship manager support</li>
+                            <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i>Export business exposure</li>
                         </ul>
                         @auth
                             @if(auth()->user()->userPlan()->isGold())

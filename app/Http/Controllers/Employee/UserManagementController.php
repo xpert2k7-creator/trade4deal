@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateManagedUserRequest;
+use App\Http\Requests\UpdateSellerDetailsRequest;
 use App\Http\Requests\UpdateUserPlanRequest;
 use App\Models\User;
 use App\Support\Enums\UserPlan;
@@ -17,6 +18,10 @@ use Illuminate\View\View;
 
 class UserManagementController extends Controller
 {
+    private const SELLER_LOGO_DIRECTORY = 'sellers/logos';
+
+    private const SELLER_COVER_DIRECTORY = 'sellers/covers';
+
     public function index(Request $request): View
     {
         $this->authorize('manage', User::class);
@@ -42,28 +47,74 @@ class UserManagementController extends Controller
         ]);
     }
 
-    public function updatePlan(UpdateUserPlanRequest $request, User $user): RedirectResponse
+    public function editSeller(User $user): View
     {
-        $this->authorize('updatePlan', $user);
+        $this->authorize('updateSellerDetails', $user);
 
-        $plan = UserPlan::from($request->validated('plan'));
-
-        if ($user->plan === $plan) {
-            return redirect()
-                ->route('employee.users.index', $request->only('q'))
-                ->with('success', "{$user->name} is already on the {$plan->label()} plan.");
-        }
-
-        $user->forceFill(['plan' => $plan])->save();
-
-        $action = $plan->isGold() ? 'upgraded to Gold' : 'downgraded to Free';
-
-        return redirect()
-            ->route('employee.users.index', $request->only('q'))
-            ->with('success', "{$user->name} has been {$action}.");
+        return view('employee.users.seller-edit', [
+            'seller' => $user,
+        ]);
     }
 
-    public function edit(Request $request, User $user): View|RedirectResponse
+    public function updateSeller(UpdateSellerDetailsRequest $request, User $user): RedirectResponse
+    {
+        $this->authorize('updateSellerDetails', $user);
+
+        $data = $request->safe()->except(['logo', 'cover_image', 'remove_logo', 'remove_cover']);
+
+        if ($request->boolean('remove_logo') && $user->logo_path) {
+            Storage::disk('public')->delete($user->logo_path);
+            $data['logo_path'] = null;
+        }
+
+        if ($request->boolean('remove_cover') && $user->cover_image_path) {
+            Storage::disk('public')->delete($user->cover_image_path);
+            $data['cover_image_path'] = null;
+        }
+
+        if ($request->hasFile('logo')) {
+            if ($user->logo_path) {
+                Storage::disk('public')->delete($user->logo_path);
+            }
+
+            $path = $request->file('logo')->store(self::SELLER_LOGO_DIRECTORY, 'public');
+            if ($path === false) {
+                return back()
+                    ->withInput()
+                    ->withErrors(['logo' => 'Company logo could not be uploaded. Please try again.']);
+            }
+
+            $data['logo_path'] = $path;
+        }
+
+        if ($request->hasFile('cover_image')) {
+            if ($user->cover_image_path) {
+                Storage::disk('public')->delete($user->cover_image_path);
+            }
+
+            $path = $request->file('cover_image')->store(self::SELLER_COVER_DIRECTORY, 'public');
+            if ($path === false) {
+                return back()
+                    ->withInput()
+                    ->withErrors(['cover_image' => 'Cover image could not be uploaded. Please try again.']);
+            }
+
+            $data['cover_image_path'] = $path;
+        }
+
+        $user->fill($data);
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+        $user->save();
+        $user->ensureSellerSlug();
+
+        return redirect()
+            ->route('employee.users.sellers.edit', $user)
+            ->with('success', 'Seller details updated successfully.');
+    }
+
+    public function edit(Request $request, User $user): View
     {
         $this->authorize('update', $user);
 
@@ -130,6 +181,27 @@ class UserManagementController extends Controller
             ->with('success', "{$name} has been deleted.");
     }
 
+    public function updatePlan(UpdateUserPlanRequest $request, User $user): RedirectResponse
+    {
+        $this->authorize('updatePlan', $user);
+
+        $plan = UserPlan::from($request->validated('plan'));
+
+        if ($user->plan === $plan) {
+            return redirect()
+                ->route('employee.users.index', $request->only('q'))
+                ->with('success', "{$user->name} is already on the {$plan->label()} plan.");
+        }
+
+        $user->forceFill(['plan' => $plan])->save();
+
+        $action = $plan->isGold() ? 'upgraded to Gold' : 'downgraded to Free';
+
+        return redirect()
+            ->route('employee.users.index', $request->only('q'))
+            ->with('success', "{$user->name} has been {$action}.");
+    }
+
     /**
      * @param  array<string, mixed>  $data
      */
@@ -149,14 +221,14 @@ class UserManagementController extends Controller
             if ($user->logo_path) {
                 Storage::disk('public')->delete($user->logo_path);
             }
-            $data['logo_path'] = $request->file('logo')->store('sellers/logos', 'public');
+            $data['logo_path'] = $request->file('logo')->store(self::SELLER_LOGO_DIRECTORY, 'public');
         }
 
         if ($request->hasFile('cover_image')) {
             if ($user->cover_image_path) {
                 Storage::disk('public')->delete($user->cover_image_path);
             }
-            $data['cover_image_path'] = $request->file('cover_image')->store('sellers/covers', 'public');
+            $data['cover_image_path'] = $request->file('cover_image')->store(self::SELLER_COVER_DIRECTORY, 'public');
         }
     }
 }

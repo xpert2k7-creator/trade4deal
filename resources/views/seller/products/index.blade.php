@@ -32,6 +32,7 @@
                     <th class="ps-3">Product</th>
                     <th>Category</th>
                     <th>Trade</th>
+                    <th>Minimum qty</th>
                     <th>Status</th>
                     <th class="pe-3 text-end">Actions</th>
                 </tr>
@@ -54,6 +55,7 @@
                         </td>
                         <td class="small">{{ $product->product_type?->label() }}</td>
                         <td class="small">{{ $product->currency?->value }} / {{ $product->units?->label() }}</td>
+                        <td class="small">{{ $product->min_order_qty ?: '—' }}</td>
                         <td><span class="badge {{ $product->status->badgeClass() }}">{{ $product->isLive() ? 'Live' : 'Draft' }}</span></td>
                         <td class="pe-3 text-end text-nowrap">
                             <a href="{{ route('seller.products.edit', $product) }}" class="btn btn-sm btn-outline-t4d me-1">Edit</a>

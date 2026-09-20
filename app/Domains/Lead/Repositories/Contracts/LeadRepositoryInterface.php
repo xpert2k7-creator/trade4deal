@@ -28,6 +28,16 @@ interface LeadRepositoryInterface
      */
     public function getRecentVisible(?User $viewer, int $limit = 12): Collection;
 
+    /**
+     * @return Collection<int, Lead>
+     */
+    public function getMatchingVisibleForSeller(User $seller, int $limit = 6): Collection;
+
+    /**
+     * @return Collection<int, string>
+     */
+    public function matchingCategoriesForSeller(User $seller): Collection;
+
     public function paginateVisible(?User $viewer, int $perPage = 10): LengthAwarePaginator;
 
     public function paginateActive(int $perPage = 15): LengthAwarePaginator;

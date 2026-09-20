@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Employee') — Trade4Deal</title>
+    <title>@yield('title', auth()->user()?->isAdmin() ? 'Admin' : 'Employee') — Trade4Deal</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -298,7 +298,7 @@
                 <img src="{{ asset('images/trade4deal-logo.jpg') }}" alt="Trade4Deal">
             </a>
             <div class="small mt-2" style="opacity:0.7;letter-spacing:0.06em;text-transform:uppercase;font-size:0.68rem;font-weight:700;">
-                Lead Moderation
+                {{ auth()->user()?->isAdmin() ? 'Admin Panel' : 'Lead Moderation' }}
             </div>
         </div>
 
@@ -313,7 +313,7 @@
                 <i class="bi bi-inbox"></i> Leads
             </a>
             <a href="{{ route('employee.users.index') }}" class="{{ request()->routeIs('employee.users.*') ? 'active' : '' }}">
-                <i class="bi bi-people"></i> Users
+                <i class="bi bi-people"></i> {{ auth()->user()->isAdmin() ? 'Users & Sellers' : 'User Plans' }}
             </a>
             <a href="{{ route('home') }}" target="_blank">
                 <i class="bi bi-box-arrow-up-right"></i> Public site

@@ -343,8 +343,8 @@
                         @endif
                     </p>
                 </div>
-                <a href="#contact-dealer" class="btn btn-light btn-sm fw-semibold px-3">
-                    <i class="bi bi-envelope-paper me-1"></i>Contact dealer
+                <a href="#contact-supplier" class="btn btn-light btn-sm fw-semibold px-3">
+                    <i class="bi bi-envelope-paper me-1"></i>Contact supplier
                 </a>
             </div>
         </div>
@@ -437,20 +437,20 @@
                             </div>
                             <p class="privacy-line">
                                 <i class="bi bi-shield-lock me-1"></i>
-                                Phone number is kept private. Reach this dealer using the contact form.
+                                Phone number is kept private. Reach this supplier using the contact form.
                             </p>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-lg-5">
-                    <div class="contact-card" id="contact-dealer">
+                    <div class="contact-card" id="contact-supplier">
                         <div class="eyebrow">Connect securely</div>
-                        <h2>Contact the dealer</h2>
+                        <h2>Contact with Supplier</h2>
                         <p class="text-muted small mb-0">Your message is emailed directly to the poster.</p>
                         <div class="privacy-note">
                             <i class="bi bi-eye-slash me-1"></i>
-                            The dealer’s phone is never shown. They reply to the email you provide.
+                            The supplier's phone is never shown. They reply to the email you provide.
                         </div>
 
                         <form method="POST" action="{{ route('leads.contact', $lead) }}">

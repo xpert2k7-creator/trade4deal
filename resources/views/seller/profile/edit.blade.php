@@ -17,7 +17,46 @@
     <div class="row g-3">
         <div class="col-lg-8">
             <div class="panel mb-3">
-                <div class="panel-header"><h2>Brand & story</h2></div>
+                <div class="panel-header"><h2>Personal details</h2></div>
+                <div class="panel-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">Name</label>
+                            <input id="name" name="name" type="text" class="form-control @error('name') is-invalid @enderror"
+                                   value="{{ old('name', $seller->name) }}" required>
+                            @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label for="designation" class="form-label">Designation</label>
+                            <input id="designation" name="designation" type="text" class="form-control @error('designation') is-invalid @enderror"
+                                   value="{{ old('designation', $seller->designation) }}" placeholder="e.g. Director, Purchase Manager">
+                            @error('designation')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Email</label>
+                            <input id="email" name="email" type="email" class="form-control @error('email') is-invalid @enderror"
+                                   value="{{ old('email', $seller->email) }}" required>
+                            @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="col-md-3">
+                            <label for="phone" class="form-label">Contact 1</label>
+                            <input id="phone" name="phone" type="text" class="form-control @error('phone') is-invalid @enderror"
+                                   value="{{ old('phone', $seller->phone) }}">
+                            @error('phone')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="col-md-3">
+                            <label for="secondary_phone" class="form-label">Contact 2</label>
+                            <input id="secondary_phone" name="secondary_phone" type="text" class="form-control @error('secondary_phone') is-invalid @enderror"
+                                   value="{{ old('secondary_phone', $seller->secondary_phone) }}">
+                            @error('secondary_phone')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                    </div>
+                    <div class="form-text mt-2">Contact numbers are kept private. Buyers reach you through the enquiry form.</div>
+                </div>
+            </div>
+
+            <div class="panel mb-3">
+                <div class="panel-header"><h2>Company details</h2></div>
                 <div class="panel-body">
                     <div class="row g-3">
                         <div class="col-12">
@@ -25,6 +64,30 @@
                             <input id="company_name" name="company_name" type="text" class="form-control @error('company_name') is-invalid @enderror"
                                    value="{{ old('company_name', $seller->company_name) }}" required>
                             @error('company_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label for="gstin" class="form-label">GSTIN No.</label>
+                            <input id="gstin" name="gstin" type="text" class="form-control @error('gstin') is-invalid @enderror"
+                                   value="{{ old('gstin', $seller->gstin) }}" maxlength="30">
+                            @error('gstin')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label for="website" class="form-label">Company website</label>
+                            <input id="website" name="website" type="url" class="form-control @error('website') is-invalid @enderror"
+                                   value="{{ old('website', $seller->website) }}" placeholder="https://">
+                            @error('website')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label for="cin" class="form-label">CIN No.</label>
+                            <input id="cin" name="cin" type="text" class="form-control @error('cin') is-invalid @enderror"
+                                   value="{{ old('cin', $seller->cin) }}" maxlength="30">
+                            @error('cin')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label for="pan" class="form-label">PAN No.</label>
+                            <input id="pan" name="pan" type="text" class="form-control @error('pan') is-invalid @enderror"
+                                   value="{{ old('pan', $seller->pan) }}" maxlength="20">
+                            @error('pan')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         <div class="col-12">
                             <label for="tagline" class="form-label">Tagline</label>
@@ -57,9 +120,39 @@
             </div>
 
             <div class="panel">
-                <div class="panel-header"><h2>Contact & location</h2></div>
+                <div class="panel-header"><h2>Address & location</h2></div>
                 <div class="panel-body">
                     <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="address_house_block" class="form-label">House / Block</label>
+                            <input id="address_house_block" name="address_house_block" type="text" class="form-control @error('address_house_block') is-invalid @enderror"
+                                   value="{{ old('address_house_block', $seller->address_house_block) }}">
+                            @error('address_house_block')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label for="address_area_street" class="form-label">Area / Street</label>
+                            <input id="address_area_street" name="address_area_street" type="text" class="form-control @error('address_area_street') is-invalid @enderror"
+                                   value="{{ old('address_area_street', $seller->address_area_street) }}">
+                            @error('address_area_street')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label for="district" class="form-label">District</label>
+                            <input id="district" name="district" type="text" class="form-control @error('district') is-invalid @enderror"
+                                   value="{{ old('district', $seller->district) }}">
+                            @error('district')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label for="city" class="form-label">City</label>
+                            <input id="city" name="city" type="text" class="form-control @error('city') is-invalid @enderror"
+                                   value="{{ old('city', $seller->city) }}">
+                            @error('city')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label for="state" class="form-label">State</label>
+                            <input id="state" name="state" type="text" class="form-control @error('state') is-invalid @enderror"
+                                   value="{{ old('state', $seller->state) }}">
+                            @error('state')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
                         <div class="col-md-6">
                             <label for="country" class="form-label">Country</label>
                             <input id="country" name="country" type="text" class="form-control @error('country') is-invalid @enderror"
@@ -67,26 +160,16 @@
                             @error('country')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         <div class="col-md-6">
-                            <label for="city" class="form-label">City</label>
-                            <input id="city" name="city" type="text" class="form-control @error('city') is-invalid @enderror"
-                                   value="{{ old('city', $seller->city) }}">
+                            <label for="pin_code" class="form-label">PIN code</label>
+                            <input id="pin_code" name="pin_code" type="text" class="form-control @error('pin_code') is-invalid @enderror"
+                                   value="{{ old('pin_code', $seller->pin_code) }}">
+                            @error('pin_code')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         <div class="col-12">
-                            <label for="address" class="form-label">Address</label>
+                            <label for="address" class="form-label">Full address / landmark</label>
                             <input id="address" name="address" type="text" class="form-control @error('address') is-invalid @enderror"
-                                   value="{{ old('address', $seller->address) }}">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="website" class="form-label">Website</label>
-                            <input id="website" name="website" type="url" class="form-control @error('website') is-invalid @enderror"
-                                   value="{{ old('website', $seller->website) }}" placeholder="https://">
-                            @error('website')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                        </div>
-                        <div class="col-md-6">
-                            <label for="phone" class="form-label">Phone <span class="text-muted fw-normal">(private)</span></label>
-                            <input id="phone" name="phone" type="text" class="form-control @error('phone') is-invalid @enderror"
-                                   value="{{ old('phone', $seller->phone) }}">
-                            <div class="form-text">Not shown on your public page. Buyers contact you via enquiry form.</div>
+                                   value="{{ old('address', $seller->address) }}" placeholder="Optional extra address details">
+                            @error('address')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         <div class="col-md-6">
                             <label for="year_established" class="form-label">Year established</label>
@@ -114,7 +197,7 @@
                 <div class="panel-header"><h2>Media</h2></div>
                 <div class="panel-body">
                     <div class="mb-3">
-                        <label for="logo" class="form-label">Logo</label>
+                        <label for="logo" class="form-label">Company logo</label>
                         @if ($seller->logoUrl())
                             <div class="mb-2"><img src="{{ $seller->logoUrl() }}" alt="Logo" class="rounded border" style="height:64px;width:64px;object-fit:cover;"></div>
                             <div class="form-check mb-2">
@@ -123,6 +206,7 @@
                             </div>
                         @endif
                         <input id="logo" name="logo" type="file" class="form-control @error('logo') is-invalid @enderror" accept="image/jpeg,image/png,image/webp">
+                        <div class="form-text">Upload JPG, PNG, or WebP logo. It will show on your public company page.</div>
                         @error('logo')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div>

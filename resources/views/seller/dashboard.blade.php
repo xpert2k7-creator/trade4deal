@@ -63,6 +63,7 @@
                             <th class="ps-3">Product</th>
                             <th>Category</th>
                             <th>Price</th>
+                            <th>Minimum qty</th>
                             <th>Status</th>
                             <th class="pe-3 text-end">Action</th>
                         </tr>
@@ -73,6 +74,7 @@
                                 <td class="ps-3 fw-semibold">{{ $product->name }}</td>
                                 <td class="small">{{ $product->product_type?->label() }}</td>
                                 <td class="small">{{ $product->priceLabel() }}</td>
+                                <td class="small">{{ $product->min_order_qty ?: '—' }}</td>
                                 <td><span class="badge {{ $product->status->badgeClass() }}">{{ $product->isLive() ? 'Live' : 'Draft' }}</span></td>
                                 <td class="pe-3 text-end">
                                     <a href="{{ route('seller.products.edit', $product) }}" class="btn btn-sm btn-outline-t4d">Edit</a>
@@ -86,6 +88,43 @@
         </div>
     </div>
     <div class="col-lg-4">
+        <div class="panel mb-3">
+            <div class="panel-header">
+                <h2>Matching leads</h2>
+                <a href="{{ route('home') }}#leads" class="small fw-semibold text-decoration-none" style="color:var(--t4d-primary);">View all</a>
+            </div>
+            <div class="panel-body">
+                @if ($matchedCategories->isEmpty())
+                    <div class="text-muted small">
+                        Add industries in your profile or create products with categories to see matched leads here.
+                    </div>
+                    <a href="{{ route('seller.profile.edit') }}" class="btn btn-sm btn-outline-t4d mt-3">Set categories</a>
+                @else
+                    <div class="d-flex flex-wrap gap-1 mb-3">
+                        @foreach ($matchedCategories as $category)
+                            @php($type = \App\Support\Enums\ProductType::tryFrom($category))
+                            <span class="badge text-bg-light border text-dark">{{ $type?->label() ?? $category }}</span>
+                        @endforeach
+                    </div>
+
+                    @if ($matchingLeads->isEmpty())
+                        <div class="text-muted small">
+                            No visible leads match these categories yet. New approved leads will appear here automatically.
+                        </div>
+                    @else
+                        <div class="d-grid gap-2">
+                            @foreach ($matchingLeads as $lead)
+                                <a href="{{ route('leads.show', $lead) }}" class="text-decoration-none border rounded p-2">
+                                    <div class="fw-semibold text-dark">{{ $lead->product_interest }}</div>
+                                    <div class="small text-muted">{{ $lead->company_name }} · {{ $lead->country }}</div>
+                                    <div class="small text-muted">{{ $lead->product_type?->label() }} · {{ $lead->published_at?->diffForHumans() }}</div>
+                                </a>
+                            @endforeach
+                        </div>
+                    @endif
+                @endif
+            </div>
+        </div>
         <div class="panel mb-3">
             <div class="panel-header"><h2>Company page</h2></div>
             <div class="panel-body">

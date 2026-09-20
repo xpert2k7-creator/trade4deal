@@ -34,7 +34,7 @@ class ContactLeadRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'message.min' => 'Please include at least 20 characters so the dealer understands your inquiry.',
+            'message.min' => 'Please include at least 20 characters so the supplier understands your inquiry.',
         ];
     }
 }

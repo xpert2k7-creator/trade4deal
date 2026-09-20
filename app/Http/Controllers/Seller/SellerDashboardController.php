@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Seller;
 
 use App\Domains\Product\Models\Product;
+use App\Domains\Lead\Services\LeadService;
 use App\Domains\Product\Requests\StoreProductRequest;
 use App\Domains\Product\Requests\UpdateProductRequest;
 use App\Domains\Seller\Requests\UpdateSellerProfileRequest;
@@ -17,7 +18,11 @@ use Illuminate\View\View;
 
 class SellerDashboardController extends Controller
 {
-    public function index(Request $request): View
+    private const PRODUCT_IMAGE_DIRECTORY = 'products';
+    private const SELLER_LOGO_DIRECTORY = 'sellers/logos';
+    private const SELLER_COVER_DIRECTORY = 'sellers/covers';
+
+    public function index(Request $request, LeadService $leadService): View
     {
         $this->authorize('manageProfile', Product::class);
 
@@ -33,6 +38,8 @@ class SellerDashboardController extends Controller
             'draftCount' => $products->where('status', RecordStatus::Inactive)->count(),
             'recentProducts' => $products->take(5),
             'completeness' => $seller->profileCompleteness(),
+            'matchingLeads' => $leadService->getMatchingLeadsForSeller($seller),
+            'matchedCategories' => $leadService->matchingCategoriesForSeller($seller),
         ]);
     }
 
@@ -68,17 +75,36 @@ class SellerDashboardController extends Controller
             if ($seller->logo_path) {
                 Storage::disk('public')->delete($seller->logo_path);
             }
-            $data['logo_path'] = $request->file('logo')->store('sellers/logos', 'public');
+
+            $path = $request->file('logo')->store(self::SELLER_LOGO_DIRECTORY, 'public');
+            if ($path === false) {
+                return back()
+                    ->withInput()
+                    ->withErrors(['logo' => 'Company logo could not be uploaded. Please try again.']);
+            }
+
+            $data['logo_path'] = $path;
         }
 
         if ($request->hasFile('cover_image')) {
             if ($seller->cover_image_path) {
                 Storage::disk('public')->delete($seller->cover_image_path);
             }
-            $data['cover_image_path'] = $request->file('cover_image')->store('sellers/covers', 'public');
+
+            $path = $request->file('cover_image')->store(self::SELLER_COVER_DIRECTORY, 'public');
+            if ($path === false) {
+                return back()
+                    ->withInput()
+                    ->withErrors(['cover_image' => 'Cover image could not be uploaded. Please try again.']);
+            }
+
+            $data['cover_image_path'] = $path;
         }
 
         $seller->fill($data);
+        if ($seller->isDirty('email')) {
+            $seller->email_verified_at = null;
+        }
         $seller->save();
         $seller->ensureSellerSlug();
 
@@ -116,7 +142,15 @@ class SellerDashboardController extends Controller
         $data['slug'] = Product::uniqueSlugForUser($request->user()->id, $data['name']);
 
         if ($request->hasFile('image')) {
-            $data['image_path'] = $request->file('image')->store('products', 'public');
+            $path = $request->file('image')->store(self::PRODUCT_IMAGE_DIRECTORY, 'public');
+
+            if ($path === false) {
+                return back()
+                    ->withInput()
+                    ->withErrors(['image' => 'Product image could not be uploaded. Please try again.']);
+            }
+
+            $data['image_path'] = $path;
         }
 
         Product::query()->create($data);
@@ -150,7 +184,16 @@ class SellerDashboardController extends Controller
             if ($product->image_path) {
                 Storage::disk('public')->delete($product->image_path);
             }
-            $data['image_path'] = $request->file('image')->store('products', 'public');
+
+            $path = $request->file('image')->store(self::PRODUCT_IMAGE_DIRECTORY, 'public');
+
+            if ($path === false) {
+                return back()
+                    ->withInput()
+                    ->withErrors(['image' => 'Product image could not be uploaded. Please try again.']);
+            }
+
+            $data['image_path'] = $path;
         }
 
         $product->update($data);
