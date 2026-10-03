@@ -18,7 +18,10 @@ class UpdateManagedUserRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        $user = $this->route('user');
+
+        return $user instanceof User
+            && $this->user()?->can('updateManagedUser', $user);
     }
 
     /**
@@ -62,6 +65,25 @@ class UpdateManagedUserRequest extends FormRequest
             'is_public' => $this->boolean('is_public'),
             'remove_logo' => $this->boolean('remove_logo'),
             'remove_cover' => $this->boolean('remove_cover'),
+            'industries' => $this->input('industries', []),
+            'website' => $this->normalizeWebsite($this->input('website')),
+            'employees_range' => $this->filled('employees_range') ? $this->input('employees_range') : null,
+            'year_established' => $this->filled('year_established') ? $this->input('year_established') : null,
         ]);
+    }
+
+    private function normalizeWebsite(mixed $value): ?string
+    {
+        if (! is_string($value) || trim($value) === '') {
+            return null;
+        }
+
+        $value = trim($value);
+
+        if (! preg_match('~^https?://~i', $value)) {
+            $value = 'https://'.$value;
+        }
+
+        return $value;
     }
 }

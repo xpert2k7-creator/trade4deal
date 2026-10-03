@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domains\Lead\Requests;
 
+use App\Domains\Lead\Requests\Concerns\ValidatesLeadProductImages;
 use App\Support\Enums\BusinessType;
 use App\Support\Enums\Currency;
 use App\Support\Enums\LeadUnit;
@@ -14,6 +15,8 @@ use Illuminate\Validation\Rule;
 
 class StoreLeadRequest extends FormRequest
 {
+    use ValidatesLeadProductImages;
+
     public function authorize(): bool
     {
         return true;
@@ -33,7 +36,7 @@ class StoreLeadRequest extends FormRequest
             'business_type' => ['required', Rule::enum(BusinessType::class)],
             'product_interest' => ['required', 'string', 'max:255'],
             'product_type' => ['required', Rule::enum(ProductType::class)],
-            'product_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            ...$this->leadProductImageRules(),
             'currency' => ['required', Rule::enum(Currency::class)],
             'units' => ['required', Rule::enum(LeadUnit::class)],
             'payment_methods' => ['required', 'array', 'min:1'],

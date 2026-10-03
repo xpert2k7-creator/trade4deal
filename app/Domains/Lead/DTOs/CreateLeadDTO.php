@@ -6,6 +6,8 @@ namespace App\Domains\Lead\DTOs;
 
 use App\Support\Enums\BusinessType;
 use App\Support\Enums\Currency;
+use App\Support\Enums\Incoterm;
+use App\Support\Enums\LeadPaymentTerm;
 use App\Support\Enums\LeadUnit;
 use App\Support\Enums\ProductType;
 
@@ -24,10 +26,20 @@ readonly class CreateLeadDTO
         public string $productInterest,
         public ProductType $productType,
         public ?string $productImagePath,
+        /** @var array<int, string>|null */
+        public ?array $productImagePaths,
         public Currency $currency,
         public LeadUnit $units,
         public array $paymentMethods,
         public ?string $message,
+        public ?string $packagingRequirement = null,
+        public ?string $requiredQuantity = null,
+        public ?string $packagingSize = null,
+        public ?string $targetPrice = null,
+        public ?Incoterm $preferredIncoterm = null,
+        public ?string $portOfLoading = null,
+        public ?string $destinationPort = null,
+        public ?LeadPaymentTerm $paymentTerms = null,
         public ?string $userId = null,
     ) {}
 
@@ -46,10 +58,19 @@ readonly class CreateLeadDTO
             productInterest: $data['product_interest'],
             productType: ProductType::from($data['product_type']),
             productImagePath: $data['product_image_path'] ?? null,
+            productImagePaths: $data['product_image_paths'] ?? null,
             currency: Currency::from($data['currency']),
             units: LeadUnit::from($data['units']),
             paymentMethods: $data['payment_methods'] ?? [],
             message: $data['message'] ?? null,
+            packagingRequirement: $data['packaging_requirement'] ?? null,
+            requiredQuantity: isset($data['required_quantity']) ? (string) $data['required_quantity'] : null,
+            packagingSize: $data['packaging_size'] ?? null,
+            targetPrice: isset($data['target_price']) ? (string) $data['target_price'] : null,
+            preferredIncoterm: isset($data['preferred_incoterm']) ? Incoterm::from($data['preferred_incoterm']) : null,
+            portOfLoading: $data['port_of_loading'] ?? null,
+            destinationPort: $data['destination_port'] ?? null,
+            paymentTerms: isset($data['payment_terms']) ? LeadPaymentTerm::from($data['payment_terms']) : null,
             userId: $data['user_id'] ?? null,
         );
     }
@@ -69,9 +90,18 @@ readonly class CreateLeadDTO
             'product_interest' => $this->productInterest,
             'product_type' => $this->productType->value,
             'product_image_path' => $this->productImagePath,
+            'product_image_paths' => $this->productImagePaths,
             'currency' => $this->currency->value,
             'units' => $this->units->value,
             'payment_methods' => $this->paymentMethods,
+            'packaging_requirement' => $this->packagingRequirement,
+            'required_quantity' => $this->requiredQuantity,
+            'packaging_size' => $this->packagingSize,
+            'target_price' => $this->targetPrice,
+            'preferred_incoterm' => $this->preferredIncoterm?->value,
+            'port_of_loading' => $this->portOfLoading,
+            'destination_port' => $this->destinationPort,
+            'payment_terms' => $this->paymentTerms?->value,
             'message' => $this->message,
             'user_id' => $this->userId,
         ];

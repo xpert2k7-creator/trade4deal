@@ -118,6 +118,8 @@
             align-items: center;
             justify-content: center;
             transition: opacity 0.35s ease, visibility 0.35s ease;
+            /* Decorative only — must not block clicks on login / forgot-password forms */
+            pointer-events: none;
         }
 
         #pageLoader.is-hidden {

@@ -16,9 +16,10 @@
     <style>
         /* Trade4Deal brand theme — Soft light + Deep navy (permanent) */
         :root {
-            --t4d-primary: #0B3A6E;
-            --t4d-primary-dark: #082F58;
-            --t4d-accent: #0E7490;
+            --t4d-primary: #064475;
+            --t4d-primary-dark: #042f55;
+            --t4d-accent: #F58220;
+            --t4d-accent-dark: #D96A0B;
             --t4d-dark: #0F172A;
             --t4d-muted: #64748B;
             --t4d-border: #E2E8F0;
@@ -32,9 +33,10 @@
         }
 
         [data-bs-theme="dark"] {
-            --t4d-primary: #3B82F6;
-            --t4d-primary-dark: #2563EB;
-            --t4d-accent: #22D3EE;
+            --t4d-primary: #064475;
+            --t4d-primary-dark: #042f55;
+            --t4d-accent: #F58220;
+            --t4d-accent-dark: #D96A0B;
             --t4d-dark: #F8FAFC;
             --t4d-muted: #94A3B8;
             --t4d-border: #334155;
@@ -70,23 +72,483 @@
         }
 
         .navbar-t4d {
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--t4d-border);
+            background: #fff;
+            border-bottom: 1px solid #E5E7EB;
+            box-shadow: 0 2px 12px rgba(15, 23, 42, 0.08);
         }
 
         [data-bs-theme="dark"] .navbar-t4d {
-            background: rgba(11, 18, 32, 0.92);
+            background: #fff;
         }
 
         .navbar-t4d .nav-link {
-            color: var(--t4d-muted) !important;
-            font-weight: 500;
+            color: #344054 !important;
+            font-weight: 700;
+            font-size: 0.82rem;
         }
 
         .navbar-t4d .nav-link:hover,
         .navbar-t4d .nav-link.active {
             color: var(--t4d-primary) !important;
+        }
+
+        .navbar-t4d .market-nav-wrap {
+            max-width: 1510px;
+            min-height: 64px;
+            flex-wrap: nowrap;
+            overflow: hidden;
+            justify-content: flex-start;
+        }
+
+        .market-search {
+            display: grid;
+            grid-template-columns: minmax(126px, 154px) minmax(220px, 1fr) 52px;
+            flex: 1 1 520px;
+            max-width: 620px;
+            height: 48px;
+            border: 1px solid #D7DCE5;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: inset 0 1px 0 rgba(15, 23, 42, 0.03);
+        }
+
+        .market-search-location,
+        .market-search-input {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 0;
+            padding: 0 0.9rem;
+            border: 0;
+            background: #fff;
+            color: #334155;
+        }
+
+        .market-search-location {
+            border-right: 1px solid #D7DCE5;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .market-search-location i {
+            color: var(--t4d-accent);
+            font-size: 1.2rem;
+        }
+
+        .market-search-input input {
+            width: 100%;
+            border: 0;
+            outline: 0;
+            color: #0f172a;
+            font-size: 0.92rem;
+        }
+
+        .market-search-input input::placeholder {
+            color: #94a3b8;
+        }
+
+        .market-search button {
+            border: 0;
+            background: var(--t4d-primary);
+            color: #fff;
+            font-size: 1.1rem;
+        }
+
+        .market-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            flex: 0 0 auto;
+            white-space: nowrap;
+        }
+
+        .mobile-finder-actions {
+            display: none;
+        }
+
+        .mobile-register-inline,
+        .mobile-bottom-nav {
+            display: none;
+        }
+
+        .market-header-action {
+            display: inline-flex;
+            min-width: 54px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.1rem;
+            color: #475569;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-decoration: none;
+            border: 0;
+            background: transparent;
+        }
+
+        .market-header-action i {
+            color: #52525b;
+            font-size: 1.15rem;
+        }
+
+        .market-finder-btn,
+        .market-register-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            min-height: 44px;
+            padding: 0.55rem 1rem;
+            border-radius: 10px;
+            font-weight: 800;
+            text-decoration: none;
+            border: 1px solid #d7dce5;
+            background: #fff;
+            color: #1f2474;
+            white-space: nowrap;
+        }
+
+        .market-finder-btn {
+            color: var(--t4d-primary);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+        }
+
+        .market-finder-btn.find-buyer {
+            color: var(--t4d-accent-dark);
+        }
+
+        .market-finder-btn i {
+            font-size: 1rem;
+        }
+
+        .market-register-btn {
+            border-color: var(--t4d-primary);
+            background: var(--t4d-primary);
+            color: #fff;
+        }
+
+        .market-register-btn:hover {
+            color: #fff;
+            background: var(--t4d-primary-dark);
+        }
+
+        .market-finder-btn:hover {
+            color: var(--t4d-primary);
+            border-color: #aeb8c8;
+        }
+
+        .market-finder-btn.find-buyer:hover {
+            color: var(--t4d-accent-dark);
+        }
+
+        .finder-modal .modal-content {
+            border: 0;
+            border-radius: 14px;
+            box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22);
+        }
+
+        .finder-modal .modal-header {
+            border-bottom: 1px solid var(--t4d-border);
+            background: linear-gradient(135deg, rgba(6,68,117,0.08), rgba(245,130,32,0.08));
+        }
+
+        .finder-search-box {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 0.65rem;
+        }
+
+        .finder-search-box input {
+            min-height: 48px;
+            border: 1px solid #CBD5E1;
+            border-radius: 10px;
+            padding: 0 0.95rem;
+            outline: 0;
+        }
+
+        .finder-mode-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.4rem 0.75rem;
+            border-radius: 999px;
+            background: #F8FAFC;
+            color: var(--t4d-primary);
+            font-weight: 800;
+            font-size: 0.82rem;
+        }
+
+        @media (min-width: 1200px) {
+            .navbar-t4d .navbar-collapse {
+                display: none !important;
+            }
+
+            .navbar-t4d .navbar-toggler {
+                display: none;
+            }
+        }
+
+        @media (max-width: 1450px) and (min-width: 1200px) {
+            .market-nav-wrap {
+                gap: 0.45rem !important;
+                padding-left: 0.55rem;
+                padding-right: 0.55rem;
+            }
+
+            .market-search {
+                grid-template-columns: minmax(108px, 132px) minmax(160px, 1fr) 44px;
+                flex: 1 1 430px;
+                max-width: 520px;
+                height: 46px;
+            }
+
+            .market-search-location,
+            .market-search-input {
+                padding: 0 0.62rem;
+            }
+
+            .market-search-input input {
+                font-size: 0.86rem;
+            }
+
+            .market-search-location {
+                display: flex;
+                font-size: 0.88rem;
+                gap: 0.36rem;
+            }
+
+            .market-header-actions {
+                gap: 0.28rem;
+            }
+
+            .market-finder-btn,
+            .market-register-btn {
+                min-height: 42px;
+                padding: 0.48rem 0.62rem;
+                font-size: 0.82rem;
+            }
+
+            .market-header-action {
+                min-width: 44px;
+                font-size: 0.66rem;
+            }
+
+            .market-header-action i {
+                font-size: 1.05rem;
+            }
+        }
+
+        @media (max-width: 1280px) and (min-width: 1200px) {
+            .market-search {
+                grid-template-columns: minmax(96px, 116px) minmax(140px, 1fr) 42px;
+                flex-basis: 360px;
+                max-width: 390px;
+            }
+
+            .market-search-location {
+                display: flex;
+                font-size: 0.78rem;
+            }
+
+            .market-finder-btn {
+                min-width: 98px;
+                padding-left: 0.44rem;
+                padding-right: 0.44rem;
+                font-size: 0.74rem;
+                gap: 0.3rem;
+            }
+
+            .market-finder-btn i {
+                margin: 0;
+                font-size: 0.92rem;
+            }
+
+            .market-register-btn {
+                padding-left: 0.54rem;
+                padding-right: 0.54rem;
+                font-size: 0.78rem;
+            }
+
+            .market-header-action {
+                min-width: 40px;
+                font-size: 0.62rem;
+            }
+        }
+
+        @media (max-width: 1199px) {
+            .navbar-t4d .market-nav-wrap {
+                flex-wrap: wrap;
+                overflow: visible;
+            }
+
+            .market-search {
+                order: 3;
+                flex-basis: 100%;
+                max-width: none;
+            }
+
+            .market-header-actions {
+                margin-left: auto;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .page-shell {
+                padding-bottom: 76px;
+            }
+
+            .navbar-t4d {
+                overflow: hidden;
+            }
+
+            .navbar-t4d .market-nav-wrap {
+                position: relative;
+                display: grid;
+                grid-template-columns: auto minmax(0, 1fr) auto;
+                grid-template-areas:
+                    "brand search register"
+                    "collapse collapse collapse";
+                align-items: center;
+                column-gap: 0.4rem !important;
+                row-gap: 0.5rem !important;
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+                width: 100%;
+                max-width: 100vw;
+                min-width: 0;
+            }
+
+            .navbar-t4d .navbar-brand {
+                grid-area: brand;
+                margin-right: 0;
+                flex: 0 0 auto;
+            }
+
+            .navbar-t4d .navbar-brand .t4d-logo {
+                height: 32px !important;
+            }
+
+            .market-search {
+                grid-area: search;
+                grid-template-columns: minmax(0, 1fr) 42px;
+                height: 44px;
+                width: 100%;
+                margin-top: 0;
+            }
+
+            .market-search-input {
+                padding: 0 0.65rem;
+            }
+
+            .market-search-input input {
+                font-size: 0.78rem;
+            }
+
+            .mobile-register-inline {
+                grid-area: register;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 44px;
+                padding: 0 0.62rem;
+                border-radius: 8px;
+                background: var(--t4d-primary);
+                color: #fff;
+                font-size: 0.72rem;
+                font-weight: 850;
+                line-height: 1.1;
+                text-decoration: none;
+                white-space: nowrap;
+            }
+
+            .market-search-location {
+                display: none;
+            }
+
+            .mobile-finder-actions,
+            .market-header-actions {
+                display: none;
+            }
+
+            .market-header-actions .market-header-action:not(.signin-action),
+            .market-finder-btn {
+                display: none;
+            }
+
+            .navbar-t4d .navbar-collapse {
+                grid-area: collapse;
+            }
+
+            .mobile-bottom-nav {
+                position: fixed;
+                left: 0.75rem;
+                right: 0.75rem;
+                bottom: 0.65rem;
+                z-index: 1040;
+                display: grid;
+                grid-template-columns: repeat(5, minmax(0, 1fr));
+                align-items: center;
+                min-height: 58px;
+                padding: 0.35rem 0.55rem;
+                border: 1px solid rgba(148, 163, 184, 0.35);
+                border-radius: 14px;
+                background: rgba(255, 255, 255, 0.96);
+                box-shadow: 0 12px 36px rgba(15, 23, 42, 0.22);
+                backdrop-filter: blur(14px);
+            }
+
+            .mobile-bottom-nav a,
+            .mobile-bottom-nav button {
+                min-width: 0;
+                border: 0;
+                background: transparent;
+                color: #334155;
+                text-decoration: none;
+                display: inline-flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 0.16rem;
+                min-height: 46px;
+                font-size: 0.58rem;
+                font-weight: 850;
+                line-height: 1.05;
+            }
+
+            .mobile-bottom-nav i {
+                font-size: 1.18rem;
+                line-height: 1;
+            }
+
+            .mobile-bottom-nav .bottom-seller {
+                color: var(--t4d-primary);
+            }
+
+            .mobile-bottom-nav .bottom-buyer {
+                color: var(--t4d-accent-dark);
+            }
+
+            .mobile-bottom-nav .bottom-theme {
+                color: #475569;
+            }
+
+            .mobile-bottom-nav .bottom-menu {
+                position: relative;
+                justify-self: center;
+                width: 48px;
+                height: 48px;
+                min-height: 48px;
+                border-radius: 50%;
+                background: var(--t4d-primary);
+                color: #fff;
+                box-shadow: 0 10px 24px rgba(6, 68, 117, 0.32);
+            }
+
+            .mobile-bottom-nav .bottom-menu .mobile-nav-icon {
+                font-size: 1.55rem;
+                line-height: 1;
+            }
         }
 
         .brand-logo {
@@ -498,44 +960,145 @@
         .toast-container-t4d { z-index: 1090; }
 
         footer.t4d-footer {
-            border-top: 1px solid var(--t4d-border);
-            padding: 1.5rem 0;
-            color: var(--t4d-muted);
-            font-size: 0.875rem;
-            background: var(--t4d-surface);
+            border-top: 1px solid #263246;
+            padding: 0;
+            color: #B8C4D8;
+            font-size: 0.92rem;
+            background:
+                linear-gradient(90deg, rgba(17, 24, 39, 0.94), rgba(17, 24, 39, 0.88)),
+                url('https://images.unsplash.com/photo-1494412685616-a5d310fbb07d?auto=format&fit=crop&w=1800&q=85') center/cover no-repeat;
             margin-top: auto;
             flex-shrink: 0;
         }
 
-        .footer-contact {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.7rem 1.25rem;
-            align-items: center;
+        .footer-marketplace {
+            max-width: 1620px;
+            margin: 0 auto;
+            padding: 1.1rem 1.5rem 1.25rem;
         }
 
-        .footer-main {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.8rem 1.5rem;
+        .footer-market-grid {
+            display: grid;
+            grid-template-columns: minmax(260px, 1.45fr) repeat(5, minmax(140px, 1fr));
+            gap: 2rem;
+            align-items: start;
         }
 
-        .footer-contact a,
-        .footer-contact span,
-        .footer-links a {
-            color: var(--t4d-muted);
+        .footer-brand-copy {
+            max-width: 290px;
+            line-height: 1.65;
+        }
+
+        .footer-contact-stack {
+            display: grid;
+            gap: 0.65rem;
+            margin: 1rem 0;
+        }
+
+        .footer-contact-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+            color: #fff;
+            font-weight: 800;
             text-decoration: none;
         }
 
-        .footer-contact a:hover,
-        .footer-links a:hover {
-            color: var(--t4d-primary);
+        .footer-contact-pill i,
+        .footer-social a {
+            width: 40px;
+            height: 40px;
+            border-radius: 7px;
+            display: inline-grid;
+            place-items: center;
+            background: #202b3d;
+            color: #dbeafe;
         }
 
-        .footer-contact i {
-            color: var(--t4d-primary);
+        .footer-social {
+            display: flex;
+            gap: 0.7rem;
+            flex-wrap: wrap;
+            margin-top: 0.8rem;
+        }
+
+        .footer-social a {
+            text-decoration: none;
+            font-size: 1.15rem;
+        }
+
+        .footer-col h3 {
+            margin: 0 0 0.7rem;
+            color: #fff;
+            font-size: 0.98rem;
+            font-weight: 850;
+        }
+
+        .footer-col a,
+        .footer-col button,
+        .footer-col span {
+            display: block;
+            margin-bottom: 0.58rem;
+            color: #B8C4D8;
+            text-decoration: none;
+            font-size: 0.92rem;
+        }
+
+        .footer-col a:hover,
+        .footer-col button:hover {
+            color: #fff;
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 0.8rem;
+            padding-top: 0.7rem;
+            border-top: 1px solid #263246;
+            color: #8998ae;
+            font-size: 0.82rem;
+        }
+
+        .footer-bottom a {
+            color: #8998ae;
+            text-decoration: none;
+            margin-right: 1.2rem;
+        }
+
+        @media (max-width: 1199px) {
+            .footer-market-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 767px) {
+            .footer-marketplace {
+                padding: 1.1rem 1rem 1.25rem;
+            }
+
+            .footer-market-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 1.2rem 1rem;
+            }
+
+            .footer-market-grid > div:first-child {
+                grid-column: 1 / -1;
+            }
+
+            .footer-col h3 {
+                font-size: 0.92rem;
+                margin-bottom: 0.55rem;
+            }
+
+            .footer-col a,
+            .footer-col button,
+            .footer-col span {
+                font-size: 0.82rem;
+                line-height: 1.35;
+                margin-bottom: 0.5rem;
+            }
         }
 
         .testimonial-strip {
@@ -645,12 +1208,104 @@
         }
 
         @media (max-width: 767px) {
+            .testimonial-strip {
+                padding-top: 1.5rem !important;
+                padding-bottom: 1.75rem !important;
+            }
+
+            .testimonial-strip .container {
+                padding-left: 0.85rem;
+                padding-right: 0.85rem;
+            }
+
+            .testimonial-strip .badge {
+                padding: 0.42rem 0.85rem !important;
+                font-size: 0.74rem;
+            }
+
+            .testimonial-strip .section-title {
+                max-width: 100%;
+                font-size: 1.45rem;
+                line-height: 1.18;
+                letter-spacing: 0;
+            }
+
+            .testimonial-strip .text-muted {
+                font-size: 0.94rem;
+                line-height: 1.55;
+            }
+
+            .testimonial-slider {
+                padding-bottom: 2rem;
+            }
+
+            .testimonial-slider .row {
+                --bs-gutter-y: 0.75rem;
+            }
+
+            .testimonial-slider .carousel-item .row > div {
+                display: none;
+            }
+
+            .testimonial-slider .carousel-item .row > div:first-child {
+                display: block;
+                flex: 0 0 100%;
+                max-width: 100%;
+                width: 100%;
+            }
+
             .testimonial-card {
-                min-height: 245px;
+                min-height: 0;
+                padding: 1rem;
+                border-radius: 10px;
+                gap: 0.75rem;
+            }
+
+            .testimonial-quote {
+                width: 34px;
+                height: 34px;
+                border-radius: 9px;
+                font-size: 0.92rem;
+            }
+
+            .testimonial-rating {
+                font-size: 0.72rem;
+                letter-spacing: 0.02em;
+            }
+
+            .testimonial-card p {
+                font-size: 0.9rem;
+                line-height: 1.55;
+            }
+
+            .testimonial-person {
+                gap: 0.65rem;
+                align-items: center;
+            }
+
+            .testimonial-avatar {
+                width: 40px;
+                height: 40px;
+                font-size: 0.82rem;
+                flex: 0 0 40px;
+            }
+
+            .testimonial-person .fw-bold {
+                font-size: 0.95rem;
+                line-height: 1.2;
+            }
+
+            .testimonial-person .small {
+                font-size: 0.78rem;
+                line-height: 1.3;
             }
 
             .testimonial-control {
                 display: none;
+            }
+
+            .testimonial-slider .carousel-indicators {
+                bottom: 0.25rem;
             }
         }
 
@@ -668,7 +1323,7 @@
                 linear-gradient(160deg, rgba(11, 58, 110, 0.94), rgba(14, 116, 144, 0.85)),
                 url('https://images.unsplash.com/photo-1578574577315-52ac42c5d0f4?auto=format&fit=crop&w=900&q=80') center/cover;
             color: #fff;
-            padding: 2.5rem 2rem;
+            padding: 1.65rem 1.5rem;
             min-height: 100%;
             display: flex;
             flex-direction: column;
@@ -679,27 +1334,85 @@
             background: rgba(255, 255, 255, 0.12);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 12px;
-            padding: 0.85rem 1rem;
+            padding: 0.65rem 0.75rem;
         }
 
         .modal-lead .modal-body {
-            padding: 2rem;
-            max-height: 85vh;
+            padding: 1.35rem 1.6rem 1.45rem;
+            max-height: 76vh;
             overflow-y: auto;
             background: var(--t4d-card);
         }
 
+        .modal-lead .modal-dialog {
+            max-width: min(1120px, calc(100vw - 2rem));
+        }
+
+        .modal-lead h3 {
+            font-size: 1.42rem !important;
+            line-height: 1.14;
+        }
+
+        .modal-lead .modal-side p,
+        .modal-lead .modal-side li,
+        .modal-lead .modal-body p {
+            font-size: 0.82rem !important;
+            line-height: 1.42;
+        }
+
+        .modal-lead .modal-body h4 {
+            font-size: 1.32rem;
+        }
+
+        .modal-lead .row.g-3 {
+            --bs-gutter-x: 0.85rem;
+            --bs-gutter-y: 0.6rem;
+        }
+
+        .modal-lead .mb-3 {
+            margin-bottom: 0.65rem !important;
+        }
+
+        .modal-lead .mb-4 {
+            margin-bottom: 0.9rem !important;
+        }
+
+        .modal-lead .form-label {
+            margin-bottom: 0.28rem;
+            font-size: 0.83rem;
+        }
+
+        .modal-lead .form-control,
+        .modal-lead .form-select {
+            min-height: 40px;
+            padding-top: 0.42rem;
+            padding-bottom: 0.42rem;
+            font-size: 0.88rem;
+            border-radius: 8px;
+        }
+
+        .modal-lead textarea.form-control {
+            min-height: 74px;
+        }
+
+        .modal-lead .form-check {
+            min-height: 0;
+            margin-bottom: 0.1rem;
+            font-size: 0.82rem;
+        }
+
         .modal-lead .btn-close-custom {
             position: absolute;
-            top: 1rem;
-            right: 1rem;
+            top: 0.8rem;
+            right: 0.8rem;
             z-index: 5;
-            width: 36px;
-            height: 36px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
             border: 1px solid var(--t4d-border);
             background: var(--t4d-surface);
             color: var(--t4d-dark);
+            font-size: 0.9rem;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -852,23 +1565,88 @@
         }, 1500);
     </script>
 
-    <nav class="navbar navbar-expand-lg navbar-t4d sticky-top">
-        <div class="container">
+    <nav class="navbar navbar-expand-xl navbar-t4d sticky-top">
+        <div class="container-fluid market-nav-wrap gap-3 py-2">
             <a class="navbar-brand d-flex align-items-center py-1 text-decoration-none" href="{{ route('home') }}">
-                <x-brand-logo :height="48" />
+                <x-brand-logo :height="38" />
             </a>
-            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+
+            <form class="market-search" id="marketplaceSearch" role="search">
+                <div class="market-search-location">
+                    <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
+                    <span>Global Trade</span>
+                </div>
+                <label class="market-search-input" for="marketplaceSearchInput">
+                    <span class="visually-hidden">Search visible products and categories</span>
+                    <input id="marketplaceSearchInput" type="search" placeholder="Search Trade4Deal products or categories" autocomplete="off">
+                </label>
+                <button type="submit" aria-label="Search visible marketplace items"><i class="bi bi-search"></i></button>
+            </form>
+            <a href="{{ route('register') }}" class="mobile-register-inline">Register Free</a>
+
+            <div class="mobile-finder-actions" aria-label="Find marketplace users">
+                <button type="button" class="market-finder-btn" data-bs-toggle="modal" data-bs-target="#finderModal" data-finder-mode="seller">
+                    <i class="bi bi-shop-window"></i>Find Seller
+                </button>
+                <button type="button" class="market-finder-btn find-buyer" data-bs-toggle="modal" data-bs-target="#finderModal" data-finder-mode="buyer">
+                    <i class="bi bi-person-lines-fill"></i>Find Buyer
+                </button>
+            </div>
+
+            <div class="market-header-actions">
+                <button type="button" class="market-finder-btn" data-bs-toggle="modal" data-bs-target="#finderModal" data-finder-mode="seller">
+                    <i class="bi bi-shop-window"></i>Find Seller
+                </button>
+                <button type="button" class="market-finder-btn find-buyer" data-bs-toggle="modal" data-bs-target="#finderModal" data-finder-mode="buyer">
+                    <i class="bi bi-person-lines-fill"></i>Find Buyer
+                </button>
+                <a href="{{ route('marketplace.page', ['page' => 'product-directory']) }}" class="market-header-action">
+                    <i class="bi bi-globe2"></i>
+                    <span>Products</span>
+                </a>
+                <a href="{{ route('register') }}" class="market-header-action">
+                    <i class="bi bi-shop-window"></i>
+                    <span>Sell</span>
+                </a>
+                <a href="{{ route('contact') }}" class="market-header-action">
+                    <i class="bi bi-question-circle"></i>
+                    <span>Help</span>
+                </a>
+                <button type="button" class="market-header-action" data-bs-toggle="modal" data-bs-target="#leadModal">
+                    <i class="bi bi-chat-left-text"></i>
+                    <span>Messages</span>
+                </button>
+                @guest
+                    <a href="{{ route('login') }}" class="market-header-action signin-action">
+                        <i class="bi bi-person-circle"></i>
+                        <span>Sign In</span>
+                    </a>
+                    <a href="{{ route('register') }}" class="market-register-btn">Register Free</a>
+                @else
+                    <a href="{{ route('dashboard') }}" class="market-header-action signin-action">
+                        <i class="bi bi-person-circle"></i>
+                        <span>Account</span>
+                    </a>
+                @endguest
+                <button class="mobile-nav-toggle border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="mobile-nav-icon" aria-hidden="true">&#9776;</span>
+                </button>
+            </div>
             <div class="collapse navbar-collapse" id="navMain">
-                <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
-                    <li class="nav-item"><a class="nav-link" href="{{ route('home') }}#how-it-works">How it works</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ route('home') }}#industries">Industries</a></li>
+                <ul class="navbar-nav ms-auto align-items-xl-center gap-xl-2">
+                    <li class="nav-item"><a class="nav-link" href="{{ route('home') }}#categories">Categories</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('marketplace.page', ['page' => 'product-directory']) }}">Products</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ route('home') }}#leads">Leads</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('home') }}#how-it-works">How it works</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ route('plans.index') }}">Plans</a></li>
                     <li class="nav-item">
-                        <button type="button" class="nav-link btn btn-link text-decoration-none" data-bs-toggle="modal" data-bs-target="#leadModal">
-                            Submit Lead
+                        <button type="button" class="nav-link btn btn-link text-decoration-none fw-bold" data-bs-toggle="modal" data-bs-target="#finderModal" data-finder-mode="seller">
+                            <i class="bi bi-shop-window me-1"></i>Find Seller
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button" class="nav-link btn btn-link text-decoration-none fw-bold" data-bs-toggle="modal" data-bs-target="#finderModal" data-finder-mode="buyer">
+                            <i class="bi bi-person-lines-fill me-1"></i>Find Buyer
                         </button>
                     </li>
                     @auth
@@ -889,7 +1667,7 @@
                         </li>
                     @endauth
                     <li class="nav-item ms-lg-2">
-                        <button class="btn btn-outline-t4d btn-sm" id="themeToggle" type="button" aria-label="Toggle theme">
+                        <button class="btn btn-outline-t4d btn-sm" id="themeToggle" data-theme-toggle type="button" aria-label="Toggle theme">
                             <i class="bi bi-moon-stars"></i>
                         </button>
                     </li>
@@ -897,6 +1675,32 @@
             </div>
         </div>
     </nav>
+
+    <div class="mobile-bottom-nav" aria-label="Mobile quick actions">
+        @guest
+            <a href="{{ route('login') }}" class="bottom-signin">
+                <i class="bi bi-person-circle"></i>
+                <span>Sign In</span>
+            </a>
+        @else
+            <a href="{{ route('dashboard') }}" class="bottom-signin">
+                <i class="bi bi-person-circle"></i>
+                <span>Account</span>
+            </a>
+        @endguest
+        <button type="button" class="bottom-seller" data-bs-toggle="modal" data-bs-target="#finderModal" data-finder-mode="seller" aria-label="Find Seller">
+            <i class="bi bi-shop-window"></i>
+        </button>
+        <button class="bottom-menu" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="mobile-nav-icon" aria-hidden="true">&#9776;</span>
+        </button>
+        <button type="button" class="bottom-buyer" data-bs-toggle="modal" data-bs-target="#finderModal" data-finder-mode="buyer" aria-label="Find Buyer">
+            <i class="bi bi-person-lines-fill"></i>
+        </button>
+        <button type="button" class="bottom-theme" data-theme-toggle aria-label="Toggle theme">
+            <i class="bi bi-moon-stars"></i>
+        </button>
+    </div>
 
     @if(session('success'))
         <div class="toast-container toast-container-t4d position-fixed top-0 end-0 p-3">
@@ -917,6 +1721,38 @@
         </main>
 
         @include('marketplace.partials.lead-modal')
+
+        <div class="modal fade finder-modal" id="finderModal" tabindex="-1" aria-labelledby="finderModalTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div>
+                            <span class="finder-mode-pill" id="finderModePill"><i class="bi bi-shop-window"></i> Find Seller</span>
+                            <h2 class="modal-title h5 fw-bold mt-2" id="finderModalTitle">Search Trade4Deal Marketplace</h2>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="text-muted small mb-3" id="finderModalHelp">
+                            Search visible products, sellers, and categories on this page.
+                        </p>
+                        <form id="finderSearchForm" class="finder-search-box" role="search">
+                            <label class="visually-hidden" for="finderSearchInput">Search Trade4Deal</label>
+                            <input id="finderSearchInput" type="search" placeholder="Search product, category, or company" autocomplete="off">
+                            <button type="submit" class="btn btn-primary-t4d text-white px-4">
+                                <i class="bi bi-search me-1"></i>Search
+                            </button>
+                        </form>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-outline-t4d" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-outline-t4d" data-bs-toggle="modal" data-bs-target="#leadModal" data-bs-dismiss="modal">
+                            Submit Requirement
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <section class="testimonial-strip py-5" aria-labelledby="testimonialTitle">
             <div class="container">
@@ -1097,21 +1933,73 @@
         </section>
 
         <footer class="t4d-footer">
-            <div class="container">
-                <div class="footer-main">
-                    <div>&copy; {{ date('Y') }} Trade4Deal. Global B2B Marketplace.</div>
-                    <div class="footer-contact">
-                        <a href="tel:+911204633260"><i class="bi bi-telephone me-1"></i>+91 120 463 3260</a>
-                        <a href="mailto:info@trade4deal.com"><i class="bi bi-envelope me-1"></i>info@trade4deal.com</a>
-                        <span><i class="bi bi-geo-alt me-1"></i>India</span>
-                        <span><i class="bi bi-globe2 me-1"></i>UK</span>
-                        <span><i class="bi bi-buildings me-1"></i>Dubai</span>
+            <div class="footer-marketplace">
+                <div class="footer-market-grid">
+                    <div>
+                        <x-brand-logo :height="54" />
+                        <p class="footer-brand-copy mt-3 mb-0">Discover Buyers. Find Suppliers. Grow Business. Powering smarter B2B connections worldwide.</p>
+                        <div class="footer-contact-stack">
+                            <a class="footer-contact-pill" href="tel:+911204633260"><i class="bi bi-telephone"></i>+91 120 463 3260</a>
+                            <a class="footer-contact-pill" href="mailto:info@trade4deal.com"><i class="bi bi-envelope"></i>info@trade4deal.com</a>
+                        </div>
+                        <div class="footer-social" aria-label="Social links">
+                            <a href="https://www.facebook.com/profile.php?id=61577958366872" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                            <a href="#" aria-label="X"><i class="bi bi-twitter-x"></i></a>
+                            <a href="#" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                            <a href="https://www.youtube.com/@Trade4Deal" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
+                            <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                        </div>
                     </div>
-                    <div class="footer-links d-flex gap-3">
-                        <a href="#">Privacy</a>
-                        <a href="#">Terms</a>
-                        <a href="{{ url('/contact') }}">Contact</a>
+
+                    <div class="footer-col">
+                        <h3>Company</h3>
+                        <a href="{{ route('marketplace.page', ['page' => 'about-us']) }}">About Us</a>
+                        <a href="{{ route('contact') }}">Contact Us</a>
+                        <a href="{{ route('plans.index') }}">Plans</a>
+                        <a href="{{ route('register') }}">Join Trade4Deal</a>
                     </div>
+
+                    <div class="footer-col">
+                        <h3>Help &amp; Support</h3>
+                        <a href="{{ route('marketplace.page', ['page' => 'help']) }}">Help</a>
+                        <a href="{{ route('marketplace.page', ['page' => 'feedback']) }}">Feedback</a>
+                        <a href="{{ route('marketplace.page', ['page' => 'customer-care']) }}">Customer Care</a>
+                        <a href="{{ route('marketplace.page', ['page' => 'live-leads']) }}">Live Leads</a>
+                    </div>
+
+                    <div class="footer-col">
+                        <h3>Suppliers Tool Kit</h3>
+                        <a href="{{ route('marketplace.page', ['page' => 'sell-on-trade4deal']) }}">Sell on Trade4Deal</a>
+                        <a href="{{ route('marketplace.page', ['page' => 'latest-trade-leads']) }}">Latest Trade Leads</a>
+                        <a href="{{ route('marketplace.page', ['page' => 'product-directory']) }}">Product Directory</a>
+                        <a href="{{ route('marketplace.page', ['page' => 'lead-board']) }}">Lead Board</a>
+                    </div>
+
+                    <div class="footer-col">
+                        <h3>Buyers Tool Kit</h3>
+                        <a href="{{ route('marketplace.page', ['page' => 'submit-requirement']) }}">Submit Requirement</a>
+                        <a href="{{ route('marketplace.page', ['page' => 'search-products']) }}">Search Products</a>
+                        <a href="{{ route('marketplace.page', ['page' => 'payment-safety']) }}">Payment Safety</a>
+                        <a href="{{ route('marketplace.page', ['page' => 'seller-verification']) }}">Seller Verification</a>
+                    </div>
+
+                    <div class="footer-col">
+                        <h3>Trade4Deal Coverage</h3>
+                        <a href="{{ route('marketplace.page', ['page' => 'global-buyers']) }}">Global Buyers</a>
+                        <a href="{{ route('marketplace.page', ['page' => 'verified-suppliers']) }}">Verified Suppliers</a>
+                        <a href="{{ route('marketplace.page', ['page' => 'marketplace-leads']) }}">Marketplace Leads</a>
+                        <h3 class="mt-3">Business Tools</h3>
+                        <a href="{{ route('marketplace.page', ['page' => 'categories']) }}">Categories</a>
+                        <a href="{{ route('marketplace.page', ['page' => 'enquiries']) }}">Enquiries</a>
+                    </div>
+                </div>
+
+                <div class="footer-bottom">
+                    <div>
+                        <a href="{{ route('marketplace.page', ['page' => 'terms-of-use']) }}">Terms of Use</a>
+                        <a href="{{ route('marketplace.page', ['page' => 'privacy-policy']) }}">Privacy Policy</a>
+                    </div>
+                    <div>&copy; {{ date('Y') }} Trade4Deal. All rights reserved.</div>
                 </div>
             </div>
         </footer>
@@ -1122,19 +2010,27 @@
     <script>
         (function () {
             const root = document.documentElement;
-            const toggle = document.getElementById('themeToggle');
+            const themeToggles = Array.from(document.querySelectorAll('[data-theme-toggle]'));
             // Force brand default: light + navy. Only honor stored preference if set.
             const stored = localStorage.getItem('t4d-theme');
             const theme = stored || 'light';
             root.setAttribute('data-bs-theme', theme);
-            if (toggle) {
-                toggle.querySelector('i').className = theme === 'dark' ? 'bi bi-sun' : 'bi bi-moon-stars';
-                toggle.addEventListener('click', () => {
+
+            function syncThemeIcons(currentTheme) {
+                themeToggles.forEach((toggle) => {
+                    const icon = toggle.querySelector('i');
+                    if (icon) icon.className = currentTheme === 'dark' ? 'bi bi-sun' : 'bi bi-moon-stars';
+                });
+            }
+
+            if (themeToggles.length) {
+                syncThemeIcons(theme);
+                themeToggles.forEach((toggle) => toggle.addEventListener('click', () => {
                     const next = root.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
                     root.setAttribute('data-bs-theme', next);
                     localStorage.setItem('t4d-theme', next);
-                    toggle.querySelector('i').className = next === 'dark' ? 'bi bi-sun' : 'bi bi-moon-stars';
-                });
+                    syncThemeIcons(next);
+                }));
             }
 
             function hidePageLoader() {
@@ -1155,9 +2051,61 @@
             window.addEventListener('load', hidePageLoader);
             setTimeout(hidePageLoader, 2000);
 
+            function scrollToMarketplaceResult(query) {
+                const normalized = (query || '').trim().toLowerCase();
+                const target = normalized
+                    ? Array.from(document.querySelectorAll('.marketplace-search-item')).find((item) => {
+                        return (item.getAttribute('data-search-text') || '').includes(normalized);
+                    })
+                    : document.getElementById('category-products');
+
+                (target || document.getElementById('category-products') || document.getElementById('categories'))?.scrollIntoView({
+                    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+                    block: 'start',
+                });
+            }
+
+            const finderModal = document.getElementById('finderModal');
+            if (finderModal) {
+                finderModal.addEventListener('show.bs.modal', function (event) {
+                    const trigger = event.relatedTarget;
+                    const mode = trigger?.getAttribute('data-finder-mode') === 'buyer' ? 'buyer' : 'seller';
+                    const title = mode === 'buyer' ? 'Find Buyer' : 'Find Seller';
+                    const icon = mode === 'buyer' ? 'bi bi-person-lines-fill' : 'bi bi-shop-window';
+                    const pill = document.getElementById('finderModePill');
+                    const input = document.getElementById('finderSearchInput');
+                    const help = document.getElementById('finderModalHelp');
+
+                    if (pill) pill.innerHTML = '<i class="' + icon + '"></i> ' + title;
+                    if (help) {
+                        help.textContent = mode === 'buyer'
+                            ? 'Search visible leads and buyer requirements on this page.'
+                            : 'Search visible products, sellers, and categories on this page.';
+                    }
+                    if (input) {
+                        input.placeholder = mode === 'buyer'
+                            ? 'Search buyer lead, product need, or country'
+                            : 'Search product, category, or seller company';
+                        setTimeout(() => input.focus(), 250);
+                    }
+                });
+            }
+
             document.addEventListener('submit', function (e) {
                 const form = e.target;
                 if (!(form instanceof HTMLFormElement)) return;
+                if (form.id === 'marketplaceSearch') {
+                    e.preventDefault();
+                    scrollToMarketplaceResult(document.getElementById('marketplaceSearchInput')?.value || '');
+                    return;
+                }
+                if (form.id === 'finderSearchForm') {
+                    e.preventDefault();
+                    scrollToMarketplaceResult(document.getElementById('finderSearchInput')?.value || '');
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('finderModal'));
+                    modal?.hide();
+                    return;
+                }
                 const btn = form.querySelector('button[type="submit"]');
                 if (btn && !btn.classList.contains('btn-loading')) {
                     btn.classList.add('btn-loading');

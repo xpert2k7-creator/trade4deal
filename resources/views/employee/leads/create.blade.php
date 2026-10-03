@@ -87,11 +87,7 @@
                             </select>
                             @error('product_type')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
-                        <div class="col-md-6">
-                            <label for="product_image" class="form-label">Product Image</label>
-                            <input id="product_image" name="product_image" type="file" class="form-control @error('product_image') is-invalid @enderror" accept="image/jpeg,image/png,image/webp">
-                            @error('product_image')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                        </div>
+                        @include('employee.leads.partials.product-images-fields')
                         <div class="col-md-6">
                             <label for="currency" class="form-label">Currency</label>
                             <select id="currency" name="currency" class="form-select @error('currency') is-invalid @enderror" required>
@@ -112,21 +108,7 @@
                             </select>
                             @error('units')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
-                        <div class="col-12">
-                            <label class="form-label d-block">Payment Methods</label>
-                            <div class="row g-2">
-                                @foreach (\App\Support\Enums\PaymentMethod::cases() as $method)
-                                    <div class="col-md-6">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="payment_methods[]" value="{{ $method->value }}" id="create_pay_{{ $method->value }}"
-                                                @checked(in_array($method->value, old('payment_methods', []), true))>
-                                            <label class="form-check-label" for="create_pay_{{ $method->value }}">{{ $method->label() }}</label>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                            @error('payment_methods')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
-                        </div>
+                        @include('employee.leads.partials.trade-fields')
                         <div class="col-12">
                             <label for="message" class="form-label">Message</label>
                             <textarea id="message" name="message" rows="4"

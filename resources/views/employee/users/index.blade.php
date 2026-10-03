@@ -75,27 +75,13 @@
                             </form>
                         </td>
                         <td class="text-end">
-                            <div class="d-flex flex-wrap gap-2 justify-content-end">
-                                @can('update', $user)
-                                    <a href="{{ route('employee.users.edit', array_filter(['user' => $user, 'q' => $search])) }}"
-                                       class="btn btn-sm btn-outline-secondary">Edit</a>
-                                @endcan
+                            <div class="d-flex flex-wrap gap-1 justify-content-end">
                                 @can('updateSellerDetails', $user)
-                                    <a href="{{ route('employee.users.sellers.edit', $user) }}" class="btn btn-sm btn-outline-secondary">Seller profile</a>
-                                @endcan
-                                @can('delete', $user)
-                                    <form method="POST"
-                                          action="{{ route('employee.users.destroy', $user) }}"
-                                          class="d-inline user-delete-form"
-                                          data-user-name="{{ $user->name }}">
-                                        @csrf
-                                        @method('DELETE')
-                                        @if ($search)
-                                            <input type="hidden" name="q" value="{{ $search }}">
-                                        @endif
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                                    </form>
-                                @endcan
+                                    <a href="{{ route('employee.users.sellers.edit', $user) }}" class="btn btn-sm btn-outline-secondary">Edit seller</a>
+                                @elseif (auth()->user()->can('updateManagedUser', $user) && ! $user->isSeller())
+                                    <a href="{{ route('employee.users.edit', $user) }}" class="btn btn-sm btn-outline-secondary">Edit user</a>
+                                @endif
+                                @include('employee.users.partials.delete-user-form', ['user' => $user, 'search' => $search])
                             </div>
                         </td>
                     </tr>
@@ -132,14 +118,6 @@
             }
 
             if (! confirm(message)) {
-                event.preventDefault();
-            }
-        });
-    });
-
-    document.querySelectorAll('.user-delete-form').forEach(function (form) {
-        form.addEventListener('submit', function (event) {
-            if (! confirm('Delete ' + form.dataset.userName + '? This cannot be undone from this screen.')) {
                 event.preventDefault();
             }
         });
