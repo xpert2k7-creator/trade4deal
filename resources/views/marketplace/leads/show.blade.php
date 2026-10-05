@@ -385,14 +385,12 @@
                                 </div>
                             </div>
 
-                            <div class="mb-3">
-                                <div class="small text-uppercase fw-bold text-muted mb-1" style="letter-spacing:0.05em;font-size:0.65rem;">Payment methods</div>
-                                @forelse ($lead->paymentMethodEnums() as $method)
-                                    <span class="pay-badge">{{ $method->label() }}</span>
-                                @empty
-                                    <span class="text-muted small">Not specified</span>
-                                @endforelse
-                            </div>
+                            @if ($lead->payment_terms)
+                                <div class="mb-3">
+                                    <div class="small text-uppercase fw-bold text-muted mb-1" style="letter-spacing:0.05em;font-size:0.65rem;">Payment terms</div>
+                                    <span class="pay-badge">{{ $lead->payment_terms->label() }}</span>
+                                </div>
+                            @endif
 
                             <h2>Description</h2>
                             @if ($lead->message)

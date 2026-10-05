@@ -7,13 +7,14 @@ namespace App\Domains\Lead\Models;
 use App\Models\User;
 use App\Support\Enums\BusinessType;
 use App\Support\Enums\Currency;
+use App\Support\Enums\Incoterm;
+use App\Support\Enums\LeadPaymentTerm;
 use App\Support\Enums\LeadUnit;
 use App\Support\Enums\PaymentMethod;
 use App\Support\Enums\ProductType;
 use App\Support\Enums\RecordStatus;
 use App\Support\Models\BaseModel;
 use Database\Factories\LeadFactory;
-use Illuminate\Database\Eloquent\Casts\AsEnumCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -32,9 +33,18 @@ class Lead extends BaseModel
         'product_interest',
         'product_type',
         'product_image_path',
+        'product_image_paths',
         'currency',
         'units',
         'payment_methods',
+        'packaging_requirement',
+        'required_quantity',
+        'packaging_size',
+        'target_price',
+        'preferred_incoterm',
+        'port_of_loading',
+        'destination_port',
+        'payment_terms',
         'message',
         'user_id',
         'status',
@@ -47,6 +57,11 @@ class Lead extends BaseModel
         'currency' => Currency::class,
         'units' => LeadUnit::class,
         'payment_methods' => 'array',
+        'product_image_paths' => 'array',
+        'required_quantity' => 'decimal:3',
+        'target_price' => 'decimal:2',
+        'preferred_incoterm' => Incoterm::class,
+        'payment_terms' => LeadPaymentTerm::class,
         'status' => RecordStatus::class,
         'published_at' => 'datetime',
     ];
@@ -66,13 +81,36 @@ class Lead extends BaseModel
         return 'id';
     }
 
-    public function productImageUrl(): ?string
+    /**
+     * @return array<int, string>
+     */
+    public function productImagePathsList(): array
     {
-        if ($this->product_image_path === null) {
-            return null;
+        if (is_array($this->product_image_paths) && $this->product_image_paths !== []) {
+            return array_values($this->product_image_paths);
         }
 
-        return '/uploads/'.ltrim($this->product_image_path, '/');
+        if ($this->product_image_path !== null) {
+            return [$this->product_image_path];
+        }
+
+        return [];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function productImageUrls(): array
+    {
+        return array_map(
+            fn (string $path): string => '/uploads/'.ltrim($path, '/'),
+            $this->productImagePathsList(),
+        );
+    }
+
+    public function productImageUrl(): ?string
+    {
+        return $this->productImageUrls()[0] ?? null;
     }
 
     /**

@@ -1,164 +1,654 @@
 @extends('layouts.marketplace')
 
-@section('title', 'Register — Trade4Deal')
+@section('title', 'Join as Supplier - Trade4Deal')
 
-@section('content')
+@push('styles')
 <style>
-    .register-panel {
-        background: linear-gradient(160deg, #0B3A6E 0%, #082F58 55%, #0E7490 140%);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 16px;
-        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
-        color: #fff;
-        overflow: hidden;
+    .supplier-auth-page {
+        min-height: calc(100vh - 80px);
+        background:
+            linear-gradient(110deg, rgba(4, 16, 32, 0.88), rgba(15, 23, 42, 0.55)),
+            url('https://images.unsplash.com/photo-1494412685616-a5d310fbb07d?auto=format&fit=crop&w=1900&q=82') center/cover no-repeat;
+        padding: clamp(1rem, 4vw, 2rem);
     }
 
-    .register-panel .card-header {
-        background: transparent;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.14);
-        color: #fff;
-    }
-
-    .register-panel .card-header h4,
-    .register-panel .form-label {
-        color: #FFFFFF !important;
-    }
-
-    .register-panel .card-header .text-muted,
-    .register-panel .text-muted {
-        color: rgba(255, 255, 255, 0.72) !important;
-    }
-
-    .register-panel a {
-        color: #A5F3FC !important;
-    }
-
-    .register-panel .form-control,
-    .register-panel .form-select {
-        background-color: rgba(255, 255, 255, 0.12) !important;
-        border-color: rgba(255, 255, 255, 0.28) !important;
-        color: #FFFFFF !important;
-        -webkit-text-fill-color: #FFFFFF;
-        caret-color: #FFFFFF;
-    }
-
-    .register-panel .form-control::placeholder,
-    .register-panel .form-select::placeholder {
-        color: rgba(255, 255, 255, 0.55) !important;
-    }
-
-    .register-panel .form-control:hover,
-    .register-panel .form-select:hover,
-    .register-panel .form-control:focus,
-    .register-panel .form-select:focus {
-        background-color: rgba(255, 255, 255, 0.18) !important;
-        border-color: #FFFFFF !important;
-        color: #FFFFFF !important;
-        -webkit-text-fill-color: #FFFFFF;
-        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.18) !important;
-    }
-
-    .register-panel .form-select option {
-        color: #0F172A;
+    .supplier-auth-shell {
+        max-width: 1220px;
+        margin: 0 auto;
+        border-radius: 8px;
         background: #fff;
+        box-shadow: 0 28px 70px rgba(15, 23, 42, 0.34);
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: minmax(340px, 0.78fr) minmax(0, 1.22fr);
     }
 
-    .register-panel .btn-primary-t4d {
-        background: #FFFFFF;
-        color: #0B3A6E !important;
+    .supplier-auth-aside {
+        position: relative;
+        overflow: hidden;
+        background:
+            linear-gradient(145deg, rgba(232, 241, 251, 0.98), rgba(219, 231, 253, 0.9)),
+            radial-gradient(circle at 12% 92%, rgba(245, 130, 32, 0.18), transparent 25%);
+        padding: clamp(1.4rem, 3vw, 2.25rem);
     }
 
-    .register-panel .btn-primary-t4d:hover {
-        background: #F1F5F9;
-        color: #082F58 !important;
+    .supplier-auth-aside::after {
+        content: "";
+        position: absolute;
+        right: -80px;
+        bottom: -90px;
+        width: 310px;
+        height: 310px;
+        border: 3px solid rgba(6, 68, 117, 0.08);
+        border-radius: 50%;
+    }
+
+    .supplier-brand {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        gap: 0.35rem;
+        width: fit-content;
+        margin-bottom: 1.45rem;
+    }
+
+    .supplier-brand img {
+        width: 135px;
+        height: auto;
+    }
+
+    .supplier-brand span {
+        color: #334155;
+        font-size: 0.74rem;
+        font-weight: 800;
+    }
+
+    .supplier-aside-title {
+        position: relative;
+        z-index: 1;
+        margin: 0 0 1.25rem;
+        color: #020617;
+        font-size: clamp(1.25rem, 2.4vw, 1.55rem);
+        font-weight: 850;
+        line-height: 1.25;
+    }
+
+    .supplier-benefits {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        gap: 1.15rem;
+    }
+
+    .supplier-benefit {
+        display: grid;
+        grid-template-columns: 48px 1fr;
+        gap: 0.75rem;
+        align-items: center;
+        color: #111827;
+        font-size: 1.02rem;
+        font-weight: 800;
+        line-height: 1.35;
+    }
+
+    .supplier-benefit-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        display: grid;
+        place-items: center;
+        background: #fff;
+        color: #079455;
+        font-size: 1.45rem;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    .supplier-stat-card {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.25rem 2rem;
+        margin-top: 2.4rem;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.92);
+        padding: 1.1rem 1.25rem;
+        box-shadow: 0 14px 32px rgba(15, 23, 42, 0.12);
+    }
+
+    .supplier-stat-card strong {
+        display: block;
+        color: #020617;
+        font-size: 1.45rem;
+        font-weight: 900;
+        line-height: 1.1;
+    }
+
+    .supplier-stat-card span {
+        display: block;
+        margin-top: 0.22rem;
+        color: #475569;
+        font-size: 0.86rem;
+        font-weight: 700;
+    }
+
+    .supplier-auth-main {
+        padding: clamp(1.4rem, 3.4vw, 2.6rem);
+    }
+
+    .supplier-form-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1.35rem;
+    }
+
+    .supplier-form-top h1 {
+        margin: 0;
+        color: #020617;
+        font-size: clamp(1.55rem, 3vw, 2rem);
+        font-weight: 850;
+        line-height: 1.15;
+    }
+
+    .supplier-form-top p {
+        margin: 0.35rem 0 0;
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+
+    .supplier-close-link {
+        color: #64748b;
+        font-size: 1.25rem;
+        line-height: 1;
+        text-decoration: none;
+    }
+
+    .auth-switch {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 0.75rem;
+        border-radius: 8px;
+        background: #f1f5f9;
+        padding: 0.72rem 0.85rem;
+        color: #0f172a;
+        font-size: 0.9rem;
+        font-weight: 700;
+    }
+
+    .auth-switch a {
+        border: 1px solid #94a3b8;
+        border-radius: 9px;
+        background: #fff;
+        color: #0f172a;
+        padding: 0.45rem 0.85rem;
+        text-decoration: none;
+        font-weight: 850;
+    }
+
+    .supplier-register-form {
+        display: grid;
+        gap: 0.68rem;
+    }
+
+    .supplier-field {
+        position: relative;
+    }
+
+    .supplier-field i {
+        position: absolute;
+        top: 50%;
+        left: 0.95rem;
+        transform: translateY(-50%);
+        color: #6b7280;
+        font-size: 1.1rem;
+        pointer-events: none;
+    }
+
+    .supplier-field input,
+    .supplier-field select {
+        width: 100%;
+        min-height: 47px;
+        border: 1px solid #cbd5e1;
+        border-radius: 9px;
+        background: #fff !important;
+        color: #0f172a !important;
+        padding: 0 0.95rem 0 2.65rem;
+        font-size: 0.95rem;
+        -webkit-text-fill-color: #0f172a;
+    }
+
+    .supplier-field input::placeholder {
+        color: #9ca3af;
+    }
+
+    .supplier-field input:focus,
+    .supplier-field select:focus {
+        border-color: #079455 !important;
+        box-shadow: 0 0 0 3px rgba(7, 148, 85, 0.16) !important;
+        outline: none;
+    }
+
+    .supplier-two-col {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.68rem;
+    }
+
+    .terms-line {
+        display: grid;
+        grid-template-columns: 24px 1fr;
+        gap: 0.55rem;
+        align-items: start;
+        margin-top: 0.25rem;
+        color: #475569;
+        font-size: 0.78rem;
+        line-height: 1.45;
+    }
+
+    .terms-check {
+        width: 23px;
+        height: 23px;
+        border: 1px solid #079455;
+        border-radius: 5px;
+        display: grid;
+        place-items: center;
+        color: #079455;
+        font-size: 0.95rem;
+        font-weight: 900;
+    }
+
+    .terms-line a {
+        color: #075985;
+        text-decoration: none;
+        font-weight: 800;
+    }
+
+    .supplier-submit {
+        width: min(100%, 390px);
+        min-height: 52px;
+        margin: 0.25rem auto 0;
+        border: 0;
+        border-radius: 9px;
+        background: #079455;
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 850;
+        transition: transform 0.16s ease, background 0.16s ease;
+    }
+
+    .supplier-submit:hover {
+        background: #067647;
+        transform: translateY(-1px);
+    }
+
+    .or-divider {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        gap: 1rem;
+        align-items: center;
+        width: min(100%, 430px);
+        margin: 0.6rem auto;
+        color: #0f172a;
+        font-weight: 800;
+    }
+
+    .or-divider::before,
+    .or-divider::after {
+        content: "";
+        height: 1px;
+        background: #d1d5db;
+    }
+
+    .google-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.8rem;
+        width: min(100%, 390px);
+        min-height: 52px;
+        margin: 0 auto;
+        border: 1px solid #cbd5e1;
+        border-radius: 9px;
+        background: #fff;
+        color: #111827;
+        font-weight: 850;
+    }
+
+    .google-mark {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        color: #4285f4;
+        font-weight: 900;
+    }
+
+    .invalid-feedback {
+        display: block;
+        margin: 0.25rem 0 0 0.2rem;
+        color: #b91c1c;
+        font-size: 0.78rem;
+    }
+
+    @media (max-width: 991px) {
+        .supplier-auth-shell {
+            grid-template-columns: 1fr;
+        }
+
+        .supplier-auth-aside {
+            min-height: auto;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .supplier-auth-page {
+            min-height: auto;
+            padding: 0.55rem;
+            background-position: center top;
+        }
+
+        .supplier-auth-shell {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 18px 42px rgba(15, 23, 42, 0.28);
+        }
+
+        .supplier-auth-aside {
+            padding: 0.95rem;
+        }
+
+        .supplier-auth-aside::after {
+            width: 190px;
+            height: 190px;
+            right: -70px;
+            bottom: -70px;
+        }
+
+        .supplier-brand {
+            margin-bottom: 0.9rem;
+        }
+
+        .supplier-brand img {
+            width: 92px;
+        }
+
+        .supplier-brand span {
+            font-size: 0.62rem;
+        }
+
+        .supplier-aside-title {
+            margin-bottom: 0.75rem;
+            font-size: 1.04rem;
+            line-height: 1.22;
+        }
+
+        .supplier-benefits {
+            gap: 0.58rem;
+        }
+
+        .supplier-benefit {
+            grid-template-columns: 34px 1fr;
+            gap: 0.55rem;
+            font-size: 0.78rem;
+            line-height: 1.25;
+        }
+
+        .supplier-benefit-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .supplier-stat-card {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.8rem 1rem;
+            margin-top: 1rem;
+            padding: 0.8rem;
+            border-radius: 10px;
+        }
+
+        .supplier-stat-card strong {
+            font-size: 1.05rem;
+        }
+
+        .supplier-stat-card span {
+            font-size: 0.66rem;
+            line-height: 1.25;
+        }
+
+        .supplier-auth-main {
+            padding: 1rem 0.85rem 1.1rem;
+        }
+
+        .supplier-form-top {
+            margin-bottom: 0.78rem;
+        }
+
+        .supplier-form-top h1 {
+            font-size: 1.25rem;
+        }
+
+        .supplier-form-top p {
+            font-size: 0.74rem;
+        }
+
+        .supplier-close-link {
+            font-size: 1rem;
+        }
+
+        .auth-switch {
+            flex-direction: row;
+            align-items: center;
+            padding: 0.58rem 0.65rem;
+            font-size: 0.72rem;
+        }
+
+        .auth-switch a {
+            padding: 0.38rem 0.62rem;
+            border-radius: 7px;
+        }
+
+        .supplier-register-form {
+            gap: 0.52rem;
+        }
+
+        .supplier-two-col {
+            grid-template-columns: 1fr;
+        }
+
+        .supplier-field i {
+            left: 0.78rem;
+            font-size: 0.9rem;
+        }
+
+        .supplier-field input,
+        .supplier-field select {
+            min-height: 42px;
+            border-radius: 8px;
+            padding-left: 2.25rem;
+            font-size: 0.78rem;
+        }
+
+        .terms-line {
+            grid-template-columns: 20px 1fr;
+            gap: 0.45rem;
+            font-size: 0.62rem;
+            line-height: 1.35;
+        }
+
+        .terms-check {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            font-size: 0.78rem;
+        }
+
+        .supplier-submit,
+        .google-placeholder {
+            min-height: 44px;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 0.82rem;
+        }
+
+        .or-divider {
+            width: 100%;
+            margin: 0.35rem auto;
+            font-size: 0.72rem;
+        }
+
+        .google-mark {
+            width: 18px;
+            height: 18px;
+        }
     }
 </style>
+@endpush
 
-<section class="py-5">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-6 col-md-8">
-                <div class="card register-panel">
-                    <div class="card-header text-center py-4">
-                        <h4 class="fw-bold mb-1">Create your Trade4Deal account</h4>
-                        <p class="text-muted small mb-0">Join the global B2B marketplace as a buyer or seller</p>
-                    </div>
-                    <div class="card-body p-4">
-                        <form method="POST" action="{{ route('register') }}">
-                            @csrf
+@section('content')
+<main class="supplier-auth-page">
+    <section class="supplier-auth-shell" aria-labelledby="supplierRegisterTitle">
+        <aside class="supplier-auth-aside">
+            <div class="supplier-brand">
+                <x-brand-logo :height="44" />
+                <span>Global B2B Marketplace</span>
+            </div>
 
-                            <div class="mb-3">
-                                <label for="name" class="form-label fw-medium">Full Name</label>
-                                <input id="name" type="text" class="form-control @error('name') is-invalid @enderror"
-                                       name="name" value="{{ old('name') }}" required autofocus>
-                                @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            </div>
+            <h2 class="supplier-aside-title">Why Suppliers Join Trade4Deal</h2>
 
-                            <div class="mb-3">
-                                <label for="email" class="form-label fw-medium">Business Email</label>
-                                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror"
-                                       name="email" value="{{ old('email') }}" required>
-                                @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="company_name" class="form-label fw-medium">Company Name</label>
-                                <input id="company_name" type="text" class="form-control @error('company_name') is-invalid @enderror"
-                                       name="company_name" value="{{ old('company_name') }}" required>
-                                @error('company_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            </div>
-
-                            <div class="row g-3 mb-3">
-                                <div class="col-md-6">
-                                    <label for="country" class="form-label fw-medium">Country</label>
-                                    <input id="country" type="text" class="form-control @error('country') is-invalid @enderror"
-                                           name="country" value="{{ old('country') }}" required>
-                                    @error('country')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="phone" class="form-label fw-medium">Phone</label>
-                                    <input id="phone" type="text" class="form-control @error('phone') is-invalid @enderror"
-                                           name="phone" value="{{ old('phone') }}">
-                                    @error('phone')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="user_type" class="form-label fw-medium">Account Type</label>
-                                <select id="user_type" name="user_type" class="form-select @error('user_type') is-invalid @enderror" required>
-                                    <option value="">Select account type</option>
-                                    <option value="buyer" @selected(old('user_type') === 'buyer')>Buyer — I want to source products</option>
-                                    <option value="seller" @selected(old('user_type') === 'seller')>Seller — I want to sell products</option>
-                                </select>
-                                @error('user_type')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="password" class="form-label fw-medium">Password</label>
-                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror"
-                                       name="password" required>
-                                @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            </div>
-
-                            <div class="mb-4">
-                                <label for="password_confirmation" class="form-label fw-medium">Confirm Password</label>
-                                <input id="password_confirmation" type="password" class="form-control"
-                                       name="password_confirmation" required>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary-t4d text-white w-100 py-2">
-                                Create Account
-                            </button>
-
-                            <p class="text-center text-muted small mt-3 mb-0">
-                                Already registered?
-                                <a href="{{ route('login') }}" class="text-decoration-none fw-medium">Sign in</a>
-                            </p>
-                        </form>
-                    </div>
+            <div class="supplier-benefits">
+                <div class="supplier-benefit">
+                    <span class="supplier-benefit-icon"><i class="bi bi-list-check"></i></span>
+                    <span>Connect with Verified Buyers and Daily Buying Leads</span>
+                </div>
+                <div class="supplier-benefit">
+                    <span class="supplier-benefit-icon"><i class="bi bi-check-circle"></i></span>
+                    <span>Find, connect and reply to interested buyers faster</span>
+                </div>
+                <div class="supplier-benefit">
+                    <span class="supplier-benefit-icon"><i class="bi bi-diagram-3"></i></span>
+                    <span>Save time with product listings and seller profile tools</span>
                 </div>
             </div>
+
+            <div class="supplier-stat-card">
+                <div>
+                    <strong>Global</strong>
+                    <span>Buyer reach</span>
+                </div>
+                <div>
+                    <strong>B2B</strong>
+                    <span>Trade focused</span>
+                </div>
+                <div>
+                    <strong>Live</strong>
+                    <span>Buying leads</span>
+                </div>
+                <div>
+                    <strong>200+</strong>
+                    <span>Countries and regions</span>
+                </div>
+            </div>
+        </aside>
+
+        <div class="supplier-auth-main">
+            <div class="supplier-form-top">
+                <div>
+                    <h1 id="supplierRegisterTitle">Sign up as Supplier</h1>
+                    <p>Create your Trade4Deal seller account for your business.</p>
+                </div>
+                <a class="supplier-close-link" href="{{ route('home') }}" aria-label="Close registration"><i class="bi bi-x-lg"></i></a>
+            </div>
+
+            <div class="auth-switch">
+                <span>Already have an account?</span>
+                <a href="{{ route('login') }}">Log in</a>
+            </div>
+
+            <form class="supplier-register-form" method="POST" action="{{ route('register') }}">
+                @csrf
+
+                <div class="supplier-field">
+                    <i class="bi bi-building"></i>
+                    <input id="company_name" type="text" class="@error('company_name') is-invalid @enderror" name="company_name" value="{{ old('company_name') }}" placeholder="Enter your business name" required autofocus>
+                    @error('company_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+
+                <div class="supplier-two-col">
+                    <div class="supplier-field">
+                        <i class="bi bi-person"></i>
+                        <input id="name" type="text" class="@error('name') is-invalid @enderror" name="name" value="{{ old('name') }}" placeholder="Contact person name" required>
+                        @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+
+                    <div class="supplier-field">
+                        <i class="bi bi-telephone"></i>
+                        <input id="phone" type="text" class="@error('phone') is-invalid @enderror" name="phone" value="{{ old('phone') }}" placeholder="Mobile number">
+                        @error('phone')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                </div>
+
+                <div class="supplier-field">
+                    <i class="bi bi-envelope"></i>
+                    <input id="email" type="email" class="@error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" placeholder="Enter your business email" required>
+                    @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+
+                <div class="supplier-two-col">
+                    <div class="supplier-field">
+                        <i class="bi bi-geo-alt"></i>
+                        <input id="country" type="text" class="@error('country') is-invalid @enderror" name="country" value="{{ old('country') }}" placeholder="Country" required>
+                        @error('country')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+
+                    <div class="supplier-field">
+                        <i class="bi bi-shop-window"></i>
+                        <select id="user_type" name="user_type" class="@error('user_type') is-invalid @enderror" required>
+                            <option value="seller" @selected(old('user_type', 'seller') === 'seller')>Supplier / Seller</option>
+                            <option value="buyer" @selected(old('user_type') === 'buyer')>Buyer</option>
+                        </select>
+                        @error('user_type')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                </div>
+
+                <div class="supplier-two-col">
+                    <div class="supplier-field">
+                        <i class="bi bi-lock"></i>
+                        <input id="password" type="password" class="@error('password') is-invalid @enderror" name="password" placeholder="Create password" required>
+                        @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+
+                    <div class="supplier-field">
+                        <i class="bi bi-shield-lock"></i>
+                        <input id="password_confirmation" type="password" name="password_confirmation" placeholder="Confirm password" required>
+                    </div>
+                </div>
+
+                <div class="terms-line">
+                    <span class="terms-check"><i class="bi bi-check-lg"></i></span>
+                    <span>
+                        By joining, I agree to Trade4Deal
+                        <a href="{{ route('marketplace.page', ['page' => 'terms-of-use']) }}">Terms of Use</a>,
+                        <a href="{{ route('marketplace.page', ['page' => 'privacy-policy']) }}">Privacy Policy</a>
+                        and receive business/service emails related to my account.
+                    </span>
+                </div>
+
+                <button type="submit" class="supplier-submit">Create Supplier Account</button>
+
+                <div class="or-divider">OR</div>
+                <button type="button" class="google-placeholder">
+                    <span class="google-mark">G</span>
+                    Sign up with Google
+                </button>
+            </form>
         </div>
-    </div>
-</section>
+    </section>
+</main>
 @endsection

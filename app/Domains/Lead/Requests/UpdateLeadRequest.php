@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domains\Lead\Requests;
 
+use App\Domains\Lead\Requests\Concerns\ValidatesLeadProductImages;
+use App\Domains\Lead\Requests\Concerns\ValidatesLeadTradeTerms;
 use App\Support\Enums\BusinessType;
 use App\Support\Enums\Currency;
 use App\Support\Enums\LeadUnit;
@@ -14,6 +16,9 @@ use Illuminate\Validation\Rule;
 
 class UpdateLeadRequest extends FormRequest
 {
+    use ValidatesLeadProductImages;
+    use ValidatesLeadTradeTerms;
+
     public function authorize(): bool
     {
         return $this->user()?->canModerateLeads() ?? false;
@@ -33,12 +38,28 @@ class UpdateLeadRequest extends FormRequest
             'business_type' => ['required', Rule::enum(BusinessType::class)],
             'product_interest' => ['required', 'string', 'max:255'],
             'product_type' => ['required', Rule::enum(ProductType::class)],
-            'product_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            ...$this->leadProductImageRules(),
             'currency' => ['required', Rule::enum(Currency::class)],
             'units' => ['required', Rule::enum(LeadUnit::class)],
-            'payment_methods' => ['required', 'array', 'min:1'],
+            'payment_methods' => ['nullable', 'array'],
             'payment_methods.*' => [Rule::enum(PaymentMethod::class)],
             'message' => ['nullable', 'string', 'max:2000'],
+            ...$this->leadTradeTermRules(),
         ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return $this->leadTradeTermMessages();
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'payment_methods' => $this->input('payment_methods', []),
+        ]);
     }
 }

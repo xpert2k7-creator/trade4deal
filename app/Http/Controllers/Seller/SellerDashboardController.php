@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Seller;
 
-use App\Domains\Product\Models\Product;
 use App\Domains\Lead\Services\LeadService;
+use App\Domains\Product\Models\Product;
 use App\Domains\Product\Requests\StoreProductRequest;
 use App\Domains\Product\Requests\UpdateProductRequest;
 use App\Domains\Seller\Requests\UpdateSellerProfileRequest;
@@ -19,7 +19,9 @@ use Illuminate\View\View;
 class SellerDashboardController extends Controller
 {
     private const PRODUCT_IMAGE_DIRECTORY = 'products';
+
     private const SELLER_LOGO_DIRECTORY = 'sellers/logos';
+
     private const SELLER_COVER_DIRECTORY = 'sellers/covers';
 
     public function index(Request $request, LeadService $leadService): View

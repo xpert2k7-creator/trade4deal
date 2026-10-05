@@ -1,6 +1,10 @@
 *.log
 .ftpquota
 .DS_Store
+__MACOSX/
+test.html
+.html
+/public/build.zip
 .env
 .env.backup
 .env.production
@@ -25,3 +29,6 @@ Homestead.yaml
 Thumbs.db
 
 /500/
+/.ftpquota
+.phpunit.result.cache
+/trade4deal/
