@@ -645,7 +645,7 @@
                             @else
                                 <span class="product-img-fallback" aria-hidden="true"><i class="bi bi-box-seam"></i></span>
                             @endif
-                            <span class="product-photo-count"><i class="bi bi-images"></i> {{ $product->imageUrl() ? '1' : '0' }}</span>
+                            <span class="product-photo-count"><i class="bi bi-images"></i> {{ count($product->imagePathsList()) }}</span>
                         </a>
 
                         <div class="product-body">

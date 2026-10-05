@@ -12,7 +12,9 @@ use App\Support\Enums\RecordStatus;
 use App\Support\Enums\UserType;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class SellerDashboardTest extends TestCase
@@ -95,6 +97,94 @@ class SellerDashboardTest extends TestCase
             'name' => 'Cotton Fabric Rolls',
             'status' => RecordStatus::Active->value,
         ]);
+    }
+
+    public function test_seller_can_upload_multiple_product_images_on_create_and_update(): void
+    {
+        Storage::fake('public');
+
+        $seller = $this->seller();
+
+        $this->actingAs($seller)
+            ->post(route('seller.products.store'), [
+                'name' => 'Multi Photo Widget',
+                'description' => 'Sample product with gallery.',
+                'product_type' => ProductType::Electronics->value,
+                'currency' => 'USD',
+                'units' => 'pieces',
+                'status' => RecordStatus::Active->value,
+                'product_images' => [
+                    UploadedFile::fake()->image('a.jpg'),
+                    UploadedFile::fake()->image('b.jpg'),
+                ],
+            ])
+            ->assertRedirect(route('seller.products.index'));
+
+        $product = Product::query()->where('user_id', $seller->id)->where('name', 'Multi Photo Widget')->first();
+        $this->assertNotNull($product);
+        $this->assertCount(2, $product->imagePathsList());
+        $this->assertNotNull($product->image_path);
+
+        foreach ($product->imagePathsList() as $path) {
+            Storage::disk('public')->assertExists($path);
+            $this->assertStringStartsWith('members/'.$seller->id.'/products/', $path);
+        }
+
+        $firstPath = $product->imagePathsList()[0];
+
+        $this->actingAs($seller)
+            ->put(route('seller.products.update', $product), [
+                'name' => 'Multi Photo Widget',
+                'description' => 'Sample product with gallery.',
+                'product_type' => ProductType::Electronics->value,
+                'currency' => 'USD',
+                'units' => 'pieces',
+                'status' => RecordStatus::Active->value,
+                'remove_product_images' => [$firstPath],
+                'product_images' => [
+                    UploadedFile::fake()->image('c.jpg'),
+                ],
+            ])
+            ->assertRedirect(route('seller.products.edit', $product));
+
+        $product->refresh();
+        $this->assertCount(2, $product->imagePathsList());
+        Storage::disk('public')->assertMissing($firstPath);
+    }
+
+    public function test_public_seller_page_shows_product_images(): void
+    {
+        Storage::fake('public');
+
+        $seller = $this->seller([
+            'company_name' => 'BK International',
+            'slug' => 'bk-international',
+            'is_public' => true,
+        ]);
+
+        $this->actingAs($seller)
+            ->post(route('seller.products.store'), [
+                'name' => 'Catalog Tee',
+                'description' => 'Cotton tee for export.',
+                'product_type' => ProductType::Textiles->value,
+                'currency' => 'USD',
+                'units' => 'pieces',
+                'status' => RecordStatus::Active->value,
+                'product_images' => [
+                    UploadedFile::fake()->image('catalog.jpg'),
+                ],
+            ])
+            ->assertRedirect(route('seller.products.index'));
+
+        $product = Product::query()->where('user_id', $seller->id)->where('name', 'Catalog Tee')->first();
+        $this->assertNotNull($product);
+        $imageUrl = $product->imageUrl();
+        $this->assertNotNull($imageUrl);
+
+        $this->get(route('sellers.show', 'bk-international'))
+            ->assertOk()
+            ->assertSee('Catalog Tee', false)
+            ->assertSee($imageUrl, false);
     }
 
     public function test_buyer_cannot_access_seller_dashboard(): void
