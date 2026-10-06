@@ -9,6 +9,7 @@ use App\Domains\Auth\Notifications\WelcomeUserNotification;
 use App\Models\User;
 use App\Support\Enums\RecordStatus;
 use App\Support\Enums\UserPlan;
+use App\Support\PhoneNumber;
 use Spatie\Permission\Models\Role;
 
 class AuthService
@@ -21,6 +22,7 @@ class AuthService
             // Password is hashed by the User model cast — do not Hash::make here.
             'password' => $dto->password,
             'phone' => $dto->phone,
+            'phone_normalized' => PhoneNumber::normalize($dto->phone, $dto->country),
             'company_name' => $dto->companyName,
             'country' => $dto->country,
             'user_type' => $dto->userType,

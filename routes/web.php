@@ -69,6 +69,7 @@ Route::middleware(['auth', 'role:seller|admin'])->prefix('seller')->name('seller
     Route::put('/profile', [SellerDashboardController::class, 'updateProfile'])->name('profile.update');
     Route::get('/products', [SellerDashboardController::class, 'products'])->name('products.index');
     Route::get('/products/create', [SellerDashboardController::class, 'createProduct'])->name('products.create');
+    Route::get('/products/category-fields', [SellerDashboardController::class, 'categoryFields'])->name('products.category-fields');
     Route::post('/products', [SellerDashboardController::class, 'storeProduct'])->name('products.store');
     Route::get('/products/{product}/edit', [SellerDashboardController::class, 'editProduct'])->name('products.edit');
     Route::put('/products/{product}', [SellerDashboardController::class, 'updateProduct'])->name('products.update');

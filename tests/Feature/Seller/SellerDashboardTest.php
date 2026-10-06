@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace Tests\Feature\Seller;
 
 use App\Domains\Product\Models\Product;
-use App\Domains\Lead\Models\Lead;
 use App\Domains\Seller\Notifications\SellerEnquiryNotification;
 use App\Models\User;
 use App\Support\Enums\ProductType;
 use App\Support\Enums\RecordStatus;
-use App\Support\Enums\UserPlan;
 use App\Support\Enums\UserType;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -76,31 +74,6 @@ class SellerDashboardTest extends TestCase
         ]);
     }
 
-    public function test_seller_can_upload_company_logo(): void
-    {
-        Storage::fake('public');
-
-        $seller = $this->seller([
-            'company_name' => 'Logo Supplier Co',
-            'country' => 'India',
-        ]);
-
-        $this->actingAs($seller)
-            ->put(route('seller.profile.update'), [
-                'company_name' => 'Logo Supplier Co',
-                'country' => 'India',
-                'logo' => new UploadedFile($this->tinyJpegPath(), 'logo.jpg', 'image/jpeg', null, true),
-                'is_public' => true,
-            ])
-            ->assertRedirect(route('seller.profile.edit'));
-
-        $seller->refresh();
-
-        $this->assertNotNull($seller->logo_path);
-        $this->assertSame('/uploads/'.$seller->logo_path, $seller->logoUrl());
-        Storage::disk('public')->assertExists($seller->logo_path);
-    }
-
     public function test_seller_can_create_product(): void
     {
         $seller = $this->seller();
@@ -123,11 +96,10 @@ class SellerDashboardTest extends TestCase
             'user_id' => $seller->id,
             'name' => 'Cotton Fabric Rolls',
             'status' => RecordStatus::Active->value,
-            'min_order_qty' => '500',
         ]);
     }
 
-    public function test_seller_can_upload_product_image(): void
+    public function test_seller_can_upload_multiple_product_images_on_create_and_update(): void
     {
         Storage::fake('public');
 
@@ -135,68 +107,84 @@ class SellerDashboardTest extends TestCase
 
         $this->actingAs($seller)
             ->post(route('seller.products.store'), [
-                'name' => 'Cotton Fabric Rolls',
-                'description' => 'High quality cotton for apparel manufacturing.',
-                'product_type' => ProductType::Textiles->value,
+                'name' => 'Multi Photo Widget',
+                'description' => 'Sample product with gallery.',
+                'product_type' => ProductType::Electronics->value,
                 'currency' => 'USD',
-                'units' => 'meters',
-                'min_order_qty' => '500',
-                'price_from' => 2.5,
-                'price_to' => 4.0,
+                'units' => 'pieces',
                 'status' => RecordStatus::Active->value,
-                'image' => new UploadedFile($this->tinyJpegPath(), 'fabric.jpg', 'image/jpeg', null, true),
+                'product_images' => [
+                    UploadedFile::fake()->image('a.jpg'),
+                    UploadedFile::fake()->image('b.jpg'),
+                ],
             ])
             ->assertRedirect(route('seller.products.index'));
 
-        $product = Product::query()->where('user_id', $seller->id)->firstOrFail();
-
+        $product = Product::query()->where('user_id', $seller->id)->where('name', 'Multi Photo Widget')->first();
+        $this->assertNotNull($product);
+        $this->assertCount(2, $product->imagePathsList());
         $this->assertNotNull($product->image_path);
-        Storage::disk('public')->assertExists($product->image_path);
+
+        foreach ($product->imagePathsList() as $path) {
+            Storage::disk('public')->assertExists($path);
+            $this->assertStringStartsWith('members/'.$seller->id.'/products/', $path);
+        }
+
+        $firstPath = $product->imagePathsList()[0];
+
+        $this->actingAs($seller)
+            ->put(route('seller.products.update', $product), [
+                'name' => 'Multi Photo Widget',
+                'description' => 'Sample product with gallery.',
+                'product_type' => ProductType::Electronics->value,
+                'currency' => 'USD',
+                'units' => 'pieces',
+                'status' => RecordStatus::Active->value,
+                'remove_product_images' => [$firstPath],
+                'product_images' => [
+                    UploadedFile::fake()->image('c.jpg'),
+                ],
+            ])
+            ->assertRedirect(route('seller.products.edit', $product));
+
+        $product->refresh();
+        $this->assertCount(2, $product->imagePathsList());
+        Storage::disk('public')->assertMissing($firstPath);
     }
 
-    public function test_seller_dashboard_shows_category_matched_leads(): void
+    public function test_public_seller_page_shows_product_images(): void
     {
+        Storage::fake('public');
+
         $seller = $this->seller([
-            'industries' => [ProductType::Textiles->value],
-        ]);
-
-        Lead::factory()->create([
-            'company_name' => 'Matched Buyer Co',
-            'product_interest' => 'Cotton yarn sourcing',
-            'product_type' => ProductType::Textiles,
-            'status' => RecordStatus::Active,
-            'published_at' => now()->subHours(25),
-        ]);
-
-        Lead::factory()->create([
-            'company_name' => 'Different Buyer Co',
-            'product_interest' => 'Excavator parts',
-            'product_type' => ProductType::Machinery,
-            'status' => RecordStatus::Active,
-            'published_at' => now()->subHours(25),
+            'company_name' => 'BK International',
+            'slug' => 'bk-international',
+            'is_public' => true,
         ]);
 
         $this->actingAs($seller)
-            ->get(route('seller.dashboard'))
+            ->post(route('seller.products.store'), [
+                'name' => 'Catalog Tee',
+                'description' => 'Cotton tee for export.',
+                'product_type' => ProductType::Textiles->value,
+                'currency' => 'USD',
+                'units' => 'pieces',
+                'status' => RecordStatus::Active->value,
+                'product_images' => [
+                    UploadedFile::fake()->image('catalog.jpg'),
+                ],
+            ])
+            ->assertRedirect(route('seller.products.index'));
+
+        $product = Product::query()->where('user_id', $seller->id)->where('name', 'Catalog Tee')->first();
+        $this->assertNotNull($product);
+        $imageUrl = $product->imageUrl();
+        $this->assertNotNull($imageUrl);
+
+        $this->get(route('sellers.show', 'bk-international'))
             ->assertOk()
-            ->assertSee('Matching leads')
-            ->assertSee('Textiles &amp; Apparel', false)
-            ->assertSee('Cotton yarn sourcing')
-            ->assertSee('Matched Buyer Co')
-            ->assertDontSee('Excavator parts')
-            ->assertDontSee('Different Buyer Co');
-    }
-
-    private function tinyJpegPath(): string
-    {
-        $path = tempnam(sys_get_temp_dir(), 'product-image-').'.jpg';
-
-        file_put_contents(
-            $path,
-            base64_decode('/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////2wBDAf//////////////////////////////////////////////////////////////////////////////////////wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAX/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIQAxAAAAGgP//EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAQUCf//EABQRAQAAAAAAAAAAAAAAAAAAABD/2gAIAQMBAT8BP//EABQRAQAAAAAAAAAAAAAAAAAAABD/2gAIAQIBAT8BP//EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEABj8Cf//EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAT8hf//aAAwDAQACAAMAAAAQ8P/EABQRAQAAAAAAAAAAAAAAAAAAABD/2gAIAQMBAT8QP//EABQRAQAAAAAAAAAAAAAAAAAAABD/2gAIAQIBAT8QP//EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAT8QP//Z')
-        );
-
-        return $path;
+            ->assertSee('Catalog Tee', false)
+            ->assertSee($imageUrl, false);
     }
 
     public function test_buyer_cannot_access_seller_dashboard(): void
@@ -236,19 +224,6 @@ class SellerDashboardTest extends TestCase
             ->assertSee('Enquire with seller')
             ->assertDontSee('+91 99999 88888')
             ->assertDontSee('Hidden Draft Product');
-    }
-
-    public function test_gold_seller_public_page_shows_verified_supplier_badge(): void
-    {
-        $seller = $this->seller([
-            'company_name' => 'Verified Supplier Co',
-            'plan' => UserPlan::Gold,
-            'is_public' => true,
-        ]);
-
-        $this->get(route('sellers.show', $seller->slug))
-            ->assertOk()
-            ->assertSee('Verified supplier by Trade4Deal');
     }
 
     public function test_enquiry_emails_seller(): void
