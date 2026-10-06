@@ -51,7 +51,7 @@ class EmployeeUserPlanTest extends TestCase
         ]);
 
         $this->actingAs($this->employee())
-            ->get(route('employee.users.index'))
+            ->get(route('verification.users.index'))
             ->assertOk()
             ->assertSee('User Plans')
             ->assertSee('Market Buyer');
@@ -69,13 +69,13 @@ class EmployeeUserPlanTest extends TestCase
         $seller->assignRole('seller');
 
         $this->actingAs($this->admin())
-            ->get(route('employee.users.sellers.edit', $seller))
+            ->get(route('verification.users.sellers.edit', $seller))
             ->assertOk()
             ->assertSee('Original Supplier Co')
             ->assertSee('Seller snapshot');
 
         $this->actingAs($this->admin())
-            ->put(route('employee.users.sellers.update', $seller), [
+            ->put(route('verification.users.sellers.update', $seller), [
                 'name' => 'Updated Seller',
                 'email' => 'seller-updated@example.com',
                 'company_name' => 'Updated Supplier Co',
@@ -86,7 +86,7 @@ class EmployeeUserPlanTest extends TestCase
                 'industries' => [ProductType::Textiles->value],
                 'is_public' => true,
             ])
-            ->assertRedirect(route('employee.users.sellers.edit', $seller));
+            ->assertRedirect(route('verification.users.sellers.edit', $seller));
 
         $this->assertDatabaseHas('users', [
             'id' => $seller->id,
@@ -105,7 +105,7 @@ class EmployeeUserPlanTest extends TestCase
         $seller->assignRole('seller');
 
         $this->actingAs($this->employee())
-            ->get(route('employee.users.sellers.edit', $seller))
+            ->get(route('verification.users.sellers.edit', $seller))
             ->assertForbidden();
     }
 
@@ -117,10 +117,10 @@ class EmployeeUserPlanTest extends TestCase
         ]);
 
         $this->actingAs($this->employee())
-            ->patch(route('employee.users.plan.update', $buyer), [
+            ->patch(route('verification.users.plan.update', $buyer), [
                 'plan' => UserPlan::Gold->value,
             ])
-            ->assertRedirect(route('employee.users.index'))
+            ->assertRedirect(route('verification.users.index'))
             ->assertSessionHas('success');
 
         $this->assertEquals(UserPlan::Gold, $buyer->fresh()->plan);
@@ -134,10 +134,10 @@ class EmployeeUserPlanTest extends TestCase
         ]);
 
         $this->actingAs($this->employee())
-            ->patch(route('employee.users.plan.update', $buyer), [
+            ->patch(route('verification.users.plan.update', $buyer), [
                 'plan' => UserPlan::Free->value,
             ])
-            ->assertRedirect(route('employee.users.index'))
+            ->assertRedirect(route('verification.users.index'))
             ->assertSessionHas('success');
 
         $this->assertEquals(UserPlan::Free, $buyer->fresh()->plan);
@@ -151,7 +151,7 @@ class EmployeeUserPlanTest extends TestCase
         ]);
 
         $this->actingAs($this->employee())
-            ->patch(route('employee.users.plan.update', $staff), [
+            ->patch(route('verification.users.plan.update', $staff), [
                 'plan' => UserPlan::Gold->value,
             ])
             ->assertForbidden();
@@ -165,7 +165,7 @@ class EmployeeUserPlanTest extends TestCase
         $buyer->assignRole('buyer');
 
         $this->actingAs($buyer)
-            ->get(route('employee.users.index'))
+            ->get(route('verification.users.index'))
             ->assertForbidden();
     }
 }

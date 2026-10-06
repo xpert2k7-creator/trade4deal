@@ -108,7 +108,7 @@ class UserManagementController extends Controller
         $user->ensureSellerSlug();
 
         return redirect()
-            ->route('employee.users.sellers.edit', $user)
+            ->route('verification.users.sellers.edit', $user)
             ->with('success', 'Seller details updated successfully.');
     }
 
@@ -120,7 +120,7 @@ class UserManagementController extends Controller
 
         if ($user->plan === $plan) {
             return redirect()
-                ->route('employee.users.index', $request->only('q'))
+                ->route('verification.users.index', $request->only('q'))
                 ->with('success', "{$user->name} is already on the {$plan->label()} plan.");
         }
 
@@ -129,7 +129,7 @@ class UserManagementController extends Controller
         $action = $plan->isGold() ? 'upgraded to Gold' : 'downgraded to Free';
 
         return redirect()
-            ->route('employee.users.index', $request->only('q'))
+            ->route('verification.users.index', $request->only('q'))
             ->with('success', "{$user->name} has been {$action}.");
     }
 }

@@ -6,8 +6,10 @@ namespace App\Domains\Lead\Repositories\Contracts;
 
 use App\Domains\Lead\Models\Lead;
 use App\Models\User;
+use App\Support\Enums\LeadSource;
 use App\Support\Enums\RecordStatus;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 interface LeadRepositoryInterface
@@ -67,4 +69,19 @@ interface LeadRepositoryInterface
      * @return Collection<int, Lead>
      */
     public function getSimilarVisible(Lead $lead, ?User $viewer, int $limit = 4): Collection;
+
+    public function paginateForCreator(
+        string $creatorId,
+        ?RecordStatus $status = null,
+        int $perPage = 15,
+    ): LengthAwarePaginator;
+
+    public function countForCreator(string $creatorId, ?Carbon $from = null, ?Carbon $to = null): int;
+
+    /**
+     * @return Collection<int, object{day: string, total: int}>
+     */
+    public function dailyCountsForCreator(string $creatorId, Carbon $from, Carbon $to): Collection;
+
+    public function countBySource(LeadSource $source, ?Carbon $from = null, ?Carbon $to = null): int;
 }

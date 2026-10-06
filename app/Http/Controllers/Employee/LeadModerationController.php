@@ -15,6 +15,7 @@ use App\Domains\Lead\Requests\StoreLeadRequest;
 use App\Domains\Lead\Requests\UpdateLeadRequest;
 use App\Domains\Lead\Services\LeadService;
 use App\Http\Controllers\Controller;
+use App\Support\Enums\LeadSource;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -46,6 +47,7 @@ class LeadModerationController extends Controller
             'country' => $request->string('country')->toString() ?: null,
             'date_from' => $request->string('date_from')->toString() ?: null,
             'date_to' => $request->string('date_to')->toString() ?: null,
+            'source' => $request->string('source')->toString() ?: null,
         ];
 
         return view('employee.leads.index', [
@@ -79,6 +81,7 @@ class LeadModerationController extends Controller
 
         $data = $request->validated();
         $data['user_id'] = auth()->id();
+        $data['source'] = LeadSource::Employee->value;
 
         if ($request->hasFile('product_image')) {
             $file = $request->file('product_image');
@@ -95,7 +98,7 @@ class LeadModerationController extends Controller
         $createLeadAction->execute(CreateLeadDTO::fromArray($data));
 
         return redirect()
-            ->route('employee.leads.index', ['status' => 'pending'])
+            ->route('verification.leads.index', ['status' => 'pending'])
             ->with('success', 'Lead submitted successfully and added to the pending review queue.');
     }
 
@@ -130,7 +133,7 @@ class LeadModerationController extends Controller
         $updateLeadAction->execute($lead, UpdateLeadDTO::fromArray($data));
 
         return redirect()
-            ->route('employee.leads.edit', $lead)
+            ->route('verification.leads.edit', $lead)
             ->with('success', 'Lead details updated successfully.');
     }
 
@@ -143,7 +146,7 @@ class LeadModerationController extends Controller
         $approveLeadAction->execute($lead);
 
         return redirect()
-            ->route('employee.leads.index', ['status' => 'pending'])
+            ->route('verification.leads.index', ['status' => 'pending'])
             ->with('success', 'Lead approved and published. The submitter has been emailed.');
     }
 
@@ -156,7 +159,7 @@ class LeadModerationController extends Controller
         $rejectLeadAction->execute($lead);
 
         return redirect()
-            ->route('employee.leads.index', ['status' => 'pending'])
+            ->route('verification.leads.index', ['status' => 'pending'])
             ->with('success', 'Lead rejected. The submitter has been notified.');
     }
 }

@@ -58,7 +58,7 @@ class EmployeeLeadFiltersTest extends TestCase
         ]);
 
         $this->actingAs($this->employee())
-            ->get(route('employee.leads.index', [
+            ->get(route('verification.leads.index', [
                 'status' => 'pending',
                 'product_type' => ProductType::Machinery->value,
             ]))
@@ -80,7 +80,7 @@ class EmployeeLeadFiltersTest extends TestCase
         ]);
 
         $this->actingAs($this->employee())
-            ->get(route('employee.leads.index', [
+            ->get(route('verification.leads.index', [
                 'status' => 'pending',
                 'name' => 'Alpha',
                 'country' => 'India',
@@ -95,7 +95,7 @@ class EmployeeLeadFiltersTest extends TestCase
         Lead::factory()->count(12)->pending()->create();
 
         $response = $this->actingAs($this->employee())
-            ->get(route('employee.leads.index', [
+            ->get(route('verification.leads.index', [
                 'status' => 'pending',
                 'per_page' => 10,
             ]));

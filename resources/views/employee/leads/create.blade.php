@@ -4,7 +4,7 @@
 @section('page-title', 'Submit Lead')
 
 @section('topbar-actions')
-    <a href="{{ route('employee.leads.index', ['status' => 'pending']) }}" class="btn btn-sm btn-outline-secondary">Back to queue</a>
+    <a href="{{ route('verification.leads.index', ['status' => 'pending']) }}" class="btn btn-sm btn-outline-secondary">Back to queue</a>
 @endsection
 
 @section('content')
@@ -19,7 +19,7 @@
                     Submit a lead on behalf of a business. It will enter the pending queue for review before going live.
                 </p>
 
-                <form method="POST" action="{{ route('employee.leads.store') }}" enctype="multipart/form-data">
+                <form method="POST" action="{{ route('verification.leads.store') }}" enctype="multipart/form-data">
                     @csrf
 
                     <div class="row g-3">
@@ -137,7 +137,7 @@
 
                     <div class="d-flex gap-2 mt-4">
                         <button type="submit" class="btn btn-primary-t4d">Submit lead</button>
-                        <a href="{{ route('employee.dashboard') }}" class="btn btn-outline-secondary">Cancel</a>
+                        <a href="{{ route('verification.dashboard') }}" class="btn btn-outline-secondary">Cancel</a>
                     </div>
                 </form>
             </div>

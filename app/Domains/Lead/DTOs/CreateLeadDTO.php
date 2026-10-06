@@ -6,6 +6,7 @@ namespace App\Domains\Lead\DTOs;
 
 use App\Support\Enums\BusinessType;
 use App\Support\Enums\Currency;
+use App\Support\Enums\LeadSource;
 use App\Support\Enums\LeadUnit;
 use App\Support\Enums\ProductType;
 
@@ -20,6 +21,7 @@ readonly class CreateLeadDTO
         public string $email,
         public ?string $phone,
         public string $country,
+        public ?string $city,
         public BusinessType $businessType,
         public string $productInterest,
         public ProductType $productType,
@@ -29,6 +31,7 @@ readonly class CreateLeadDTO
         public array $paymentMethods,
         public ?string $message,
         public ?string $userId = null,
+        public LeadSource $source = LeadSource::User,
     ) {}
 
     /**
@@ -42,6 +45,7 @@ readonly class CreateLeadDTO
             email: $data['email'],
             phone: $data['phone'] ?? null,
             country: $data['country'],
+            city: isset($data['city']) && is_string($data['city']) && $data['city'] !== '' ? $data['city'] : null,
             businessType: BusinessType::from($data['business_type']),
             productInterest: $data['product_interest'],
             productType: ProductType::from($data['product_type']),
@@ -51,6 +55,9 @@ readonly class CreateLeadDTO
             paymentMethods: $data['payment_methods'] ?? [],
             message: $data['message'] ?? null,
             userId: $data['user_id'] ?? null,
+            source: isset($data['source'])
+                ? ($data['source'] instanceof LeadSource ? $data['source'] : LeadSource::from((string) $data['source']))
+                : LeadSource::User,
         );
     }
 
@@ -65,6 +72,7 @@ readonly class CreateLeadDTO
             'email' => $this->email,
             'phone' => $this->phone,
             'country' => $this->country,
+            'city' => $this->city,
             'business_type' => $this->businessType->value,
             'product_interest' => $this->productInterest,
             'product_type' => $this->productType->value,
@@ -74,6 +82,7 @@ readonly class CreateLeadDTO
             'payment_methods' => $this->paymentMethods,
             'message' => $this->message,
             'user_id' => $this->userId,
+            'source' => $this->source->value,
         ];
     }
 }

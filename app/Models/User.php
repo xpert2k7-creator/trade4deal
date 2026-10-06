@@ -110,6 +110,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasRole('employee') || $this->user_type === UserType::Employee;
     }
 
+    public function isSourcing(): bool
+    {
+        return $this->hasRole('sourcing') || $this->user_type === UserType::Sourcing;
+    }
+
     public function isSeller(): bool
     {
         return $this->user_type === UserType::Seller || $this->hasRole('seller');

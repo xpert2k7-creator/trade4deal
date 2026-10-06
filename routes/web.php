@@ -1,7 +1,11 @@
 <?php
 
 use App\Http\Controllers\Employee\LeadModerationController;
+use App\Http\Controllers\Employee\EmployeeTeamController;
+use App\Http\Controllers\Employee\SourcingTeamController;
 use App\Http\Controllers\Employee\UserManagementController;
+use App\Http\Controllers\Sourcing\DashboardController as SourcingDashboardController;
+use App\Http\Controllers\Sourcing\LeadController as SourcingLeadController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Seller\SellerDashboardController;
 use App\Http\Controllers\Web\HomeController;
@@ -47,7 +51,10 @@ Route::get('/dashboard', function () {
         return redirect()->route('seller.dashboard');
     }
     if ($user?->canModerateLeads()) {
-        return redirect()->route('employee.dashboard');
+        return redirect()->route('verification.dashboard');
+    }
+    if ($user?->isSourcing()) {
+        return redirect()->route('sourcing.dashboard');
     }
 
     return view('dashboard');
@@ -76,7 +83,7 @@ Route::middleware(['auth', 'role:seller|admin'])->prefix('seller')->name('seller
     Route::delete('/products/{product}', [SellerDashboardController::class, 'destroyProduct'])->name('products.destroy');
 });
 
-Route::middleware(['auth', 'role:admin|employee'])->prefix('employee')->name('employee.')->group(function () {
+Route::middleware(['auth', 'role:admin|employee'])->prefix('verification')->name('verification.')->group(function () {
     Route::get('/', [LeadModerationController::class, 'dashboard'])->name('dashboard');
     Route::get('/leads/create', [LeadModerationController::class, 'create'])->name('leads.create');
     Route::post('/leads', [LeadModerationController::class, 'store'])->name('leads.store');
@@ -90,6 +97,31 @@ Route::middleware(['auth', 'role:admin|employee'])->prefix('employee')->name('em
     Route::patch('/users/{user}/plan', [UserManagementController::class, 'updatePlan'])->name('users.plan.update');
     Route::get('/users/{user}/seller', [UserManagementController::class, 'editSeller'])->name('users.sellers.edit');
     Route::put('/users/{user}/seller', [UserManagementController::class, 'updateSeller'])->name('users.sellers.update');
+
+    Route::middleware('role:admin')->prefix('sourcing-team')->name('sourcing-team.')->group(function () {
+        Route::get('/', [SourcingTeamController::class, 'index'])->name('index');
+        Route::get('/create', [SourcingTeamController::class, 'create'])->name('create');
+        Route::post('/', [SourcingTeamController::class, 'store'])->name('store');
+        Route::get('/{sourcingUser}/edit', [SourcingTeamController::class, 'edit'])->name('edit');
+        Route::put('/{sourcingUser}', [SourcingTeamController::class, 'update'])->name('update');
+        Route::delete('/{sourcingUser}', [SourcingTeamController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::middleware('role:admin')->prefix('employee-team')->name('employee-team.')->group(function () {
+        Route::get('/', [EmployeeTeamController::class, 'index'])->name('index');
+        Route::get('/create', [EmployeeTeamController::class, 'create'])->name('create');
+        Route::post('/', [EmployeeTeamController::class, 'store'])->name('store');
+        Route::get('/{employeeUser}/edit', [EmployeeTeamController::class, 'edit'])->name('edit');
+        Route::put('/{employeeUser}', [EmployeeTeamController::class, 'update'])->name('update');
+        Route::delete('/{employeeUser}', [EmployeeTeamController::class, 'destroy'])->name('destroy');
+    });
+});
+
+Route::middleware(['auth', 'role:sourcing'])->prefix('sourcing')->name('sourcing.')->group(function () {
+    Route::get('/', SourcingDashboardController::class)->name('dashboard');
+    Route::get('/leads/create', [SourcingLeadController::class, 'create'])->name('leads.create');
+    Route::post('/leads', [SourcingLeadController::class, 'store'])->name('leads.store');
+    Route::get('/leads', [SourcingLeadController::class, 'index'])->name('leads.index');
 });
 
 Route::middleware('auth')->group(function () {

@@ -4,10 +4,10 @@
 @section('page-title', 'Moderation Overview')
 
 @section('topbar-actions')
-    <a href="{{ route('employee.leads.create') }}" class="btn btn-sm btn-outline-secondary me-1">
+    <a href="{{ route('verification.leads.create') }}" class="btn btn-sm btn-outline-secondary me-1">
         <i class="bi bi-plus-lg"></i> Submit lead
     </a>
-    <a href="{{ route('employee.leads.index', ['status' => 'pending']) }}" class="btn btn-primary-t4d btn-sm">
+    <a href="{{ route('verification.leads.index', ['status' => 'pending']) }}" class="btn btn-primary-t4d btn-sm">
         Review queue
     </a>
 @endsection
@@ -43,7 +43,7 @@
 <div class="panel">
     <div class="panel-header">
         <h2>Pending review</h2>
-        <a href="{{ route('employee.leads.index', ['status' => 'pending']) }}" class="small fw-semibold text-decoration-none" style="color: var(--t4d-primary);">
+        <a href="{{ route('verification.leads.index', ['status' => 'pending']) }}" class="small fw-semibold text-decoration-none" style="color: var(--t4d-primary);">
             View all
         </a>
     </div>
@@ -78,12 +78,12 @@
                         <td>{{ $lead->country }}</td>
                         <td class="small text-muted">{{ $lead->created_at?->diffForHumans() }}</td>
                         <td class="text-end text-nowrap">
-                            <a href="{{ route('employee.leads.edit', $lead) }}" class="btn btn-sm btn-outline-secondary me-1">Edit</a>
-                            <form action="{{ route('employee.leads.approve', $lead) }}" method="POST" class="d-inline">
+                            <a href="{{ route('verification.leads.edit', $lead) }}" class="btn btn-sm btn-outline-secondary me-1">Edit</a>
+                            <form action="{{ route('verification.leads.approve', $lead) }}" method="POST" class="d-inline">
                                 @csrf
                                 <button type="submit" class="btn btn-sm btn-approve me-1">Approve</button>
                             </form>
-                            <form action="{{ route('employee.leads.reject', $lead) }}" method="POST" class="d-inline" onsubmit="return confirm('Reject this lead and notify the submitter?');">
+                            <form action="{{ route('verification.leads.reject', $lead) }}" method="POST" class="d-inline" onsubmit="return confirm('Reject this lead and notify the submitter?');">
                                 @csrf
                                 <button type="submit" class="btn btn-sm btn-reject">Reject</button>
                             </form>

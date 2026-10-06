@@ -6,6 +6,7 @@ namespace Database\Factories;
 
 use App\Domains\Lead\Models\Lead;
 use App\Support\Enums\BusinessType;
+use App\Support\Enums\LeadSource;
 use App\Support\Enums\Currency;
 use App\Support\Enums\LeadUnit;
 use App\Support\Enums\PaymentMethod;
@@ -46,6 +47,7 @@ class LeadFactory extends Factory
             'units' => fake()->randomElement(LeadUnit::cases())->value,
             'payment_methods' => [PaymentMethod::WireTransfer->value, PaymentMethod::LetterOfCredit->value],
             'message' => fake()->optional()->sentence(),
+            'source' => LeadSource::User,
             'status' => RecordStatus::Active,
             'published_at' => now()->subDays(2),
         ];

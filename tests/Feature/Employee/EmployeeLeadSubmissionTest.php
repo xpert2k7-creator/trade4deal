@@ -7,6 +7,7 @@ namespace Tests\Feature\Employee;
 use App\Domains\Lead\Models\Lead;
 use App\Models\User;
 use App\Support\Enums\Currency;
+use App\Support\Enums\LeadSource;
 use App\Support\Enums\LeadUnit;
 use App\Support\Enums\PaymentMethod;
 use App\Support\Enums\ProductType;
@@ -60,7 +61,7 @@ class EmployeeLeadSubmissionTest extends TestCase
     public function test_employee_can_view_submit_lead_form(): void
     {
         $this->actingAs($this->employee())
-            ->get(route('employee.leads.create'))
+            ->get(route('verification.leads.create'))
             ->assertOk()
             ->assertSee('Submit Lead')
             ->assertSee('New business lead');
@@ -71,16 +72,17 @@ class EmployeeLeadSubmissionTest extends TestCase
         Storage::fake('public');
 
         $this->actingAs($this->employee())
-            ->post(route('employee.leads.store'), array_merge($this->validPayload(), [
+            ->post(route('verification.leads.store'), array_merge($this->validPayload(), [
                 'product_image' => new UploadedFile($this->tinyJpegPath(), 'product.jpg', 'image/jpeg', null, true),
             ]))
-            ->assertRedirect(route('employee.leads.index', ['status' => 'pending']))
+            ->assertRedirect(route('verification.leads.index', ['status' => 'pending']))
             ->assertSessionHas('success');
 
         $this->assertDatabaseHas('leads', [
             'company_name' => 'Staff Submitted Co',
             'email' => 'client@example.com',
             'status' => RecordStatus::Pending->value,
+            'source' => LeadSource::Employee->value,
         ]);
     }
 

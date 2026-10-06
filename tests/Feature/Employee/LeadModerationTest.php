@@ -54,20 +54,20 @@ class LeadModerationTest extends TestCase
 
     public function test_guest_cannot_access_employee_dashboard(): void
     {
-        $this->get(route('employee.dashboard'))->assertRedirect(route('login'));
+        $this->get(route('verification.dashboard'))->assertRedirect(route('login'));
     }
 
     public function test_buyer_cannot_access_employee_dashboard(): void
     {
         $this->actingAs($this->buyer())
-            ->get(route('employee.dashboard'))
+            ->get(route('verification.dashboard'))
             ->assertForbidden();
     }
 
     public function test_employee_can_access_dashboard(): void
     {
         $this->actingAs($this->employee())
-            ->get(route('employee.dashboard'))
+            ->get(route('verification.dashboard'))
             ->assertOk()
             ->assertSee('Moderation Overview');
     }
@@ -83,7 +83,7 @@ class LeadModerationTest extends TestCase
         ]);
 
         $this->actingAs($this->employee())
-            ->post(route('employee.leads.approve', $lead))
+            ->post(route('verification.leads.approve', $lead))
             ->assertRedirect();
 
         $this->assertDatabaseHas('leads', [
@@ -117,7 +117,7 @@ class LeadModerationTest extends TestCase
         ]);
 
         $this->actingAs($this->employee())
-            ->post(route('employee.leads.reject', $lead))
+            ->post(route('verification.leads.reject', $lead))
             ->assertRedirect();
 
         $this->assertDatabaseHas('leads', [
@@ -139,7 +139,7 @@ class LeadModerationTest extends TestCase
         ]);
 
         $this->actingAs($this->employee())
-            ->put(route('employee.leads.update', $lead), [
+            ->put(route('verification.leads.update', $lead), [
                 'company_name' => 'New Name Co',
                 'contact_name' => 'Jane Doe',
                 'email' => 'jane@example.com',
@@ -153,7 +153,7 @@ class LeadModerationTest extends TestCase
                 'payment_methods' => ['wire_transfer'],
                 'message' => 'Updated message',
             ])
-            ->assertRedirect(route('employee.leads.edit', $lead));
+            ->assertRedirect(route('verification.leads.edit', $lead));
 
         $this->assertDatabaseHas('leads', [
             'id' => $lead->id,

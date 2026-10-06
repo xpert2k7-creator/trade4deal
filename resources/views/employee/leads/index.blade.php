@@ -4,7 +4,7 @@
 @section('page-title', 'Lead Queue')
 
 @section('topbar-actions')
-    <a href="{{ route('employee.leads.create') }}" class="btn btn-sm btn-primary-t4d">
+    <a href="{{ route('verification.leads.create') }}" class="btn btn-sm btn-primary-t4d">
         <i class="bi bi-plus-lg"></i> Submit lead
     </a>
 @endsection
@@ -17,6 +17,7 @@
         'country' => $filters['country'] ?? null,
         'date_from' => $filters['date_from'] ?? null,
         'date_to' => $filters['date_to'] ?? null,
+        'source' => $filters['source'] ?? null,
         'per_page' => $perPage !== 10 ? $perPage : null,
         'q' => $search,
     ], fn ($value) => $value !== null && $value !== '');
@@ -27,7 +28,7 @@
         @foreach (['pending' => 'Pending', 'active' => 'Live', 'rejected' => 'Rejected', 'all' => 'All'] as $tab => $label)
             <li class="nav-item">
                 <a class="nav-link {{ $status === $tab ? 'active' : '' }}"
-                   href="{{ route('employee.leads.index', array_merge(['status' => $tab], $queryParams)) }}">
+                   href="{{ route('verification.leads.index', array_merge(['status' => $tab], $queryParams)) }}">
                     {{ $label }}
                     @if ($tab !== 'all')
                         <span class="badge text-bg-{{ $tab === 'pending' ? 'warning text-dark' : ($tab === 'active' ? 'success' : 'secondary') }} ms-1">
@@ -46,13 +47,13 @@
     <div class="panel-header">
         <h2>Filters</h2>
         @if (! empty(array_filter($filters)) || $search)
-            <a href="{{ route('employee.leads.index', ['status' => $status]) }}" class="small fw-semibold text-decoration-none" style="color: var(--t4d-primary);">
+            <a href="{{ route('verification.leads.index', ['status' => $status]) }}" class="small fw-semibold text-decoration-none" style="color: var(--t4d-primary);">
                 Clear filters
             </a>
         @endif
     </div>
     <div class="panel-body">
-        <form method="GET" action="{{ route('employee.leads.index') }}" class="row g-3 align-items-end">
+        <form method="GET" action="{{ route('verification.leads.index') }}" class="row g-3 align-items-end">
             <input type="hidden" name="status" value="{{ $status }}">
 
             <div class="col-md-3">
@@ -82,6 +83,18 @@
                         <option value="{{ $countryOption }}"></option>
                     @endforeach
                 </datalist>
+            </div>
+
+            <div class="col-md-2">
+                <label for="source" class="form-label">Source</label>
+                <select id="source" name="source" class="form-select form-select-sm">
+                    <option value="">All sources</option>
+                    @foreach (\App\Support\Enums\LeadSource::cases() as $leadSource)
+                        <option value="{{ $leadSource->value }}" @selected(($filters['source'] ?? '') === $leadSource->value)>
+                            {{ $leadSource->label() }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
 
             <div class="col-md-2">
@@ -156,7 +169,12 @@
                         $badge = $lead->status->badgeClass();
                     @endphp
                     <tr>
-                        <td class="fw-semibold">{{ $lead->company_name }}</td>
+                        <td class="fw-semibold">
+                            {{ $lead->company_name }}
+                            @if ($lead->source)
+                                <div class="small mt-1"><span class="badge {{ $lead->source->badgeClass() }}">{{ $lead->source->label() }}</span></div>
+                            @endif
+                        </td>
                         <td>
                             <div>{{ $lead->contact_name }}</div>
                             <div class="small text-muted">{{ $lead->email }}</div>
@@ -180,18 +198,18 @@
                             <td class="small text-muted">{{ $lead->published_at?->format('M j, Y g:i A') ?? '—' }}</td>
                         @endif
                         <td class="text-end text-nowrap">
-                            <a href="{{ route('employee.leads.edit', $lead) }}" class="btn btn-sm btn-outline-secondary me-1">Edit</a>
+                            <a href="{{ route('verification.leads.edit', $lead) }}" class="btn btn-sm btn-outline-secondary me-1">Edit</a>
                             @if ($lead->status === \App\Support\Enums\RecordStatus::Pending)
-                                <form action="{{ route('employee.leads.approve', $lead) }}" method="POST" class="d-inline">
+                                <form action="{{ route('verification.leads.approve', $lead) }}" method="POST" class="d-inline">
                                     @csrf
                                     <button type="submit" class="btn btn-sm btn-approve me-1">Approve</button>
                                 </form>
-                                <form action="{{ route('employee.leads.reject', $lead) }}" method="POST" class="d-inline" onsubmit="return confirm('Reject this lead?');">
+                                <form action="{{ route('verification.leads.reject', $lead) }}" method="POST" class="d-inline" onsubmit="return confirm('Reject this lead?');">
                                     @csrf
                                     <button type="submit" class="btn btn-sm btn-reject">Reject</button>
                                 </form>
                             @elseif ($lead->status !== \App\Support\Enums\RecordStatus::Active)
-                                <form action="{{ route('employee.leads.approve', $lead) }}" method="POST" class="d-inline">
+                                <form action="{{ route('verification.leads.approve', $lead) }}" method="POST" class="d-inline">
                                     @csrf
                                     <button type="submit" class="btn btn-sm btn-approve">Publish</button>
                                 </form>

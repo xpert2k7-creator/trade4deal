@@ -11,9 +11,11 @@ use App\Domains\Lead\Events\LeadRejected;
 use App\Domains\Lead\Models\Lead;
 use App\Domains\Lead\Repositories\Contracts\LeadRepositoryInterface;
 use App\Models\User;
+use App\Support\Enums\LeadSource;
 use App\Support\Enums\RecordStatus;
 use App\Support\Enums\UserPlan;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 class LeadService
@@ -165,5 +167,43 @@ class LeadService
     public function getSimilarLeadsForViewer(Lead $lead, ?User $viewer, int $limit = 4): Collection
     {
         return $this->leadRepository->getSimilarVisible($lead, $viewer, $limit);
+    }
+
+    public function listForSourcingUser(User $user, ?string $statusFilter, int $perPage = 15): LengthAwarePaginator
+    {
+        $status = match ($statusFilter) {
+            'pending' => RecordStatus::Pending,
+            'active' => RecordStatus::Active,
+            'rejected' => RecordStatus::Inactive,
+            default => null,
+        };
+
+        return $this->leadRepository->paginateForCreator($user->id, $status, $perPage);
+    }
+
+    /**
+     * @return array{today: int, month: int, total: int}
+     */
+    public function sourcingSubmissionCounts(User $user): array
+    {
+        $todayStart = now()->startOfDay();
+        $monthStart = now()->startOfMonth();
+
+        return [
+            'today' => $this->leadRepository->countForCreator($user->id, $todayStart),
+            'month' => $this->leadRepository->countForCreator($user->id, $monthStart),
+            'total' => $this->leadRepository->countForCreator($user->id),
+        ];
+    }
+
+    /**
+     * @return Collection<int, object{day: string, total: int}>
+     */
+    public function sourcingDailyChart(User $user, int $days = 30): Collection
+    {
+        $from = now()->subDays($days - 1)->startOfDay();
+        $to = now()->endOfDay();
+
+        return $this->leadRepository->dailyCountsForCreator($user->id, $from, $to);
     }
 }

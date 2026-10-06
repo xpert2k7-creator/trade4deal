@@ -26,6 +26,7 @@ class LeadServiceTest extends TestCase
             email: 'jane@test.com',
             phone: null,
             country: 'India',
+            city: null,
             businessType: BusinessType::Seller,
             productInterest: 'Textiles',
             productType: ProductType::Textiles,

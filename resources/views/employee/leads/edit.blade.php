@@ -4,7 +4,7 @@
 @section('page-title', 'Edit Lead')
 
 @section('topbar-actions')
-    <a href="{{ route('employee.leads.index', ['status' => 'pending']) }}" class="btn btn-sm btn-outline-secondary">Back to queue</a>
+    <a href="{{ route('verification.leads.index', ['status' => 'pending']) }}" class="btn btn-sm btn-outline-secondary">Back to queue</a>
 @endsection
 
 @section('content')
@@ -22,7 +22,7 @@
                 <span class="badge {{ $lead->status->badgeClass() }}">{{ $statusLabel }}</span>
             </div>
             <div class="panel-body">
-                <form method="POST" action="{{ route('employee.leads.update', $lead) }}" enctype="multipart/form-data">
+                <form method="POST" action="{{ route('verification.leads.update', $lead) }}" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
@@ -146,7 +146,7 @@
             <div class="panel-header"><h2>Moderation</h2></div>
             <div class="panel-body d-grid gap-2">
                 @if ($lead->status !== \App\Support\Enums\RecordStatus::Active)
-                    <form action="{{ route('employee.leads.approve', $lead) }}" method="POST">
+                    <form action="{{ route('verification.leads.approve', $lead) }}" method="POST">
                         @csrf
                         <button type="submit" class="btn btn-approve w-100 py-2">
                             <i class="bi bi-check-lg me-1"></i> Approve &amp; publish
@@ -157,7 +157,7 @@
                 @endif
 
                 @if ($lead->status !== \App\Support\Enums\RecordStatus::Inactive)
-                    <form action="{{ route('employee.leads.reject', $lead) }}" method="POST" onsubmit="return confirm('Reject this lead and email the submitter?');">
+                    <form action="{{ route('verification.leads.reject', $lead) }}" method="POST" onsubmit="return confirm('Reject this lead and email the submitter?');">
                         @csrf
                         <button type="submit" class="btn btn-reject w-100 py-2">
                             <i class="bi bi-x-lg me-1"></i> Reject lead

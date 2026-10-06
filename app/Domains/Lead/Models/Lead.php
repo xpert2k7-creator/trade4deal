@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Support\Enums\BusinessType;
 use App\Support\Enums\Currency;
 use App\Support\Enums\LeadUnit;
+use App\Support\Enums\LeadSource;
 use App\Support\Enums\PaymentMethod;
 use App\Support\Enums\ProductType;
 use App\Support\Enums\RecordStatus;
@@ -28,6 +29,7 @@ class Lead extends BaseModel
         'email',
         'phone',
         'country',
+        'city',
         'business_type',
         'product_interest',
         'product_type',
@@ -37,6 +39,7 @@ class Lead extends BaseModel
         'payment_methods',
         'message',
         'user_id',
+        'source',
         'status',
         'published_at',
     ];
@@ -47,9 +50,15 @@ class Lead extends BaseModel
         'currency' => Currency::class,
         'units' => LeadUnit::class,
         'payment_methods' => 'array',
+        'source' => LeadSource::class,
         'status' => RecordStatus::class,
         'published_at' => 'datetime',
     ];
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 
     protected static function newFactory(): LeadFactory
     {

@@ -1,0 +1,54 @@
+@extends('layouts.employee')
+
+@section('title', 'Edit sourcing login')
+@section('page-title', 'Edit sourcing login')
+
+@section('topbar-actions')
+    <a href="{{ route('verification.sourcing-team.index', ['member' => $member->id]) }}" class="btn btn-sm btn-outline-secondary">Back</a>
+@endsection
+
+@section('content')
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="panel">
+            <div class="panel-header">
+                <h2>{{ $member->name }}</h2>
+            </div>
+            <div class="panel-body">
+                <form method="POST" action="{{ route('verification.sourcing-team.update', $member) }}">
+                    @csrf
+                    @method('PUT')
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name</label>
+                        <input id="name" name="name" type="text" class="form-control @error('name') is-invalid @enderror"
+                               value="{{ old('name', $member->name) }}" required>
+                        @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email (login)</label>
+                        <input id="email" name="email" type="email" class="form-control @error('email') is-invalid @enderror"
+                               value="{{ old('email', $member->email) }}" required>
+                        @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">New password (optional)</label>
+                        <input id="password" name="password" type="password" class="form-control @error('password') is-invalid @enderror">
+                        @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="mb-4">
+                        <label for="password_confirmation" class="form-label">Confirm new password</label>
+                        <input id="password_confirmation" name="password_confirmation" type="password" class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-primary-t4d">Save changes</button>
+                </form>
+                <div class="mt-3 pt-3 border-top">
+                    @include('partials.delete-staff-account-form', [
+                        'action' => route('verification.sourcing-team.destroy', $member),
+                        'name' => $member->name,
+                    ])
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection

@@ -4,14 +4,14 @@
 @section('page-title', 'Seller Details')
 
 @section('topbar-actions')
-    <a href="{{ route('employee.users.index') }}" class="btn btn-sm btn-outline-secondary">Back to users</a>
+    <a href="{{ route('verification.users.index') }}" class="btn btn-sm btn-outline-secondary">Back to users</a>
     @if ($seller->slug)
         <a href="{{ route('sellers.show', $seller->slug) }}" target="_blank" class="btn btn-sm btn-primary-t4d">Public page</a>
     @endif
 @endsection
 
 @section('content')
-<form method="POST" action="{{ route('employee.users.sellers.update', $seller) }}" enctype="multipart/form-data">
+<form method="POST" action="{{ route('verification.users.sellers.update', $seller) }}" enctype="multipart/form-data">
     @csrf
     @method('PUT')
 

@@ -12,6 +12,7 @@ use App\Domains\Lead\Requests\ContactLeadRequest;
 use App\Domains\Lead\Requests\StoreLeadRequest;
 use App\Domains\Lead\Services\LeadService;
 use App\Http\Controllers\Controller;
+use App\Support\Enums\LeadSource;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
@@ -61,6 +62,7 @@ class LeadController extends Controller
 
         $data = $request->validated();
         $data['user_id'] = auth()->id();
+        $data['source'] = LeadSource::User->value;
 
         if ($request->hasFile('product_image')) {
             $file = $request->file('product_image');

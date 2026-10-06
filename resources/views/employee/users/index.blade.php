@@ -7,7 +7,7 @@
 <div class="panel mb-3">
     <div class="panel-header">
         <h2>Marketplace users</h2>
-        <form method="GET" action="{{ route('employee.users.index') }}" class="d-flex gap-2">
+        <form method="GET" action="{{ route('verification.users.index') }}" class="d-flex gap-2">
             <input type="search" name="q" value="{{ $search }}" class="form-control form-control-sm" placeholder="Search name, email, company…" style="min-width:220px;">
             <button type="submit" class="btn btn-sm btn-primary-t4d">Search</button>
         </form>
@@ -55,7 +55,7 @@
                         </td>
                         <td>
                             <form method="POST"
-                                  action="{{ route('employee.users.plan.update', $user) }}"
+                                  action="{{ route('verification.users.plan.update', $user) }}"
                                   class="d-flex gap-2 align-items-center plan-change-form"
                                   data-user-name="{{ $user->name }}"
                                   data-current-plan="{{ $user->plan?->value ?? 'free' }}">
@@ -76,7 +76,7 @@
                         </td>
                         <td class="text-end">
                             @can('updateSellerDetails', $user)
-                                <a href="{{ route('employee.users.sellers.edit', $user) }}" class="btn btn-sm btn-outline-secondary">Edit seller</a>
+                                <a href="{{ route('verification.users.sellers.edit', $user) }}" class="btn btn-sm btn-outline-secondary">Edit seller</a>
                             @else
                                 <span class="text-muted small">—</span>
                             @endcan

@@ -294,7 +294,7 @@
 <div class="emp-shell">
     <aside class="emp-sidebar">
         <div class="logo-wrap">
-            <a href="{{ route('employee.dashboard') }}" class="d-inline-block text-decoration-none">
+            <a href="{{ route('verification.dashboard') }}" class="d-inline-block text-decoration-none">
                 <img src="{{ asset('images/trade4deal-logo.jpg') }}" alt="Trade4Deal">
             </a>
             <div class="small mt-2" style="opacity:0.7;letter-spacing:0.06em;text-transform:uppercase;font-size:0.68rem;font-weight:700;">
@@ -303,18 +303,26 @@
         </div>
 
         <nav class="emp-nav">
-            <a href="{{ route('employee.dashboard') }}" class="{{ request()->routeIs('employee.dashboard') ? 'active' : '' }}">
+            <a href="{{ route('verification.dashboard') }}" class="{{ request()->routeIs('verification.dashboard') ? 'active' : '' }}">
                 <i class="bi bi-grid-1x2"></i> Overview
             </a>
-            <a href="{{ route('employee.leads.create') }}" class="{{ request()->routeIs('employee.leads.create') ? 'active' : '' }}">
+            <a href="{{ route('verification.leads.create') }}" class="{{ request()->routeIs('verification.leads.create') ? 'active' : '' }}">
                 <i class="bi bi-plus-circle"></i> Submit Lead
             </a>
-            <a href="{{ route('employee.leads.index', ['status' => 'pending']) }}" class="{{ request()->routeIs('employee.leads.index') || request()->routeIs('employee.leads.edit') ? 'active' : '' }}">
+            <a href="{{ route('verification.leads.index', ['status' => 'pending']) }}" class="{{ request()->routeIs('verification.leads.index') || request()->routeIs('verification.leads.edit') ? 'active' : '' }}">
                 <i class="bi bi-inbox"></i> Leads
             </a>
-            <a href="{{ route('employee.users.index') }}" class="{{ request()->routeIs('employee.users.*') ? 'active' : '' }}">
+            <a href="{{ route('verification.users.index') }}" class="{{ request()->routeIs('verification.users.*') ? 'active' : '' }}">
                 <i class="bi bi-people"></i> {{ auth()->user()->isAdmin() ? 'Users & Sellers' : 'User Plans' }}
             </a>
+            @if (auth()->user()->isAdmin())
+                <a href="{{ route('verification.employee-team.index') }}" class="{{ request()->routeIs('verification.employee-team.*') ? 'active' : '' }}">
+                    <i class="bi bi-person-gear"></i> Employees
+                </a>
+                <a href="{{ route('verification.sourcing-team.index') }}" class="{{ request()->routeIs('verification.sourcing-team.*') ? 'active' : '' }}">
+                    <i class="bi bi-person-badge"></i> Sourcing team
+                </a>
+            @endif
             <a href="{{ route('home') }}" target="_blank">
                 <i class="bi bi-box-arrow-up-right"></i> Public site
             </a>

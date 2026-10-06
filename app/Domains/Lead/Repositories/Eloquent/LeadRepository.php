@@ -7,10 +7,12 @@ namespace App\Domains\Lead\Repositories\Eloquent;
 use App\Domains\Lead\Models\Lead;
 use App\Domains\Lead\Repositories\Contracts\LeadRepositoryInterface;
 use App\Models\User;
+use App\Support\Enums\LeadSource;
 use App\Support\Enums\RecordStatus;
 use App\Support\Enums\UserPlan;
 use BackedEnum;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 class LeadRepository implements LeadRepositoryInterface
@@ -169,6 +171,11 @@ class LeadRepository implements LeadRepositoryInterface
             $query->whereDate('created_at', '<=', $dateTo);
         }
 
+        $source = $filters['source'] ?? null;
+        if ($source !== null && $source !== '') {
+            $query->where('source', $source);
+        }
+
         return $query->paginate($perPage)->withQueryString();
     }
 
@@ -244,5 +251,66 @@ class LeadRepository implements LeadRepositoryInterface
             ->latest('published_at')
             ->limit($limit)
             ->get();
+    }
+
+    public function paginateForCreator(
+        string $creatorId,
+        ?RecordStatus $status = null,
+        int $perPage = 15,
+    ): LengthAwarePaginator {
+        $query = Lead::query()
+            ->where('created_by', $creatorId)
+            ->where('source', LeadSource::Sourcing)
+            ->latest();
+
+        if ($status !== null) {
+            $query->where('status', $status);
+        }
+
+        return $query->paginate($perPage)->withQueryString();
+    }
+
+    public function countForCreator(string $creatorId, ?Carbon $from = null, ?Carbon $to = null): int
+    {
+        $query = Lead::query()
+            ->where('created_by', $creatorId)
+            ->where('source', LeadSource::Sourcing);
+
+        if ($from !== null) {
+            $query->where('created_at', '>=', $from);
+        }
+
+        if ($to !== null) {
+            $query->where('created_at', '<=', $to);
+        }
+
+        return $query->count();
+    }
+
+    public function dailyCountsForCreator(string $creatorId, Carbon $from, Carbon $to): Collection
+    {
+        return Lead::query()
+            ->selectRaw('DATE(created_at) as day, COUNT(*) as total')
+            ->where('created_by', $creatorId)
+            ->where('source', LeadSource::Sourcing)
+            ->whereBetween('created_at', [$from->copy()->startOfDay(), $to->copy()->endOfDay()])
+            ->groupBy('day')
+            ->orderBy('day')
+            ->get();
+    }
+
+    public function countBySource(LeadSource $source, ?Carbon $from = null, ?Carbon $to = null): int
+    {
+        $query = Lead::query()->where('source', $source);
+
+        if ($from !== null) {
+            $query->where('created_at', '>=', $from);
+        }
+
+        if ($to !== null) {
+            $query->where('created_at', '<=', $to);
+        }
+
+        return $query->count();
     }
 }
