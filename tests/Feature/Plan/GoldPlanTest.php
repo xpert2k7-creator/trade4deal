@@ -27,7 +27,14 @@ class GoldPlanTest extends TestCase
         $this->get(route('plans.index'))
             ->assertOk()
             ->assertSee('Choose your plan')
-            ->assertSee('Gold');
+            ->assertSee('Gold')
+            ->assertSee('$174')
+            ->assertSee('half year')
+            ->assertSee('Instant</strong> verified buyer details', false)
+            ->assertSee('Verified supplier tag mark by Trade4Deal')
+            ->assertSee('Weekly 14 verified buy leads')
+            ->assertSee('Relationship manager support')
+            ->assertSee('Export business exposure');
     }
 
     public function test_checkout_requires_authentication(): void

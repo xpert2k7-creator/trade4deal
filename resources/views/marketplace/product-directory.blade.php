@@ -534,6 +534,7 @@
 @section('content')
 @php
     $selectedCategory = $filters['category'] !== '' ? $categories->firstWhere('value', $filters['category']) : null;
+    $activeLocationLabel = $filters['location_label'] !== '' ? $filters['location_label'] : 'selected location';
     $heading = $selectedCategory?->label() ?? ($filters['search'] !== '' ? $filters['search'] : 'Products');
 @endphp
 
@@ -553,8 +554,8 @@
                 <h1 class="products-title">{{ $heading }}</h1>
                 <div class="products-count">
                     {{ number_format($products->total()) }} listed product{{ $products->total() === 1 ? '' : 's' }}
-                    @if($filters['location'] !== '')
-                        in {{ $filters['location'] }}
+                    @if($filters['location_id'] !== '')
+                        in {{ $activeLocationLabel }}
                     @endif
                 </div>
             </div>
@@ -568,13 +569,13 @@
 
         <section class="products-filter-card" aria-label="Product filters">
             <div class="category-strip">
-                <a class="category-pill {{ $filters['category'] === '' ? 'is-active' : '' }}" href="{{ route('marketplace.page', ['page' => 'product-directory', 'search' => $filters['search'] ?: null, 'location' => $filters['location'] ?: null]) }}">
+                <a class="category-pill {{ $filters['category'] === '' ? 'is-active' : '' }}" href="{{ route('marketplace.page', ['page' => 'product-directory', 'search' => $filters['search'] ?: null, 'location_id' => $filters['location_id'] ?: null, 'location_label' => $filters['location_label'] ?: null]) }}">
                     <i class="bi bi-grid"></i> All Products
                 </a>
                 @foreach($categories as $category)
                     <a
                         class="category-pill {{ $filters['category'] === $category->value ? 'is-active' : '' }}"
-                        href="{{ route('marketplace.page', ['page' => 'product-directory', 'category' => $category->value, 'search' => $filters['search'] ?: null, 'location' => $filters['location'] ?: null]) }}"
+                        href="{{ route('marketplace.page', ['page' => 'product-directory', 'category' => $category->value, 'search' => $filters['search'] ?: null, 'location_id' => $filters['location_id'] ?: null, 'location_label' => $filters['location_label'] ?: null]) }}"
                     >
                         <i class="bi bi-tag"></i>{{ $category->label() }}
                     </a>
@@ -597,10 +598,11 @@
                 </div>
                 <div>
                     <label class="field-label" for="productLocation">Location</label>
-                    <select id="productLocation" class="form-select" name="location">
+                    <input type="hidden" name="location_label" value="{{ $filters['location_label'] }}">
+                    <select id="productLocation" class="form-select" name="location_id">
                         <option value="">All locations</option>
                         @foreach($locationOptions as $location)
-                            <option value="{{ $location }}" @selected($filters['location'] === $location)>{{ $location }}</option>
+                            <option value="{{ $location['id'] }}" @selected($filters['location_id'] === $location['id'])>{{ $location['label'] }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -611,8 +613,10 @@
             <div class="active-filter-note">
                 <span>
                     Showing <strong>active public seller products</strong>
-                    @if($filters['location'] !== '')
-                        matching <strong>{{ $filters['location'] }}</strong>
+                    @if($filters['location_id'] !== '')
+                        matching <strong>{{ $activeLocationLabel }}</strong>
+                    @else
+                        across <strong>all locations</strong>
                     @endif
                 </span>
                 <span><i class="bi bi-shield-check"></i> Verified supplier profiles are linked from each product</span>
@@ -621,8 +625,8 @@
 
         @if($products->isEmpty())
             <section class="empty-products">
-                <h2>No products found</h2>
-                <p>Try another location, category, or search term.</p>
+                <h2>{{ $filters['location_id'] !== '' ? 'No products found in '.$activeLocationLabel : 'No products found' }}</h2>
+                <p>{{ $filters['location_id'] !== '' ? 'Change location or select all locations to search the full directory.' : 'Try another category or search term.' }}</p>
                 <a href="{{ route('marketplace.page', ['page' => 'product-directory']) }}" class="filter-submit d-inline-flex align-items-center text-decoration-none px-4">View all products</a>
             </section>
         @else
@@ -631,12 +635,14 @@
                     @php
                         $seller = $product->user;
                         $sellerUrl = $seller?->slug ? route('sellers.show', $seller->slug) : '#';
+                        $listingLocation = $product->locationLabel();
                         $sellerLocation = collect([$seller?->city, $seller?->state, $seller?->country])->filter()->implode(', ');
+                        $displayLocation = $listingLocation !== '' ? $listingLocation : ($sellerLocation !== '' ? $sellerLocation : 'Location not set');
                         $minimumOrder = $product->min_order_qty ?: 'Ask supplier';
                         $unitLabel = $product->units?->label() ?? 'Unit';
                     @endphp
 
-                    <article class="product-card marketplace-search-item" data-search-text="{{ strtolower($product->name.' '.$product->description.' '.$seller?->company_name.' '.$sellerLocation.' '.$product->product_type?->label()) }}">
+                    <article class="product-card marketplace-search-item" data-search-text="{{ strtolower($product->name.' '.$product->description.' '.$seller?->company_name.' '.$displayLocation.' '.$product->product_type?->label()) }}">
                         <span class="product-badge">Verified Supplier</span>
                         <a class="product-media" href="{{ $sellerUrl }}" aria-label="View {{ $product->name }}">
                             @if($product->imageUrl())
@@ -645,7 +651,7 @@
                             @else
                                 <span class="product-img-fallback" aria-hidden="true"><i class="bi bi-box-seam"></i></span>
                             @endif
-                            <span class="product-photo-count"><i class="bi bi-images"></i> {{ count($product->imagePathsList()) }}</span>
+                            <span class="product-photo-count"><i class="bi bi-images"></i> {{ $product->imageUrl() ? '1' : '0' }}</span>
                         </a>
 
                         <div class="product-body">
@@ -659,7 +665,7 @@
                                 <div class="spec-row"><span>Category</span><span>{{ $product->product_type?->label() ?? 'Other' }}</span></div>
                                 <div class="spec-row"><span>MOQ</span><span>{{ $minimumOrder }}</span></div>
                                 <div class="spec-row"><span>Unit</span><span>{{ $unitLabel }}</span></div>
-                                <div class="spec-row"><span>Location</span><span>{{ $sellerLocation !== '' ? $sellerLocation : 'Global' }}</span></div>
+                                <div class="spec-row"><span>Location</span><span>{{ $displayLocation }}</span></div>
                             </div>
 
                             <div class="supplier-line">

@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Web;
 
 use App\Domains\Product\Models\Product;
+use App\Domains\Lead\Services\LeadService;
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Support\Location;
 use App\Support\Enums\ProductType;
 use App\Support\Enums\RecordStatus;
 use App\Support\Enums\UserType;
@@ -15,7 +16,7 @@ use Illuminate\View\View;
 
 class MarketplacePageController extends Controller
 {
-    public function show(string $page, Request $request): View
+    public function show(string $page, Request $request, LeadService $leadService): View
     {
         $pages = $this->pages();
 
@@ -58,8 +59,14 @@ class MarketplacePageController extends Controller
         }
 
         if ($page === 'live-leads') {
+            $viewer = auth()->user();
+            $perPage = min(60, max(12, (int) $request->query('per_page', 24)));
+
             return view('marketplace.live-leads', [
                 'page' => $pages[$page],
+                'leads' => $leadService->paginateLeadsForViewer($viewer, $perPage),
+                'viewerPlan' => $leadService->viewerPlan($viewer),
+                'isStaffViewer' => $viewer?->canModerateLeads() ?? false,
             ]);
         }
 
@@ -78,10 +85,16 @@ class MarketplacePageController extends Controller
         if ($page === 'product-directory') {
             $categories = collect(ProductType::cases());
             $filters = [
-                'search' => trim((string) $request->query('search', '')),
+                'search' => mb_substr(trim((string) $request->query('search', '')), 0, 120),
                 'category' => (string) $request->query('category', ''),
-                'location' => trim((string) $request->query('location', '')),
+                'location_id' => mb_substr(trim((string) $request->query('location_id', '')), 0, 191),
+                'location_label' => mb_substr(trim((string) $request->query('location_label', '')), 0, 180),
             ];
+
+            if (! Location::isValidId($filters['location_id'])) {
+                $filters['location_id'] = '';
+                $filters['location_label'] = '';
+            }
 
             $publicSellerScope = function ($query): void {
                 $query->where('user_type', UserType::Seller)
@@ -100,11 +113,11 @@ class MarketplacePageController extends Controller
                 $productsQuery->where(function ($query) use ($search): void {
                     $query->where('name', 'like', '%'.$search.'%')
                         ->orWhere('description', 'like', '%'.$search.'%')
+                        ->orWhere('location_city', 'like', '%'.$search.'%')
+                        ->orWhere('location_state', 'like', '%'.$search.'%')
+                        ->orWhere('location_country', 'like', '%'.$search.'%')
                         ->orWhereHas('user', function ($sellerQuery) use ($search): void {
-                            $sellerQuery->where('company_name', 'like', '%'.$search.'%')
-                                ->orWhere('city', 'like', '%'.$search.'%')
-                                ->orWhere('state', 'like', '%'.$search.'%')
-                                ->orWhere('country', 'like', '%'.$search.'%');
+                            $sellerQuery->where('company_name', 'like', '%'.$search.'%');
                         });
                 });
             }
@@ -113,28 +126,33 @@ class MarketplacePageController extends Controller
                 $productsQuery->where('product_type', $filters['category']);
             }
 
-            if ($filters['location'] !== '') {
-                $location = $filters['location'];
-                $productsQuery->whereHas('user', function ($query) use ($location): void {
-                    $query->where('city', $location)
-                        ->orWhere('state', $location)
-                        ->orWhere('country', $location);
-                });
+            if ($filters['location_id'] !== '') {
+                $productsQuery->where('location_id', $filters['location_id']);
             }
 
-            $locationOptions = User::query()
-                ->where($publicSellerScope)
-                ->get(['city', 'state', 'country'])
-                ->flatMap(fn (User $seller): array => [
-                    $seller->city,
-                    $seller->state,
-                    $seller->country,
+            $locationOptions = Product::query()
+                ->whereNotNull('location_id')
+                ->whereNotNull('location_city')
+                ->whereNotNull('location_country')
+                ->select('location_id', 'location_city', 'location_state', 'location_country')
+                ->distinct()
+                ->orderBy('location_city')
+                ->get()
+                ->map(fn (Product $product): array => [
+                    'id' => $product->location_id,
+                    'label' => $product->locationLabel(),
                 ])
-                ->filter(fn (?string $location): bool => filled($location))
-                ->map(fn (string $location): string => trim($location))
-                ->unique()
-                ->sort()
+                ->sortBy('label')
                 ->values();
+
+            if ($filters['location_id'] !== '') {
+                $matchedLocation = $locationOptions->firstWhere('id', $filters['location_id']);
+                if ($matchedLocation !== null) {
+                    $filters['location_label'] = $matchedLocation['label'];
+                } elseif ($filters['location_label'] === '') {
+                    $filters['location_label'] = 'selected location';
+                }
+            }
 
             $products = $productsQuery
                 ->latest()
@@ -446,3 +464,4 @@ class MarketplacePageController extends Controller
         );
     }
 }
+

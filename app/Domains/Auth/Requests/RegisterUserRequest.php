@@ -6,8 +6,6 @@ namespace App\Domains\Auth\Requests;
 
 use App\Models\User;
 use App\Support\Enums\UserType;
-use App\Support\PhoneNumber;
-use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
@@ -33,40 +31,5 @@ class RegisterUserRequest extends FormRequest
             'country' => ['required', 'string', 'max:100'],
             'user_type' => ['required', Rule::in([UserType::Buyer->value, UserType::Seller->value])],
         ];
-    }
-
-    public function withValidator(Validator $validator): void
-    {
-        $validator->after(function (Validator $validator): void {
-            if (! $this->filled('phone')) {
-                return;
-            }
-
-            $normalized = PhoneNumber::normalize(
-                $this->input('phone'),
-                $this->input('country'),
-            );
-
-            if ($normalized === null) {
-                $validator->errors()->add(
-                    'phone',
-                    'Enter a valid mobile number for your country.',
-                );
-
-                return;
-            }
-
-            $exists = User::query()
-                ->withTrashed()
-                ->where('phone_normalized', $normalized)
-                ->exists();
-
-            if ($exists) {
-                $validator->errors()->add(
-                    'phone',
-                    'This mobile number is already registered.',
-                );
-            }
-        });
     }
 }

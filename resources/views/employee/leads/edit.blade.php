@@ -88,7 +88,13 @@
                                 @endforeach
                             </select>
                         </div>
-                        @include('employee.leads.partials.product-images-fields', ['lead' => $lead])
+                        <div class="col-md-6">
+                            <label for="product_image" class="form-label">Product Image</label>
+                            @if($lead->productImageUrl())
+                                <div class="mb-2"><img src="{{ $lead->productImageUrl() }}" alt="Product" class="rounded" style="height:64px;width:64px;object-fit:cover;"></div>
+                            @endif
+                            <input id="product_image" name="product_image" type="file" class="form-control @error('product_image') is-invalid @enderror" accept="image/jpeg,image/png,image/webp">
+                        </div>
                         <div class="col-md-6">
                             <label for="currency" class="form-label">Currency</label>
                             <select id="currency" name="currency" class="form-select @error('currency') is-invalid @enderror" required>
@@ -105,7 +111,20 @@
                                 @endforeach
                             </select>
                         </div>
-                        @include('employee.leads.partials.trade-fields', ['lead' => $lead])
+                        <div class="col-12">
+                            <label class="form-label d-block">Payment Methods</label>
+                            <div class="row g-2">
+                                @foreach (\App\Support\Enums\PaymentMethod::cases() as $method)
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="payment_methods[]" value="{{ $method->value }}" id="emp_pay_{{ $method->value }}"
+                                                @checked(in_array($method->value, old('payment_methods', $lead->payment_methods ?? []), true))>
+                                            <label class="form-check-label" for="emp_pay_{{ $method->value }}">{{ $method->label() }}</label>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
                         <div class="col-12">
                             <label for="message" class="form-label">Message</label>
                             <textarea id="message" name="message" rows="4"

@@ -10,19 +10,15 @@ use App\Domains\Lead\Models\Lead;
 use App\Domains\Lead\Notifications\LeadInquiryNotification;
 use App\Domains\Lead\Requests\ContactLeadRequest;
 use App\Domains\Lead\Requests\StoreLeadRequest;
-use App\Domains\Lead\Services\LeadProductImageStorage;
 use App\Domains\Lead\Services\LeadService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class LeadController extends Controller
 {
-    public function __construct(
-        private readonly LeadProductImageStorage $leadProductImageStorage,
-    ) {}
-
     public function show(Lead $lead, LeadService $leadService): View
     {
         $this->authorize('view', $lead);
@@ -65,7 +61,18 @@ class LeadController extends Controller
 
         $data = $request->validated();
         $data['user_id'] = auth()->id();
-        $data = $this->leadProductImageStorage->mergeUploadedImagesIntoLeadData($request, $data);
+
+        if ($request->hasFile('product_image')) {
+            $file = $request->file('product_image');
+            $path = $file->store('leads', 'public');
+            $path = is_string($path) ? $path : $file->hashName('leads');
+
+            Storage::disk('public')->put($path, $file->get());
+
+            $data['product_image_path'] = $path;
+        }
+
+        unset($data['product_image']);
 
         $createLeadAction->execute(CreateLeadDTO::fromArray($data));
 

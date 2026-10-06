@@ -7,11 +7,11 @@ namespace Tests\Feature\Employee;
 use App\Domains\Lead\Models\Lead;
 use App\Models\User;
 use App\Support\Enums\Currency;
-use App\Support\Enums\Incoterm;
-use App\Support\Enums\LeadPaymentTerm;
 use App\Support\Enums\LeadUnit;
+use App\Support\Enums\PaymentMethod;
 use App\Support\Enums\ProductType;
 use App\Support\Enums\RecordStatus;
+use App\Support\Enums\UserPlan;
 use App\Support\Enums\UserType;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -52,14 +52,7 @@ class EmployeeLeadSubmissionTest extends TestCase
             'product_type' => ProductType::Textiles->value,
             'currency' => Currency::INR->value,
             'units' => LeadUnit::Kg->value,
-            'packaging_requirement' => 'Export-grade cartons',
-            'required_quantity' => '100',
-            'packaging_size' => '25 kg bags',
-            'target_price' => '450.50',
-            'preferred_incoterm' => Incoterm::Fob->value,
-            'port_of_loading' => 'Mumbai',
-            'destination_port' => 'Rotterdam',
-            'payment_terms' => LeadPaymentTerm::Lc->value,
+            'payment_methods' => [PaymentMethod::WireTransfer->value],
             'message' => 'Submitted by employee.',
         ];
     }
@@ -79,29 +72,27 @@ class EmployeeLeadSubmissionTest extends TestCase
 
         $this->actingAs($this->employee())
             ->post(route('employee.leads.store'), array_merge($this->validPayload(), [
-                'product_images' => [
-                    UploadedFile::fake()->image('product-a.jpg'),
-                    UploadedFile::fake()->image('product-b.jpg'),
-                ],
+                'product_image' => new UploadedFile($this->tinyJpegPath(), 'product.jpg', 'image/jpeg', null, true),
             ]))
             ->assertRedirect(route('employee.leads.index', ['status' => 'pending']))
             ->assertSessionHas('success');
-
-        $lead = Lead::query()->where('email', 'client@example.com')->first();
-        $this->assertNotNull($lead);
-        $this->assertCount(2, $lead->productImagePathsList());
-        $this->assertNotNull($lead->product_image_path);
 
         $this->assertDatabaseHas('leads', [
             'company_name' => 'Staff Submitted Co',
             'email' => 'client@example.com',
             'status' => RecordStatus::Pending->value,
-            'preferred_incoterm' => Incoterm::Fob->value,
-            'payment_terms' => LeadPaymentTerm::Lc->value,
         ]);
+    }
 
-        foreach ($lead->productImagePathsList() as $path) {
-            Storage::disk('public')->assertExists($path);
-        }
+    private function tinyJpegPath(): string
+    {
+        $path = tempnam(sys_get_temp_dir(), 'lead-image-').'.jpg';
+
+        file_put_contents(
+            $path,
+            base64_decode('/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////2wBDAf//////////////////////////////////////////////////////////////////////////////////////wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAX/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIQAxAAAAGgP//EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAQUCf//EABQRAQAAAAAAAAAAAAAAAAAAABD/2gAIAQMBAT8BP//EABQRAQAAAAAAAAAAAAAAAAAAABD/2gAIAQIBAT8BP//EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEABj8Cf//EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAT8hf//aAAwDAQACAAMAAAAQ8P/EABQRAQAAAAAAAAAAAAAAAAAAABD/2gAIAQMBAT8QP//EABQRAQAAAAAAAAAAAAAAAAAAABD/2gAIAQIBAT8QP//EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAT8QP//Z')
+        );
+
+        return $path;
     }
 }

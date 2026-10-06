@@ -27,7 +27,6 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use Auditable;
-
     use Billable;
     use HasFactory;
     use HasRoles;
@@ -40,7 +39,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'phone',
-        'phone_normalized',
         'designation',
         'secondary_phone',
         'company_name',

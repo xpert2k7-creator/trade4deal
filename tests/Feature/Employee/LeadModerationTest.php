@@ -150,9 +150,7 @@ class LeadModerationTest extends TestCase
                 'product_type' => 'electronics',
                 'currency' => 'USD',
                 'units' => 'pieces',
-                'required_quantity' => '500',
-                'preferred_incoterm' => 'cif',
-                'payment_terms' => 'tt',
+                'payment_methods' => ['wire_transfer'],
                 'message' => 'Updated message',
             ])
             ->assertRedirect(route('employee.leads.edit', $lead));

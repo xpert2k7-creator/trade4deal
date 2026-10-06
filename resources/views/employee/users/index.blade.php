@@ -27,7 +27,7 @@
                     <th>Company</th>
                     <th>Current plan</th>
                     <th>Change plan</th>
-                    <th class="text-end">Actions</th>
+                    <th class="text-end">Seller details</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -75,14 +75,11 @@
                             </form>
                         </td>
                         <td class="text-end">
-                            <div class="d-flex flex-wrap gap-1 justify-content-end">
-                                @can('updateSellerDetails', $user)
-                                    <a href="{{ route('employee.users.sellers.edit', $user) }}" class="btn btn-sm btn-outline-secondary">Edit seller</a>
-                                @elseif (auth()->user()->can('updateManagedUser', $user) && ! $user->isSeller())
-                                    <a href="{{ route('employee.users.edit', $user) }}" class="btn btn-sm btn-outline-secondary">Edit user</a>
-                                @endif
-                                @include('employee.users.partials.delete-user-form', ['user' => $user, 'search' => $search])
-                            </div>
+                            @can('updateSellerDetails', $user)
+                                <a href="{{ route('employee.users.sellers.edit', $user) }}" class="btn btn-sm btn-outline-secondary">Edit seller</a>
+                            @else
+                                <span class="text-muted small">—</span>
+                            @endcan
                         </td>
                     </tr>
                 @endforeach

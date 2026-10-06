@@ -11,7 +11,7 @@
 
         <div class="mb-3">
             <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" type="email" name="email" :value="old('email')" required autofocus autocomplete="email" />
+            <x-text-input id="email" type="email" name="email" :value="old('email')" required autofocus />
             <x-input-error :messages="$errors->get('email')" class="mt-1" />
         </div>
 
@@ -21,8 +21,4 @@
             </x-primary-button>
         </div>
     </form>
-
-    <p class="text-center text-muted small mt-3 mb-0">
-        <a href="{{ route('login') }}" class="text-primary text-decoration-none">← Back to sign in</a>
-    </p>
 </x-guest-layout>

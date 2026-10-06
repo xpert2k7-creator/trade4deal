@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'location_geocoder' => [
+        'provider' => env('LOCATION_GEOCODER', 'none'),
+        'base_url' => env('LOCATION_GEOCODER_BASE_URL', 'https://nominatim.openstreetmap.org'),
+    ],
+
 ];

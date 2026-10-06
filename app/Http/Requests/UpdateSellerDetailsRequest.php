@@ -71,28 +71,9 @@ class UpdateSellerDetailsRequest extends FormRequest
             'is_public' => $this->boolean('is_public'),
             'remove_logo' => $this->boolean('remove_logo'),
             'remove_cover' => $this->boolean('remove_cover'),
-            'industries' => $this->input('industries', []),
-            'website' => $this->normalizeWebsite($this->input('website')),
-            'employees_range' => $this->filled('employees_range') ? $this->input('employees_range') : null,
-            'year_established' => $this->filled('year_established') ? $this->input('year_established') : null,
             'gstin' => $this->filled('gstin') ? strtoupper((string) $this->input('gstin')) : null,
             'cin' => $this->filled('cin') ? strtoupper((string) $this->input('cin')) : null,
             'pan' => $this->filled('pan') ? strtoupper((string) $this->input('pan')) : null,
         ]);
-    }
-
-    private function normalizeWebsite(mixed $value): ?string
-    {
-        if (! is_string($value) || trim($value) === '') {
-            return null;
-        }
-
-        $value = trim($value);
-
-        if (! preg_match('~^https?://~i', $value)) {
-            $value = 'https://'.$value;
-        }
-
-        return $value;
     }
 }

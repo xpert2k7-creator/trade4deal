@@ -10,11 +10,9 @@ use App\Support\Enums\LeadUnit;
 use App\Support\Enums\ProductType;
 use App\Support\Enums\RecordStatus;
 use App\Support\Models\BaseModel;
-use App\Support\Storage\PublicUploads;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 class Product extends BaseModel
@@ -29,7 +27,10 @@ class Product extends BaseModel
         'description',
         'product_type',
         'image_path',
-        'image_paths',
+        'location_city',
+        'location_state',
+        'location_country',
+        'location_id',
         'currency',
         'units',
         'min_order_qty',
@@ -45,7 +46,6 @@ class Product extends BaseModel
         'price_from' => 'decimal:2',
         'price_to' => 'decimal:2',
         'status' => RecordStatus::class,
-        'image_paths' => 'array',
     ];
 
     protected static function newFactory(): ProductFactory
@@ -90,54 +90,32 @@ class Product extends BaseModel
         return $this->belongsTo(User::class);
     }
 
-    public function fieldValues(): HasMany
-    {
-        return $this->hasMany(ProductFieldValue::class);
-    }
-
     public function getRouteKeyName(): string
     {
         return 'id';
     }
 
-    /**
-     * @return array<int, string>
-     */
-    public function imagePathsList(): array
-    {
-        if (is_array($this->image_paths) && $this->image_paths !== []) {
-            return array_values($this->image_paths);
-        }
-
-        if ($this->image_path !== null) {
-            return [$this->image_path];
-        }
-
-        return [];
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    public function imageUrls(): array
-    {
-        return PublicUploads::urlsForPaths($this->imagePathsList());
-    }
-
     public function imageUrl(): ?string
     {
-        $paths = $this->imagePathsList();
-
-        if ($paths === []) {
+        if ($this->image_path === null) {
             return null;
         }
 
-        return PublicUploads::url($paths[0]);
+        return '/uploads/'.ltrim($this->image_path, '/');
     }
 
     public function isLive(): bool
     {
         return $this->status === RecordStatus::Active;
+    }
+
+    public function locationLabel(): string
+    {
+        return \App\Support\Location::label(
+            $this->location_city,
+            $this->location_state,
+            $this->location_country,
+        );
     }
 
     public function priceLabel(): string

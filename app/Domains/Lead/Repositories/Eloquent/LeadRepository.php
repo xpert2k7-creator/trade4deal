@@ -11,7 +11,6 @@ use App\Support\Enums\RecordStatus;
 use App\Support\Enums\UserPlan;
 use BackedEnum;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 class LeadRepository implements LeadRepositoryInterface
@@ -46,6 +45,7 @@ class LeadRepository implements LeadRepositoryInterface
     {
         return $this->visibleQuery($viewer)
             ->latest('published_at')
+            ->latest('updated_at')
             ->limit($limit)
             ->get();
     }
@@ -82,13 +82,14 @@ class LeadRepository implements LeadRepositoryInterface
     {
         return $this->visibleQuery($viewer)
             ->latest('published_at')
+            ->latest('updated_at')
             ->paginate($perPage)
             ->withQueryString()
             ->fragment('leads');
     }
 
     /**
-     * @return Builder<Lead>
+     * @return \Illuminate\Database\Eloquent\Builder<Lead>
      */
     private function visibleQuery(?User $viewer)
     {

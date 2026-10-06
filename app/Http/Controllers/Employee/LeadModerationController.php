@@ -11,21 +11,17 @@ use App\Domains\Lead\Actions\UpdateLeadAction;
 use App\Domains\Lead\DTOs\CreateLeadDTO;
 use App\Domains\Lead\DTOs\UpdateLeadDTO;
 use App\Domains\Lead\Models\Lead;
-use App\Domains\Lead\Requests\StoreEmployeeLeadRequest;
+use App\Domains\Lead\Requests\StoreLeadRequest;
 use App\Domains\Lead\Requests\UpdateLeadRequest;
-use App\Domains\Lead\Services\LeadProductImageStorage;
 use App\Domains\Lead\Services\LeadService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class LeadModerationController extends Controller
 {
-    public function __construct(
-        private readonly LeadProductImageStorage $leadProductImageStorage,
-    ) {}
-
     public function dashboard(LeadService $leadService): View
     {
         $this->authorize('moderate', Lead::class);
@@ -76,14 +72,25 @@ class LeadModerationController extends Controller
     }
 
     public function store(
-        StoreEmployeeLeadRequest $request,
+        StoreLeadRequest $request,
         CreateLeadAction $createLeadAction,
     ): RedirectResponse {
         $this->authorize('create', Lead::class);
 
         $data = $request->validated();
         $data['user_id'] = auth()->id();
-        $data = $this->leadProductImageStorage->mergeUploadedImagesIntoLeadData($request, $data);
+
+        if ($request->hasFile('product_image')) {
+            $file = $request->file('product_image');
+            $path = $file->store('leads', 'public');
+            $path = is_string($path) ? $path : $file->hashName('leads');
+
+            Storage::disk('public')->put($path, $file->get());
+
+            $data['product_image_path'] = $path;
+        }
+
+        unset($data['product_image']);
 
         $createLeadAction->execute(CreateLeadDTO::fromArray($data));
 
@@ -107,7 +114,18 @@ class LeadModerationController extends Controller
         $this->authorize('update', $lead);
 
         $data = $request->validated();
-        $data = $this->leadProductImageStorage->mergeUploadedImagesIntoLeadData($request, $data, $lead);
+
+        if ($request->hasFile('product_image')) {
+            if ($lead->product_image_path) {
+                Storage::disk('public')->delete($lead->product_image_path);
+            }
+            $data['product_image_path'] = $request->file('product_image')
+                ->store('leads', 'public');
+        } else {
+            $data['product_image_path'] = $lead->product_image_path;
+        }
+
+        unset($data['product_image']);
 
         $updateLeadAction->execute($lead, UpdateLeadDTO::fromArray($data));
 

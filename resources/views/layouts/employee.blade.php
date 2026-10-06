@@ -344,11 +344,6 @@
                     <i class="bi bi-check-circle me-1"></i>{{ session('success') }}
                 </div>
             @endif
-            @if (session('error'))
-                <div class="alert alert-warning border-0 shadow-sm mb-3">
-                    <i class="bi bi-exclamation-triangle me-1"></i>{{ session('error') }}
-                </div>
-            @endif
             @if ($errors->any())
                 <div class="alert alert-danger border-0 shadow-sm mb-3">
                     <ul class="mb-0 ps-3">

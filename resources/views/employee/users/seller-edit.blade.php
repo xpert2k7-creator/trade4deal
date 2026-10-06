@@ -214,17 +214,4 @@
         </div>
     </div>
 </form>
-
-<div class="row g-3 mt-1">
-    <div class="col-lg-8"></div>
-    <div class="col-lg-4">
-        <div class="panel border-danger">
-            <div class="panel-header"><h2 class="text-danger mb-0">Remove seller</h2></div>
-            <div class="panel-body">
-                <p class="small text-muted mb-3">Deletes this seller account, hides their products, and removes logo/cover files.</p>
-                @include('employee.users.partials.delete-user-form', ['user' => $seller, 'class' => 'd-grid', 'buttonClass' => 'btn btn-danger w-100', 'label' => 'Delete seller'])
-            </div>
-        </div>
-    </div>
-</div>
 @endsection

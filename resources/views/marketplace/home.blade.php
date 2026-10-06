@@ -406,6 +406,30 @@
         margin-bottom: 1.65rem;
     }
 
+    .category-view-all-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.38rem;
+        min-height: 38px;
+        padding: 0.48rem 0.85rem;
+        border: 1px solid var(--t4d-primary);
+        border-radius: 8px;
+        background: #fff;
+        color: var(--t4d-primary);
+        font-size: 0.82rem;
+        font-weight: 850;
+        line-height: 1.1;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .category-view-all-btn:hover {
+        background: var(--t4d-primary);
+        color: #fff;
+        transform: translateY(-1px);
+    }
+
     .category-products-group.is-hidden {
         display: none;
     }
@@ -806,6 +830,7 @@
     }
 
     .lead-grid-wrap {
+        overflow: hidden;
         border: 1px solid #d6dce8;
         border-radius: 9px;
         background: #fff;
@@ -813,14 +838,22 @@
     }
 
     .lead-card-grid {
+        --lead-slide-gap: 0.9rem;
+        --lead-slide-columns: 6;
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 1rem;
+        grid-auto-flow: column;
+        grid-auto-columns: calc((100% - ((var(--lead-slide-columns) - 1) * var(--lead-slide-gap))) / var(--lead-slide-columns));
+        gap: var(--lead-slide-gap);
+        overflow-x: auto;
         padding: 1rem;
+        scroll-snap-type: x proximity;
+        scroll-behavior: smooth;
+        scrollbar-color: #cbd5e1 transparent;
     }
 
     .lead-card-market {
         min-width: 0;
+        scroll-snap-align: start;
         overflow: hidden;
         border: 1px solid #d6dce8;
         border-radius: 9px;
@@ -836,7 +869,7 @@
     }
 
     .lead-card-media {
-        height: 142px;
+        height: 128px;
         border: 1px solid #d6dce8;
         border-width: 0 0 1px;
         display: grid;
@@ -855,8 +888,8 @@
 
     .lead-card-body {
         display: grid;
-        gap: 0.8rem;
-        padding: 1rem;
+        gap: 0.64rem;
+        padding: 0.8rem;
     }
 
     .lead-card-title {
@@ -879,6 +912,13 @@
         line-height: 1.45;
     }
 
+    .lead-updated-meta {
+        color: #0f766e;
+        font-size: 0.75rem;
+        font-weight: 800;
+        line-height: 1.35;
+    }
+
     .lead-card-company {
         color: #0f172a;
         font-size: 0.9rem;
@@ -888,8 +928,8 @@
 
     .lead-card-info {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0.7rem;
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
     }
 
     .lead-info-label {
@@ -926,6 +966,35 @@
         font-size: 0.76rem;
         font-weight: 700;
         white-space: nowrap;
+    }
+
+    .leads-footer-action {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.95rem;
+        border-top: 1px solid #e2e8f0;
+        background: #f8fafc;
+    }
+
+    .view-all-leads-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        min-height: 42px;
+        padding: 0.62rem 1.1rem;
+        border-radius: 8px;
+        background: var(--t4d-primary);
+        color: #fff;
+        font-weight: 850;
+        text-decoration: none;
+    }
+
+    .view-all-leads-btn:hover {
+        background: var(--t4d-primary-dark);
+        color: #fff;
+        transform: translateY(-1px);
     }
 
     .how-premium-section {
@@ -1300,6 +1369,10 @@
             flex-direction: column;
         }
 
+        .category-view-all-btn {
+            width: 100%;
+        }
+
         .product-slider {
             --product-slide-columns: 2;
             --product-slide-gap: 0.65rem;
@@ -1374,7 +1447,7 @@
         }
 
         .lead-card-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+            --lead-slide-columns: 3;
             padding: 0.85rem;
         }
 
@@ -1409,7 +1482,7 @@
 
         .connected-seller-grid,
         .lead-card-grid {
-            grid-template-columns: 1fr;
+            --lead-slide-columns: 1;
         }
 
         .how-compact {
@@ -1548,6 +1621,82 @@
                 </button>
             </div>
 
+            <div class="section-heading-row mt-4 mb-2" id="leads">
+                <div>
+                    <h2 id="leadsTitle">Live Business Leads</h2>
+                    <p>Latest visible buyer and supplier opportunities. New leads appear first.</p>
+                </div>
+                <a class="view-all-leads-btn" href="{{ route('marketplace.page', ['page' => 'live-leads']) }}">
+                    View all leads <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+
+            @if($isStaffViewer ?? false)
+                <div class="alert alert-success border-0 shadow-sm mb-3"><strong>Staff view</strong> - all approved leads are visible with no plan delay.</div>
+            @elseif($viewerPlan->isGold())
+                <div class="alert alert-warning border-0 shadow-sm mb-3"><strong>Gold member</strong> - you see new leads instantly as they are published.</div>
+            @else
+                <div class="alert alert-info border-0 shadow-sm mb-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
+                    <span><i class="bi bi-clock me-1"></i>Free accounts see leads <strong>24 hours</strong> after they go live.</span>
+                    <a href="{{ route('plans.index') }}" class="btn btn-sm btn-primary-t4d text-white">Upgrade to Gold</a>
+                </div>
+            @endif
+
+            <div class="lead-grid-wrap mb-4">
+                @if($leads->isEmpty())
+                    <div class="empty-state">
+                        <h3 class="h5 fw-bold">No leads visible yet</h3>
+                        <p class="mb-3">New leads appear here after review. @unless(($isStaffViewer ?? false) || $viewerPlan->isGold()) Gold members see them 24 hours sooner. @endunless</p>
+                        <button type="button" class="btn btn-primary-t4d text-white" data-bs-toggle="modal" data-bs-target="#leadModal">Submit a Lead</button>
+                    </div>
+                @else
+                    <div class="lead-card-grid" data-lead-slider aria-label="Latest business leads">
+                        @foreach($leads as $lead)
+                            <article class="lead-card-market marketplace-search-item" data-search-text="{{ strtolower($lead->product_interest.' '.$lead->company_name.' '.$lead->country.' '.$lead->product_type?->label().' '.$lead->business_type?->label()) }}">
+                                <a href="{{ route('leads.show', $lead) }}" class="lead-card-media" aria-label="View {{ $lead->product_interest }}">
+                                    @if($lead->productImageUrl())
+                                        <img src="{{ $lead->productImageUrl() }}" alt="{{ $lead->product_interest }}" loading="lazy">
+                                    @else
+                                        <i class="bi bi-image"></i>
+                                    @endif
+                                </a>
+                                <div class="lead-card-body">
+                                    <div>
+                                        <a href="{{ route('leads.show', $lead) }}" class="lead-card-title">{{ $lead->product_interest }}</a>
+                                        <div class="lead-card-meta">{{ $lead->published_at?->diffForHumans() }}</div>
+                                        <div class="lead-updated-meta">Updated {{ $lead->updated_at?->diffForHumans() }}</div>
+                                    </div>
+
+                                    <div>
+                                        <div class="lead-card-company">{{ $lead->company_name }}</div>
+                                        <div class="lead-card-meta"><i class="bi bi-geo-alt me-1"></i>{{ $lead->country }}</div>
+                                    </div>
+
+                                    <div class="lead-card-info">
+                                        <div>
+                                            <span class="lead-info-label">Category</span>
+                                            <span class="chip-market">{{ $lead->product_type?->label() ?? 'Product' }}</span>
+                                        </div>
+                                        <div>
+                                            <span class="lead-info-label">Trade</span>
+                                            <div class="lead-info-value">{{ $lead->currency?->value }} &middot; {{ $lead->units?->label() }}</div>
+                                            <div class="lead-card-meta">{{ $lead->business_type?->label() }}</div>
+                                        </div>
+                                    </div>
+
+                                    <a href="{{ route('leads.show', $lead) }}" class="btn btn-sm btn-outline-t4d w-100">View &amp; contact</a>
+                                </div>
+                            </article>
+                        @endforeach
+                    </div>
+                    <div class="leads-footer-action">
+                        <a class="view-all-leads-btn" href="{{ route('marketplace.page', ['page' => 'live-leads']) }}">
+                            View all leads <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                @endif
+            </div>
+
             @foreach($categories as $category)
                 @php($products = $productsByCategory->get($category->value, collect()))
                 <div class="category-products-group" data-category-group="{{ $category->value }}">
@@ -1557,6 +1706,14 @@
                                 <h2>{{ $category->label() }}</h2>
                                 <p>{{ $products->count() }} active product{{ $products->count() === 1 ? '' : 's' }}</p>
                             </div>
+                            <a
+                                class="category-view-all-btn"
+                                href="{{ route('marketplace.page', ['page' => 'product-directory', 'category' => $category->value]) }}"
+                                data-category-view-all
+                                data-category="{{ $category->value }}"
+                            >
+                                View all products <i class="bi bi-arrow-right"></i>
+                            </a>
                         </div>
 
                         @if($products->isEmpty())
@@ -1611,7 +1768,7 @@
                             <div class="electronics-video-cta">
                                 <h3 id="electronicsConnectTitle">Join Trade4Deal Videos</h3>
                                 <p>Showcase electronic products, machinery demos, and supplier capabilities directly on your public catalog.</p>
-                                <a href="{{ route('register') }}" class="electronics-join-btn">
+                                <a href="https://www.youtube.com/@Trade4Deal" class="electronics-join-btn" target="_blank" rel="noopener noreferrer">
                                     Join Now <i class="bi bi-arrow-right"></i>
                                 </a>
                             </div>
@@ -1733,14 +1890,14 @@
                                         </div>
                                     </div>
 
-                                    @if ($lead->payment_terms)
-                                        <div>
-                                            <span class="lead-info-label">Payment terms</span>
-                                            <div class="lead-payment-row">
-                                                <span class="chip-market">{{ $lead->payment_terms->label() }}</span>
-                                            </div>
+                                    <div>
+                                        <span class="lead-info-label">Payment</span>
+                                        <div class="lead-payment-row">
+                                            @foreach($lead->paymentMethodEnums() as $method)
+                                                <span class="chip-market">{{ $method->label() }}</span>
+                                            @endforeach
                                         </div>
-                                    @endif
+                                    </div>
 
                                     <a href="{{ route('leads.show', $lead) }}" class="btn btn-sm btn-outline-t4d w-100">View &amp; contact</a>
                                 </div>
@@ -1919,6 +2076,49 @@
                     selectCategory(category);
                 }
             });
+        });
+    })();
+
+    (function () {
+        const viewAllLinks = Array.from(document.querySelectorAll('[data-category-view-all]'));
+        if (viewAllLinks.length === 0) return;
+
+        function storedLocation() {
+            try {
+                const location = JSON.parse(localStorage.getItem('t4d-location-selection') || 'null');
+                if (!location || !location.id) return null;
+                if (location.expires_at && Date.parse(location.expires_at) < Date.now()) return null;
+
+                return {
+                    id: location.id,
+                    label: location.full_label || location.label || '',
+                };
+            } catch (error) {
+                return null;
+            }
+        }
+
+        function syncViewAllLinks(location = storedLocation()) {
+            viewAllLinks.forEach((link) => {
+                const url = new URL(link.href, window.location.origin);
+                url.searchParams.set('category', link.getAttribute('data-category') || '');
+                url.searchParams.delete('page');
+
+                if (location?.id) {
+                    url.searchParams.set('location_id', location.id);
+                    url.searchParams.set('location_label', location.label);
+                } else {
+                    url.searchParams.delete('location_id');
+                    url.searchParams.delete('location_label');
+                }
+
+                link.href = url.toString();
+            });
+        }
+
+        syncViewAllLinks();
+        window.addEventListener('t4d-location-change', (event) => {
+            syncViewAllLinks(event.detail?.id ? event.detail : null);
         });
     })();
 

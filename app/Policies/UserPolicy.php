@@ -25,24 +25,6 @@ class UserPolicy
 
     public function updateSellerDetails(User $actor, User $target): bool
     {
-        return $actor->isAdmin() && $target->isSeller();
-    }
-
-    public function updateManagedUser(User $actor, User $target): bool
-    {
-        if (! $actor->isAdmin()) {
-            return false;
-        }
-
-        return in_array($target->user_type, [UserType::Buyer, UserType::Seller], true);
-    }
-
-    public function delete(User $actor, User $target): bool
-    {
-        if (! $actor->isAdmin() || $actor->id === $target->id) {
-            return false;
-        }
-
-        return $target->isSeller() || $target->isBuyer();
+        return $actor->isAdmin() && $target->user_type === UserType::Seller;
     }
 }

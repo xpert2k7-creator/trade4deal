@@ -113,6 +113,17 @@
             box-shadow: inset 0 1px 0 rgba(15, 23, 42, 0.03);
         }
 
+        .market-search-wrap {
+            position: relative;
+            flex: 1 1 520px;
+            max-width: 620px;
+        }
+
+        .market-search-wrap .market-search {
+            width: 100%;
+            max-width: none;
+        }
+
         .market-search-location,
         .market-search-input {
             display: flex;
@@ -129,11 +140,20 @@
             border-right: 1px solid #D7DCE5;
             font-weight: 700;
             white-space: nowrap;
+            cursor: pointer;
+            overflow: hidden;
+            appearance: none;
         }
 
         .market-search-location i {
             color: var(--t4d-accent);
             font-size: 1.2rem;
+        }
+
+        .market-location-label {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .market-search-input input {
@@ -148,11 +168,132 @@
             color: #94a3b8;
         }
 
-        .market-search button {
+        .market-search .market-search-submit {
             border: 0;
             background: var(--t4d-primary);
             color: #fff;
             font-size: 1.1rem;
+        }
+
+        .location-popover {
+            position: fixed;
+            z-index: 1080;
+            width: min(520px, calc(100vw - 1.5rem));
+            max-height: min(620px, calc(100vh - 1.5rem));
+            border: 1px solid #D7DCE5;
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 22px 48px rgba(15, 23, 42, 0.18);
+            padding: 0.85rem;
+            display: none;
+            overflow: hidden;
+        }
+
+        .location-popover.is-open {
+            display: grid;
+            grid-template-rows: auto auto auto auto minmax(0, 1fr);
+            gap: 0.68rem;
+        }
+
+        .location-popover-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            color: #0f172a;
+            font-weight: 850;
+        }
+
+        .location-popover-title button {
+            border: 0;
+            background: transparent;
+            color: #64748b;
+            font-size: 1.05rem;
+        }
+
+        .location-search-input {
+            width: 100%;
+            min-height: 42px;
+            border: 1px solid #CBD5E1;
+            border-radius: 8px;
+            padding: 0 0.8rem;
+            color: #0f172a;
+            outline: 0;
+        }
+
+        .location-search-input:focus {
+            border-color: var(--t4d-primary);
+            box-shadow: 0 0 0 3px rgba(6, 68, 117, 0.12);
+        }
+
+        .location-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.55rem;
+        }
+
+        .location-action-btn,
+        .location-option-btn {
+            min-height: 46px;
+            border: 1px solid #D7DCE5;
+            border-radius: 8px;
+            background: #fff;
+            color: #0f172a;
+            padding: 0.55rem 0.75rem;
+            text-align: left;
+            font-weight: 750;
+        }
+
+        .location-option-btn {
+            display: grid;
+            gap: 0.16rem;
+            min-height: 62px;
+            line-height: 1.18;
+        }
+
+        .location-action-btn:hover,
+        .location-option-btn:hover,
+        .location-option-btn:focus {
+            border-color: var(--t4d-accent);
+            outline: none;
+        }
+
+        .location-option-btn:hover,
+        .location-option-btn:focus {
+            background: #fffaf5;
+            box-shadow: 0 0 0 2px rgba(245, 130, 32, 0.12);
+        }
+
+        .location-results {
+            display: grid;
+            gap: 0.5rem;
+            max-height: 330px;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            padding-right: 0.2rem;
+            scrollbar-width: thin;
+        }
+
+        .location-results:empty {
+            display: none;
+        }
+
+        .location-option-btn span {
+            display: block;
+            color: #64748b;
+            font-size: 0.78rem;
+            font-weight: 650;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            line-height: 1.25;
+        }
+
+        .location-status {
+            color: #64748b;
+            font-size: 0.8rem;
+            line-height: 1.4;
+            min-height: 1.1rem;
         }
 
         .market-header-actions {
@@ -388,6 +529,12 @@
                 max-width: none;
             }
 
+            .market-search-wrap {
+                order: 3;
+                flex-basis: 100%;
+                max-width: none;
+            }
+
             .market-header-actions {
                 margin-left: auto;
             }
@@ -431,7 +578,7 @@
 
             .market-search {
                 grid-area: search;
-                grid-template-columns: minmax(0, 1fr) 42px;
+                grid-template-columns: minmax(92px, 112px) minmax(0, 1fr) 42px;
                 height: 44px;
                 width: 100%;
                 margin-top: 0;
@@ -463,7 +610,25 @@
             }
 
             .market-search-location {
-                display: none;
+                display: flex;
+                padding: 0 0.52rem;
+                gap: 0.28rem;
+                font-size: 0.72rem;
+            }
+
+            .market-search-location i {
+                font-size: 1rem;
+            }
+
+            .location-popover {
+                left: 0.5rem !important;
+                right: 0.5rem;
+                width: auto;
+                max-height: min(560px, calc(100vh - 1rem));
+            }
+
+            .location-actions {
+                grid-template-columns: 1fr;
             }
 
             .mobile-finder-actions,
@@ -1207,6 +1372,83 @@
             box-shadow: var(--t4d-shadow);
         }
 
+        .client-logo-slider {
+            margin-top: 2.4rem;
+            padding-top: 1.7rem;
+            border-top: 1px solid rgba(148, 163, 184, 0.35);
+            overflow: hidden;
+        }
+
+        .client-logo-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .client-logo-head h3 {
+            margin: 0;
+            color: var(--t4d-dark);
+            font-size: 1.05rem;
+            font-weight: 850;
+            letter-spacing: 0;
+        }
+
+        .client-logo-head span {
+            color: var(--t4d-muted);
+            font-size: 0.86rem;
+            font-weight: 700;
+        }
+
+        .client-logo-marquee {
+            overflow: hidden;
+            mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+        }
+
+        .client-logo-track {
+            display: flex;
+            width: max-content;
+            gap: 1rem;
+            animation: clientLogoSlide 28s linear infinite;
+            will-change: transform;
+        }
+
+        .client-logo-marquee:hover .client-logo-track,
+        .client-logo-marquee:focus-within .client-logo-track {
+            animation-play-state: paused;
+        }
+
+        .client-logo-card {
+            width: clamp(170px, 18vw, 250px);
+            height: 96px;
+            padding: 1rem 1.15rem;
+            border: 1px solid var(--t4d-border);
+            border-radius: 10px;
+            background: #fff;
+            display: grid;
+            place-items: center;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+            flex: 0 0 auto;
+        }
+
+        .client-logo-card img {
+            max-width: 100%;
+            max-height: 70px;
+            object-fit: contain;
+        }
+
+        @keyframes clientLogoSlide {
+            from { transform: translateX(0); }
+            to { transform: translateX(calc(-50% - 0.5rem)); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .client-logo-track {
+                animation: none;
+            }
+        }
+
         @media (max-width: 767px) {
             .testimonial-strip {
                 padding-top: 1.5rem !important;
@@ -1306,6 +1548,32 @@
 
             .testimonial-slider .carousel-indicators {
                 bottom: 0.25rem;
+            }
+
+            .client-logo-slider {
+                margin-top: 1.5rem;
+                padding-top: 1.2rem;
+            }
+
+            .client-logo-head {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+
+            .client-logo-head h3 {
+                font-size: 0.98rem;
+            }
+
+            .client-logo-card {
+                width: 158px;
+                height: 78px;
+                padding: 0.75rem;
+                border-radius: 8px;
+            }
+
+            .client-logo-card img {
+                max-height: 56px;
             }
         }
 
@@ -1571,17 +1839,42 @@
                 <x-brand-logo :height="38" />
             </a>
 
-            <form class="market-search" id="marketplaceSearch" role="search">
-                <div class="market-search-location">
-                    <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
-                    <span>Global Trade</span>
+            <div class="market-search-wrap" data-location-selector>
+                <form class="market-search" id="marketplaceSearch" role="search" method="GET" action="{{ route('marketplace.page', ['page' => 'product-directory']) }}">
+                    <button
+                        class="market-search-location"
+                        id="marketLocationButton"
+                        type="button"
+                        aria-haspopup="dialog"
+                        aria-expanded="false"
+                        aria-controls="marketLocationPopover"
+                    >
+                        <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
+                        <span class="market-location-label" id="marketLocationLabel">Select location</span>
+                    </button>
+                    <label class="market-search-input" for="marketplaceSearchInput">
+                        <span class="visually-hidden">Search products and categories</span>
+                        <input id="marketplaceSearchInput" name="search" type="search" value="{{ request('search') }}" placeholder="Search Trade4Deal products or categories" autocomplete="off">
+                    </label>
+                    <input id="marketLocationIdInput" type="hidden" name="location_id" value="{{ request('location_id') }}">
+                    <input id="marketLocationLabelInput" type="hidden" name="location_label" value="{{ request('location_label') }}">
+                    <button class="market-search-submit" type="submit" aria-label="Search products"><i class="bi bi-search"></i></button>
+                </form>
+
+                <div class="location-popover" id="marketLocationPopover" role="dialog" aria-modal="false" aria-labelledby="marketLocationTitle">
+                    <div class="location-popover-title">
+                        <span id="marketLocationTitle">Choose location</span>
+                        <button type="button" id="marketLocationClose" aria-label="Close location selector"><i class="bi bi-x-lg"></i></button>
+                    </div>
+                    <input class="location-search-input" id="marketLocationSearch" type="search" placeholder="Search city, country, UAE, USA, UK..." autocomplete="off">
+                    <div class="location-actions">
+                        <button class="location-action-btn" id="marketUseCurrentLocation" type="button"><i class="bi bi-crosshair me-1"></i>Use current</button>
+                        <button class="location-action-btn" id="marketAllLocations" type="button"><i class="bi bi-globe2 me-1"></i>All locations</button>
+                    </div>
+                    <div class="location-status" id="marketLocationStatus" aria-live="polite"></div>
+                    <div class="location-results" id="marketLocationResults" role="listbox" aria-label="Location suggestions"></div>
                 </div>
-                <label class="market-search-input" for="marketplaceSearchInput">
-                    <span class="visually-hidden">Search visible products and categories</span>
-                    <input id="marketplaceSearchInput" type="search" placeholder="Search Trade4Deal products or categories" autocomplete="off">
-                </label>
-                <button type="submit" aria-label="Search visible marketplace items"><i class="bi bi-search"></i></button>
-            </form>
+            </div>
             <a href="{{ route('register') }}" class="mobile-register-inline">Register Free</a>
 
             <div class="mobile-finder-actions" aria-label="Find marketplace users">
@@ -1929,6 +2222,31 @@
                         <span class="carousel-control-next-icon" aria-hidden="true"></span>
                     </button>
                 </div>
+
+                @php
+                    $clientLogos = [
+                        ['name' => 'ZYFUD', 'src' => 'images/clients/zyfud.jpeg'],
+                        ['name' => 'Navarna Group', 'src' => 'images/clients/navarna-group.jpg'],
+                        ['name' => 'Zuari Industries', 'src' => 'images/clients/zuari.jpeg'],
+                        ['name' => 'Uttam Sugar', 'src' => 'images/clients/uttam-sugar.jpeg'],
+                        ['name' => 'Shhe', 'src' => 'images/clients/shhefoods.png'],
+                    ];
+                @endphp
+                <div class="client-logo-slider" aria-labelledby="clientLogoTitle">
+                    <div class="client-logo-head">
+                        <h3 id="clientLogoTitle">Trusted company network</h3>
+                        <span>Brands connected through Trade4Deal</span>
+                    </div>
+                    <div class="client-logo-marquee">
+                        <div class="client-logo-track">
+                            @foreach(array_merge($clientLogos, $clientLogos) as $logo)
+                                <div class="client-logo-card">
+                                    <img src="{{ asset($logo['src']) }}" alt="{{ $logo['name'] }} logo" loading="lazy">
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -2065,6 +2383,282 @@
                 });
             }
 
+            const locationRoot = document.querySelector('[data-location-selector]');
+            const locationButton = document.getElementById('marketLocationButton');
+            const locationLabel = document.getElementById('marketLocationLabel');
+            const locationPopover = document.getElementById('marketLocationPopover');
+            const locationClose = document.getElementById('marketLocationClose');
+            const locationSearch = document.getElementById('marketLocationSearch');
+            const locationResults = document.getElementById('marketLocationResults');
+            const locationStatus = document.getElementById('marketLocationStatus');
+            const useCurrentLocation = document.getElementById('marketUseCurrentLocation');
+            const allLocations = document.getElementById('marketAllLocations');
+            const locationIdInput = document.getElementById('marketLocationIdInput');
+            const locationLabelInput = document.getElementById('marketLocationLabelInput');
+            const marketplaceSearch = document.getElementById('marketplaceSearch');
+
+            if (locationRoot && locationButton && locationPopover && locationLabel && locationIdInput && locationLabelInput) {
+                const storageKey = 't4d-location-selection';
+                const detectionKey = 't4d-location-detection-attempted';
+                const url = new URL(window.location.href);
+                const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                let activeLocation = null;
+                let searchTimer = null;
+                let searchController = null;
+                let searchRequestId = 0;
+                let detectionRequestId = 0;
+
+                function validStoredLocation(value) {
+                    if (!value || typeof value !== 'object') return null;
+                    if (value.expires_at && Date.parse(value.expires_at) < Date.now()) return null;
+                    if (value.id === '' && value.source === 'all') return value;
+                    if (!value.id || !value.label) return null;
+
+                    return value;
+                }
+
+                function storedLocation() {
+                    try {
+                        return validStoredLocation(JSON.parse(localStorage.getItem(storageKey) || 'null'));
+                    } catch (error) {
+                        return null;
+                    }
+                }
+
+                function saveLocation(location) {
+                    if (!location) {
+                        localStorage.removeItem(storageKey);
+                        return;
+                    }
+
+                    localStorage.setItem(storageKey, JSON.stringify({
+                        id: location.id || '',
+                        label: location.label || 'Select location',
+                        full_label: location.full_label || location.label || 'Select location',
+                        source: location.source || 'manual',
+                        expires_at: location.expires_at || new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString(),
+                    }));
+                }
+
+                function locationFromUrl() {
+                    const id = (url.searchParams.get('location_id') || '').trim();
+                    const label = (url.searchParams.get('location_label') || '').trim();
+                    if (!id) return null;
+
+                    return {
+                        id,
+                        label: label || 'Selected location',
+                        full_label: label || 'Selected location',
+                        source: 'url',
+                        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+                    };
+                }
+
+                function setStatus(message) {
+                    if (locationStatus) locationStatus.textContent = message || '';
+                }
+
+                function applyLocation(location, options = {}) {
+                    activeLocation = location?.id || location?.source === 'all' ? location : null;
+                    const label = activeLocation?.label || 'Select location';
+                    const fullLabel = activeLocation?.full_label || label;
+
+                    locationLabel.textContent = label;
+                    locationButton.title = fullLabel;
+                    locationIdInput.value = activeLocation?.id || '';
+                    locationLabelInput.value = activeLocation?.id ? fullLabel : '';
+                    window.dispatchEvent(new CustomEvent('t4d-location-change', {
+                        detail: {
+                            id: activeLocation?.id || '',
+                            label: activeLocation?.id ? fullLabel : '',
+                        },
+                    }));
+
+                    if (options.save) saveLocation(activeLocation);
+                    if (options.close) closeLocationPopover();
+                    if (options.submit && marketplaceSearch) marketplaceSearch.requestSubmit();
+                }
+
+                function openLocationPopover() {
+                    const rect = locationButton.getBoundingClientRect();
+                    locationPopover.classList.add('is-open');
+                    locationPopover.style.top = `${Math.min(rect.bottom + 8, window.innerHeight - 24)}px`;
+                    locationPopover.style.left = `${Math.min(Math.max(12, rect.left), window.innerWidth - locationPopover.offsetWidth - 12)}px`;
+                    locationButton.setAttribute('aria-expanded', 'true');
+                    setTimeout(() => locationSearch?.focus(), 30);
+                    fetchLocationSuggestions(locationSearch?.value || '');
+                }
+
+                function closeLocationPopover() {
+                    locationPopover.classList.remove('is-open');
+                    locationButton.setAttribute('aria-expanded', 'false');
+                }
+
+                function renderLocations(locations) {
+                    if (!locationResults) return;
+                    locationResults.innerHTML = '';
+                    locations.forEach((location) => {
+                        if (!location?.id) return;
+                        const button = document.createElement('button');
+                        button.type = 'button';
+                        button.className = 'location-option-btn';
+                        button.setAttribute('role', 'option');
+                        button.innerHTML = `${escapeHtml(location.label || 'Location')}<span>${escapeHtml(location.full_label || location.label || '')}</span>`;
+                        button.addEventListener('click', () => {
+                            applyLocation({
+                                ...location,
+                                source: 'manual',
+                                expires_at: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString(),
+                            }, { save: true, close: true, submit: isProductDirectory() });
+                        });
+                        locationResults.appendChild(button);
+                    });
+                }
+
+                function escapeHtml(value) {
+                    return String(value).replace(/[&<>"']/g, (char) => ({
+                        '&': '&amp;',
+                        '<': '&lt;',
+                        '>': '&gt;',
+                        '"': '&quot;',
+                        "'": '&#039;',
+                    }[char]));
+                }
+
+                function fetchLocationSuggestions(query) {
+                    window.clearTimeout(searchTimer);
+                    searchTimer = window.setTimeout(() => {
+                        searchController?.abort();
+                        searchController = new AbortController();
+                        const requestId = ++searchRequestId;
+                        const params = new URLSearchParams();
+                        if (query.trim() !== '') params.set('q', query.trim());
+                        setStatus(query.trim().length === 1 ? 'Type at least 2 characters to search.' : 'Loading locations...');
+
+                        fetch(`{{ route('locations.search') }}?${params.toString()}`, {
+                            headers: { Accept: 'application/json' },
+                            signal: searchController.signal,
+                        })
+                            .then((response) => response.ok ? response.json() : Promise.reject())
+                            .then((payload) => {
+                                if (requestId !== searchRequestId) return;
+                                const locations = Array.isArray(payload.locations) ? payload.locations : [];
+                                renderLocations(locations);
+                                setStatus(locations.length ? 'Select a city to filter product results.' : 'No matching locations found. Try city or country name.');
+                            })
+                            .catch((error) => {
+                                if (error?.name === 'AbortError') return;
+                                if (requestId !== searchRequestId) return;
+                                renderLocations([]);
+                                setStatus('Location search is temporarily unavailable.');
+                            });
+                    }, query.trim() === '' ? 0 : 220);
+                }
+
+                function detectLocation(options = {}) {
+                    if (!navigator.geolocation) {
+                        setStatus('Your browser does not support location detection. Search for a city instead.');
+                        return;
+                    }
+
+                    if (!options.manual && localStorage.getItem(detectionKey)) return;
+                    localStorage.setItem(detectionKey, 'true');
+                    setStatus('Requesting location permission...');
+                    const requestId = ++detectionRequestId;
+
+                    navigator.geolocation.getCurrentPosition((position) => {
+                        if (requestId !== detectionRequestId) return;
+                        if (!options.manual && (activeLocation?.source === 'manual' || activeLocation?.source === 'all')) return;
+
+                        const lat = Math.round(position.coords.latitude * 1000) / 1000;
+                        const lng = Math.round(position.coords.longitude * 1000) / 1000;
+                        setStatus('Finding your city...');
+
+                        fetch(`{{ route('locations.reverse') }}`, {
+                            method: 'POST',
+                            headers: {
+                                Accept: 'application/json',
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrf,
+                            },
+                            body: JSON.stringify({ lat, lng }),
+                        })
+                            .then((response) => response.ok ? response.json() : Promise.reject(response))
+                            .then((payload) => {
+                                if (requestId !== detectionRequestId) return;
+                                if (!options.manual && (activeLocation?.source === 'manual' || activeLocation?.source === 'all')) return;
+                                if (!payload.location?.id) throw new Error('unresolved');
+
+                                applyLocation({
+                                    ...payload.location,
+                                    source: 'detected',
+                                    expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+                                }, { save: true, submit: isProductDirectory() && !hasUrlLocation() });
+                                setStatus(`Detected ${payload.location.full_label || payload.location.label}.`);
+                            })
+                            .catch(() => {
+                                if (requestId !== detectionRequestId) return;
+                                setStatus('Could not detect your city. Search for a location instead.');
+                                if (!activeLocation) applyLocation(null);
+                            });
+                    }, (error) => {
+                        if (requestId !== detectionRequestId) return;
+                        const denied = error.code === error.PERMISSION_DENIED;
+                        setStatus(denied ? 'Location permission was denied. Search for a city instead.' : 'Location detection timed out. Search for a city instead.');
+                        if (!activeLocation) applyLocation(null);
+                    }, {
+                        enableHighAccuracy: false,
+                        timeout: 8000,
+                        maximumAge: 0,
+                    });
+                }
+
+                function hasUrlLocation() {
+                    return Boolean((new URL(window.location.href)).searchParams.get('location_id'));
+                }
+
+                function isProductDirectory() {
+                    return window.location.pathname.includes('/pages/product-directory');
+                }
+
+                locationButton.addEventListener('click', openLocationPopover);
+                locationClose?.addEventListener('click', closeLocationPopover);
+                useCurrentLocation?.addEventListener('click', () => detectLocation({ manual: true }));
+                allLocations?.addEventListener('click', () => {
+                    applyLocation({
+                        id: '',
+                        label: 'All locations',
+                        full_label: 'All locations',
+                        source: 'all',
+                        expires_at: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString(),
+                    }, { save: true, close: true, submit: isProductDirectory() });
+                });
+                locationSearch?.addEventListener('input', () => fetchLocationSuggestions(locationSearch.value));
+
+                document.addEventListener('keydown', (event) => {
+                    if (event.key === 'Escape' && locationPopover.classList.contains('is-open')) closeLocationPopover();
+                });
+                document.addEventListener('click', (event) => {
+                    if (!locationPopover.classList.contains('is-open')) return;
+                    if (locationRoot.contains(event.target)) return;
+                    closeLocationPopover();
+                });
+                window.addEventListener('resize', () => {
+                    if (locationPopover.classList.contains('is-open')) openLocationPopover();
+                });
+
+                const initial = locationFromUrl() || storedLocation();
+                if (initial) {
+                    applyLocation(initial);
+                    if (isProductDirectory() && initial.id && !hasUrlLocation()) {
+                        marketplaceSearch?.requestSubmit();
+                    }
+                } else {
+                    applyLocation(null);
+                    detectLocation();
+                }
+            }
+
             const finderModal = document.getElementById('finderModal');
             if (finderModal) {
                 finderModal.addEventListener('show.bs.modal', function (event) {
@@ -2094,11 +2688,6 @@
             document.addEventListener('submit', function (e) {
                 const form = e.target;
                 if (!(form instanceof HTMLFormElement)) return;
-                if (form.id === 'marketplaceSearch') {
-                    e.preventDefault();
-                    scrollToMarketplaceResult(document.getElementById('marketplaceSearchInput')?.value || '');
-                    return;
-                }
                 if (form.id === 'finderSearchForm') {
                     e.preventDefault();
                     scrollToMarketplaceResult(document.getElementById('finderSearchInput')?.value || '');

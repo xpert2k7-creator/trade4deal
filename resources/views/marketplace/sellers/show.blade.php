@@ -732,17 +732,11 @@
                             <div class="product-grid">
                                 @foreach ($products as $product)
                                     <article class="product-card">
-                                        @php($productImageUrls = $product->imageUrls())
                                         <div class="product-media">
-                                            @if ($productImageUrls !== [])
-                                                <img src="{{ $productImageUrls[0] }}" alt="{{ $product->name }}" loading="lazy">
+                                            @if ($product->imageUrl())
+                                                <img src="{{ $product->imageUrl() }}" alt="{{ $product->name }}" loading="lazy">
                                             @else
                                                 <div class="ph"><i class="bi bi-box-seam"></i></div>
-                                            @endif
-                                            @if (count($productImageUrls) > 1)
-                                                <span class="product-type-badge" style="right:auto;left:0.65rem;">
-                                                    <i class="bi bi-images"></i> {{ count($productImageUrls) }}
-                                                </span>
                                             @endif
                                             <span class="product-type-badge">{{ $product->product_type?->label() }}</span>
                                         </div>

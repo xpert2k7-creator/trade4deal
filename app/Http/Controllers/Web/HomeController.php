@@ -19,8 +19,7 @@ class HomeController extends Controller
     public function __invoke(Request $request, LeadService $leadService): View
     {
         $viewer = auth()->user();
-        $perPage = min(50, max(5, (int) $request->input('per_page', 10)));
-
+        $perPage = max(1, min(24, $request->integer('per_page', 10)));
         $leads = $leadService->paginateLeadsForViewer($viewer, $perPage);
         $viewerPlan = $leadService->viewerPlan($viewer);
         $isStaffViewer = $viewer?->canModerateLeads() ?? false;
@@ -57,7 +56,6 @@ class HomeController extends Controller
             'leads',
             'viewerPlan',
             'isStaffViewer',
-            'perPage',
             'categories',
             'productsByCategory',
             'marketplaceStats',

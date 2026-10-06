@@ -234,6 +234,34 @@
         gap: 0.68rem;
     }
 
+    .requirement-radio-group {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.68rem;
+    }
+
+    .requirement-radio {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.62rem;
+        min-height: 47px;
+        border: 1px solid #cbd5e1;
+        border-radius: 9px;
+        background: #fff;
+        color: #0f172a;
+        padding: 0 0.95rem;
+        font-size: 0.95rem;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .requirement-radio input {
+        width: 18px;
+        height: 18px;
+        accent-color: #079455;
+    }
+
     .terms-line {
         display: grid;
         grid-template-columns: 24px 1fr;
@@ -471,6 +499,17 @@
             grid-template-columns: 1fr;
         }
 
+        .requirement-radio-group {
+            grid-template-columns: 1fr;
+            gap: 0.52rem;
+        }
+
+        .requirement-radio {
+            min-height: 42px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+        }
+
         .supplier-field i {
             left: 0.78rem;
             font-size: 0.9rem;
@@ -533,7 +572,7 @@
                         <span>Global B2B Marketplace</span>
                     </div>
 
-                    <h2 class="supplier-aside-title">Why Suppliers Join Trade4Deal</h2>
+                    <h2 class="supplier-aside-title">Submit Your Business Requirement</h2>
 
                     <div class="supplier-benefits">
                         <div class="supplier-benefit">
@@ -573,93 +612,70 @@
                 <div class="supplier-modal-main">
                     <div class="supplier-form-top">
                         <div>
-                            <h1 id="leadModalLabel">Sign up as Supplier</h1>
-                            <p>Create your Trade4Deal seller account for your business.</p>
+                            <h1 id="leadModalLabel">Submit Requirement</h1>
+                            <p>Share your business details and our team will review your requirement.</p>
                         </div>
                     </div>
 
-                    <div class="auth-switch">
-                        <span>Already have an account?</span>
-                        <a href="{{ route('login') }}">Log in</a>
-                    </div>
-
-                    <form class="supplier-register-form" method="POST" action="{{ route('register') }}">
+                    <form class="supplier-register-form" method="POST" action="{{ route('leads.store') }}">
                         @csrf
+                        <input type="hidden" name="email" value="{{ old('email', 'requirements@trade4deal.com') }}">
+                        <input type="hidden" name="country" value="{{ old('country', 'India') }}">
+                        <input type="hidden" name="product_type" value="{{ old('product_type', 'other') }}">
+                        <input type="hidden" name="currency" value="{{ old('currency', 'INR') }}">
+                        <input type="hidden" name="units" value="{{ old('units', 'pieces') }}">
+                        <input type="hidden" name="payment_methods[]" value="wire_transfer">
 
                         <div class="supplier-field">
                             <i class="bi bi-building"></i>
-                            <input id="modal_company_name" type="text" class="@error('company_name') is-invalid @enderror" name="company_name" value="{{ old('company_name') }}" placeholder="Enter your business name" required autofocus>
+                            <input id="modal_company_name" type="text" class="@error('company_name') is-invalid @enderror" name="company_name" value="{{ old('company_name') }}" placeholder="Bussiness name" required autofocus>
                             @error('company_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
 
                         <div class="supplier-two-col">
                             <div class="supplier-field">
                                 <i class="bi bi-person"></i>
-                                <input id="modal_name" type="text" class="@error('name') is-invalid @enderror" name="name" value="{{ old('name') }}" placeholder="Contact person name" required>
-                                @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                <input id="modal_contact_name" type="text" class="@error('contact_name') is-invalid @enderror" name="contact_name" value="{{ old('contact_name') }}" placeholder="Bussiness Owner Name" required>
+                                @error('contact_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
 
                             <div class="supplier-field">
                                 <i class="bi bi-telephone"></i>
-                                <input id="modal_phone" type="text" class="@error('phone') is-invalid @enderror" name="phone" value="{{ old('phone') }}" placeholder="Mobile number">
+                                <input id="modal_phone" type="text" class="@error('phone') is-invalid @enderror" name="phone" value="{{ old('phone') }}" placeholder="Mobile Number" required>
                                 @error('phone')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                         </div>
 
                         <div class="supplier-field">
-                            <i class="bi bi-envelope"></i>
-                            <input id="modal_email" type="email" class="@error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" placeholder="Enter your business email" required>
-                            @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            <i class="bi bi-box-seam"></i>
+                            <input id="modal_product_interest" type="text" class="@error('product_interest') is-invalid @enderror" name="product_interest" value="{{ old('product_interest') }}" placeholder="Product Type" required>
+                            @error('product_interest')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
 
-                        <div class="supplier-two-col">
-                            <div class="supplier-field">
-                                <i class="bi bi-geo-alt"></i>
-                                <input id="modal_country" type="text" class="@error('country') is-invalid @enderror" name="country" value="{{ old('country') }}" placeholder="Country" required>
-                                @error('country')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            </div>
-
-                            <div class="supplier-field">
-                                <i class="bi bi-shop-window"></i>
-                                <select id="modal_user_type" name="user_type" class="@error('user_type') is-invalid @enderror" required>
-                                    <option value="seller" @selected(old('user_type', 'seller') === 'seller')>Supplier / Seller</option>
-                                    <option value="buyer" @selected(old('user_type') === 'buyer')>Buyer</option>
-                                </select>
-                                @error('user_type')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            </div>
-                        </div>
-
-                        <div class="supplier-two-col">
-                            <div class="supplier-field">
-                                <i class="bi bi-lock"></i>
-                                <input id="modal_password" type="password" class="@error('password') is-invalid @enderror" name="password" placeholder="Create password" required>
-                                @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            </div>
-
-                            <div class="supplier-field">
-                                <i class="bi bi-shield-lock"></i>
-                                <input id="modal_password_confirmation" type="password" name="password_confirmation" placeholder="Confirm password" required>
-                            </div>
+                        <div class="requirement-radio-group" aria-label="Business type">
+                            <label class="requirement-radio" for="modal_business_type_buyer">
+                                <input id="modal_business_type_buyer" type="radio" name="business_type" value="buyer" @checked(old('business_type', 'buyer') === 'buyer') required>
+                                <span>Buyer</span>
+                            </label>
+                            <label class="requirement-radio" for="modal_business_type_supplier">
+                                <input id="modal_business_type_supplier" type="radio" name="business_type" value="seller" @checked(old('business_type') === 'seller') required>
+                                <span>Supplier</span>
+                            </label>
+                            @error('business_type')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
 
                         <label class="terms-line" for="modal_terms_accept">
                             <input id="modal_terms_accept" type="checkbox" required>
                             <span class="terms-check" aria-hidden="true"><i class="bi bi-check-lg"></i></span>
                             <span>
-                                By joining, I agree to Trade4Deal
+                                By submitting, I agree to Trade4Deal
                                 <a href="{{ route('marketplace.page', ['page' => 'terms-of-use']) }}">Terms of Use</a>,
                                 <a href="{{ route('marketplace.page', ['page' => 'privacy-policy']) }}">Privacy Policy</a>
-                                and receive business/service emails related to my account.
+                                and receive business/service communication about my requirement.
                             </span>
                         </label>
 
-                        <button type="submit" class="supplier-submit">Create Supplier Account</button>
-
-                        <div class="or-divider">OR</div>
-                        <a href="{{ route('register') }}" class="google-placeholder">
-                            <span class="google-mark">G</span>
-                            Sign up with Google
-                        </a>
+                        <button type="submit" class="supplier-submit">Submit Requirement</button>
                     </form>
                 </div>
             </div>

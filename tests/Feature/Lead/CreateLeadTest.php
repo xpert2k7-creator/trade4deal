@@ -42,7 +42,7 @@ class CreateLeadTest extends TestCase
         Storage::fake('public');
 
         $response = $this->post(route('leads.store'), array_merge($this->validPayload(), [
-            'product_image' => UploadedFile::fake()->image('product.jpg'),
+            'product_image' => new UploadedFile($this->tinyJpegPath(), 'product.jpg', 'image/jpeg', null, true),
         ]));
 
         $response->assertRedirect(route('home'));
@@ -83,5 +83,17 @@ class CreateLeadTest extends TestCase
         ]);
 
         $this->assertDatabaseCount('leads', 0);
+    }
+
+    private function tinyJpegPath(): string
+    {
+        $path = tempnam(sys_get_temp_dir(), 'lead-image-').'.jpg';
+
+        file_put_contents(
+            $path,
+            base64_decode('/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////2wBDAf//////////////////////////////////////////////////////////////////////////////////////wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAX/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIQAxAAAAGgP//EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAQUCf//EABQRAQAAAAAAAAAAAAAAAAAAABD/2gAIAQMBAT8BP//EABQRAQAAAAAAAAAAAAAAAAAAABD/2gAIAQIBAT8BP//EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEABj8Cf//EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAT8hf//aAAwDAQACAAMAAAAQ8P/EABQRAQAAAAAAAAAAAAAAAAAAABD/2gAIAQMBAT8QP//EABQRAQAAAAAAAAAAAAAAAAAAABD/2gAIAQIBAT8QP//EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAT8QP//Z')
+        );
+
+        return $path;
     }
 }

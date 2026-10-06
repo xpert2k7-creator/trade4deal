@@ -6,6 +6,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Seller\SellerDashboardController;
 use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Web\LeadController;
+use App\Http\Controllers\Web\LocationController;
 use App\Http\Controllers\Web\MarketplacePageController;
 use App\Http\Controllers\Web\PlanController;
 use App\Http\Controllers\Web\SellerProfileController;
@@ -16,6 +17,12 @@ use Laravel\Cashier\Http\Controllers\WebhookController;
 Route::get('/', HomeController::class)->name('home');
 Route::view('/contact', 'marketplace.contact')->name('contact');
 Route::get('/pages/{page}', [MarketplacePageController::class, 'show'])->name('marketplace.page');
+Route::get('/locations/search', [LocationController::class, 'search'])
+    ->middleware('throttle:30,1')
+    ->name('locations.search');
+Route::post('/locations/reverse', [LocationController::class, 'reverse'])
+    ->middleware('throttle:10,1')
+    ->name('locations.reverse');
 Route::get('/uploads/{path}', function (string $path) {
     abort_unless(Storage::disk('public')->exists($path), 404);
 
@@ -62,7 +69,6 @@ Route::middleware(['auth', 'role:seller|admin'])->prefix('seller')->name('seller
     Route::put('/profile', [SellerDashboardController::class, 'updateProfile'])->name('profile.update');
     Route::get('/products', [SellerDashboardController::class, 'products'])->name('products.index');
     Route::get('/products/create', [SellerDashboardController::class, 'createProduct'])->name('products.create');
-    Route::get('/products/category-fields', [SellerDashboardController::class, 'categoryFields'])->name('products.category-fields');
     Route::post('/products', [SellerDashboardController::class, 'storeProduct'])->name('products.store');
     Route::get('/products/{product}/edit', [SellerDashboardController::class, 'editProduct'])->name('products.edit');
     Route::put('/products/{product}', [SellerDashboardController::class, 'updateProduct'])->name('products.update');
@@ -81,9 +87,6 @@ Route::middleware(['auth', 'role:admin|employee'])->prefix('employee')->name('em
 
     Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
     Route::patch('/users/{user}/plan', [UserManagementController::class, 'updatePlan'])->name('users.plan.update');
-    Route::get('/users/{user}/edit', [UserManagementController::class, 'edit'])->name('users.edit');
-    Route::put('/users/{user}', [UserManagementController::class, 'update'])->name('users.update');
-    Route::delete('/users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
     Route::get('/users/{user}/seller', [UserManagementController::class, 'editSeller'])->name('users.sellers.edit');
     Route::put('/users/{user}/seller', [UserManagementController::class, 'updateSeller'])->name('users.sellers.update');
 });
