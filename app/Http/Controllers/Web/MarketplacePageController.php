@@ -127,7 +127,10 @@ class MarketplacePageController extends Controller
             }
 
             if ($filters['location_id'] !== '') {
-                $productsQuery->where('location_id', $filters['location_id']);
+                $productsQuery->where(function ($query) use ($filters): void {
+                    $query->where('location_id', $filters['location_id'])
+                        ->orWhereNull('location_id');
+                });
             }
 
             $locationOptions = Product::query()

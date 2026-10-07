@@ -6,6 +6,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Sourcing') — Trade4Deal</title>
 
+    @include('layouts.partials.favicon')
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -20,7 +22,7 @@
     <aside class="emp-sidebar">
         <div class="logo-wrap">
             <a href="{{ route('sourcing.dashboard') }}" class="d-inline-block text-decoration-none">
-                <img src="{{ asset('images/trade4deal-logo.jpg') }}" alt="Trade4Deal">
+                <img src="{{ \App\Support\MarketplaceAssets::url(config('marketplace_assets.logo')) }}" alt="Trade4Deal — Connecting Buyer Seller Globally">
             </a>
             <div class="small mt-2" style="opacity:0.7;letter-spacing:0.06em;text-transform:uppercase;font-size:0.68rem;font-weight:700;">
                 Sourcing Panel

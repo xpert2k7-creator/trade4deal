@@ -495,7 +495,7 @@
                     <h3>Seller profile preview</h3>
                     <p>Your storefront can bring company details and products together in one place.</p>
                     <div class="profile-card-preview">
-                        <img src="{{ asset('images/electronics-logistics-bg.jpg') }}" alt="Seller profile product catalog preview">
+                        <img src="{{ asset(config('marketplace_assets.pages.electronics_logistics_bg')) }}" alt="Seller profile product catalog preview">
                         <div class="profile-card-body">
                             <strong>Prime Industrial Supplies</strong>
                             <p>Manufacturer and exporter serving machinery, packaging and electronic component buyers.</p>

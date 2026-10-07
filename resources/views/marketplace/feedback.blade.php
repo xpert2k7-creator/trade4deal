@@ -506,7 +506,7 @@
                 </article>
 
                 <aside class="feedback-panel">
-                    <img src="{{ asset('images/electronics-logistics-bg.jpg') }}" alt="Trade4Deal feedback and marketplace improvement">
+                    <img src="{{ asset(config('marketplace_assets.pages.electronics_logistics_bg')) }}" alt="Trade4Deal feedback and marketplace improvement">
                 </aside>
             </div>
         </div>

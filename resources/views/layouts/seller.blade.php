@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Seller') — Trade4Deal</title>
+
+    @include('layouts.partials.favicon')
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -54,11 +57,14 @@
             margin-bottom: 1.1rem;
         }
         .seller-sidebar .logo-wrap img {
-            height: 42px;
+            display: block;
             width: auto;
             max-width: 100%;
+            max-height: 76px;
             object-fit: contain;
-            filter: brightness(0) invert(1);
+            background: #fff;
+            border-radius: 8px;
+            padding: 0.35rem 0.5rem;
         }
         .seller-nav {
             display: flex;
@@ -225,7 +231,7 @@
     <aside class="seller-sidebar">
         <div class="logo-wrap">
             <a href="{{ route('seller.dashboard') }}" class="d-inline-block text-decoration-none">
-                <img src="{{ asset('images/trade4deal-logo.jpg') }}" alt="Trade4Deal">
+                <img src="{{ \App\Support\MarketplaceAssets::url(config('marketplace_assets.logo')) }}" alt="Trade4Deal — Connecting Buyer Seller Globally">
             </a>
             <div class="small mt-2" style="opacity:.7;letter-spacing:.06em;text-transform:uppercase;font-size:.68rem;font-weight:700;">
                 Seller Hub

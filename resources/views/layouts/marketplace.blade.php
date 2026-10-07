@@ -7,9 +7,11 @@
     <meta name="description" content="Trade4Deal — Global B2B Marketplace connecting buyers and sellers worldwide.">
     <title>@yield('title', config('app.name', 'Trade4Deal'))</title>
 
+    @include('layouts.partials.favicon')
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Plus+Jakarta+Sans:ital,wght@0,600;0,700;0,800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icons/7.5.0/css/flag-icons.min.css" integrity="sha512-+WVTaUIzUw5LFzqIqXOT3JVAc5SrMuvHm230I9QAZa6s+QRk8NDPswbHo2miIZj3yiFyV9lAgzO1wVrjdoO4tw==" crossorigin="anonymous" referrerpolicy="no-referrer">
@@ -31,6 +33,7 @@
             --t4d-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
             --t4d-shadow-lg: 0 20px 50px rgba(15, 23, 42, 0.10);
             --t4d-font: 'Open Sans', system-ui, -apple-system, sans-serif;
+            --t4d-heading: 'Plus Jakarta Sans', 'Open Sans', system-ui, -apple-system, sans-serif;
         }
 
         [data-bs-theme="dark"] {
@@ -69,7 +72,7 @@
         }
 
         h1, h2, h3, h4, h5, h6, .hero-title, .section-title, .brand-logo {
-            font-family: var(--t4d-font);
+            font-family: var(--t4d-heading);
         }
 
         .navbar-t4d {
@@ -173,10 +176,27 @@
 
         .navbar-t4d .market-nav-wrap {
             max-width: 1510px;
-            min-height: 64px;
+            min-height: 72px;
             flex-wrap: nowrap;
             overflow: hidden;
             justify-content: flex-start;
+        }
+
+        .navbar-t4d .navbar-brand {
+            flex-shrink: 0;
+            margin-right: 0.35rem;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
+        .navbar-t4d .navbar-brand .t4d-logo {
+            display: block;
+            width: auto;
+            max-width: min(280px, 34vw);
+            height: clamp(52px, 4.2vw, 62px) !important;
+            max-height: 62px;
+            object-fit: contain;
+            object-position: left center;
         }
 
         .market-search {
@@ -434,8 +454,8 @@
             align-items: center;
             justify-content: center;
             gap: 0.45rem;
-            min-height: 44px;
-            padding: 0.55rem 1rem;
+            min-height: 40px;
+            padding: 0.45rem 0.9rem;
             border-radius: 10px;
             font-weight: 800;
             text-decoration: none;
@@ -711,7 +731,9 @@
             }
 
             .navbar-t4d .navbar-brand .t4d-logo {
-                height: 32px !important;
+                height: clamp(46px, 12vw, 52px) !important;
+                max-height: 52px;
+                max-width: min(200px, 42vw);
             }
 
             .market-search {
@@ -2405,8 +2427,8 @@
 
     <nav class="navbar navbar-expand-xl navbar-t4d sticky-top">
         <div class="container-fluid market-nav-wrap gap-3 py-2">
-            <a class="navbar-brand d-flex align-items-center py-1 text-decoration-none" href="{{ route('home') }}">
-                <x-brand-logo :height="38" />
+            <a class="navbar-brand d-flex align-items-center text-decoration-none" href="{{ route('home') }}">
+                <x-brand-logo :height="62" />
             </a>
 
             <div class="market-search-wrap" data-location-selector>
@@ -2905,15 +2927,7 @@
                     </button>
                 </div>
 
-                @php
-                    $clientLogos = [
-                        ['name' => 'ZYFUD', 'src' => 'images/clients/zyfud.jpeg'],
-                        ['name' => 'Navarna Group', 'src' => 'images/clients/navarna-group.jpg'],
-                        ['name' => 'Zuari Industries', 'src' => 'images/clients/zuari.jpeg'],
-                        ['name' => 'Uttam Sugar', 'src' => 'images/clients/uttam-sugar.jpeg'],
-                        ['name' => 'Shhe', 'src' => 'images/clients/shhefoods.png'],
-                    ];
-                @endphp
+                @php($clientLogos = config('marketplace_assets.clients', []))
                 <div class="client-logo-slider" aria-labelledby="clientLogoTitle">
                     <div class="client-logo-head">
                         <h3 id="clientLogoTitle">Trusted company network</h3>
@@ -3401,12 +3415,20 @@
                 function fetchLocationSuggestions(query) {
                     window.clearTimeout(searchTimer);
                     searchTimer = window.setTimeout(() => {
+                        const trimmed = query.trim();
+                        if (trimmed.length === 1) {
+                            searchController?.abort();
+                            renderLocations([]);
+                            setStatus('Type at least 2 characters to search.');
+                            return;
+                        }
+
                         searchController?.abort();
                         searchController = new AbortController();
                         const requestId = ++searchRequestId;
                         const params = new URLSearchParams();
-                        if (query.trim() !== '') params.set('q', query.trim());
-                        setStatus(query.trim().length === 1 ? 'Type at least 2 characters to search.' : 'Loading locations...');
+                        if (trimmed !== '') params.set('q', trimmed);
+                        setStatus('Loading locations...');
 
                         fetch(`{{ route('locations.search') }}?${params.toString()}`, {
                             headers: { Accept: 'application/json' },
@@ -3456,7 +3478,16 @@
                             },
                             body: JSON.stringify({ lat, lng }),
                         })
-                            .then((response) => response.ok ? response.json() : Promise.reject(response))
+                            .then(async (response) => {
+                                if (response.ok) {
+                                    return response.json();
+                                }
+
+                                const payload = await response.json().catch(() => ({}));
+                                const error = new Error(payload.message || 'reverse_failed');
+                                error.status = response.status;
+                                throw error;
+                            })
                             .then((payload) => {
                                 if (requestId !== detectionRequestId) return;
                                 if (!options.manual && (activeLocation?.source === 'manual' || activeLocation?.source === 'all')) return;
@@ -3469,9 +3500,13 @@
                                 }, { save: true, submit: isProductDirectory() && !hasUrlLocation() });
                                 setStatus(`Detected ${payload.location.full_label || payload.location.label}.`);
                             })
-                            .catch(() => {
+                            .catch((error) => {
                                 if (requestId !== detectionRequestId) return;
-                                setStatus('Could not detect your city. Search for a location instead.');
+                                if (error?.status === 503) {
+                                    setStatus('Current location lookup is not enabled. Search for a city instead.');
+                                } else {
+                                    setStatus('Could not detect your city. Search for a location instead.');
+                                }
                                 if (!activeLocation) applyLocation(null);
                             });
                     }, (error) => {

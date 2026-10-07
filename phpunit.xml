@@ -38,5 +38,6 @@
         <env name="STRIPE_WEBHOOK_SECRET" value="whsec_fake"/>
         <env name="STRIPE_GOLD_PRICE_ID" value="price_test_gold"/>
         <env name="LEAD_VISIBILITY_DELAY_HOURS" value="24"/>
+        <env name="LOCATION_GEOCODER" value="none"/>
     </php>
 </phpunit>

@@ -439,7 +439,7 @@
                 </div>
 
                 <aside class="visual-panel">
-                    <img src="{{ asset('images/electronics-logistics-bg.jpg') }}" alt="Trade4Deal global B2B logistics and electronics marketplace">
+                    <img src="{{ asset(config('marketplace_assets.pages.electronics_logistics_bg')) }}" alt="Trade4Deal global B2B logistics and electronics marketplace">
                     <div class="visual-panel-content">
                         <span class="section-kicker"><i class="bi bi-graph-up-arrow"></i> Marketplace Engine</span>
                         <p class="section-copy">From product discovery to lead visibility, Trade4Deal keeps sourcing actions simple, structured and business-first.</p>

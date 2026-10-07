@@ -48,11 +48,14 @@
     }
 
     .emp-sidebar .logo-wrap img {
-        height: 44px;
+        display: block;
         width: auto;
         max-width: 100%;
+        max-height: 76px;
         object-fit: contain;
-        filter: brightness(0) invert(1);
+        background: #fff;
+        border-radius: 8px;
+        padding: 0.35rem 0.5rem;
     }
 
     .emp-nav {

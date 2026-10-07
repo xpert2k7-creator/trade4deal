@@ -19,6 +19,9 @@
 @push('styles')
 <style>
     .imart-home {
+        --t4d-title-lg: clamp(1.75rem, 3vw, 2.35rem);
+        --t4d-title-md: clamp(1.35rem, 2.2vw, 1.65rem);
+        --t4d-title-sm: 1.05rem;
         background: #f5f7fb;
         color: #08111f;
         overflow-x: clip;
@@ -43,11 +46,8 @@
         inset: 0;
         z-index: 1;
         background:
-            radial-gradient(circle at 54% 48%, rgba(255,255,255,0.11) 0 1px, transparent 1px),
-            radial-gradient(circle at 54% 48%, transparent 0 360px, rgba(255,255,255,0.11) 361px, transparent 362px),
-            linear-gradient(20deg, rgba(255,255,255,0.08), transparent 24%),
-            linear-gradient(28deg, rgba(255,255,255,0.06), transparent 18%);
-        clip-path: polygon(0 0, 64% 0, 42% 100%, 0 100%);
+            radial-gradient(ellipse 80% 60% at 12% 20%, rgba(245, 130, 32, 0.12) 0%, transparent 55%),
+            radial-gradient(ellipse 50% 40% at 88% 75%, rgba(255, 255, 255, 0.06) 0%, transparent 50%);
         pointer-events: none;
     }
 
@@ -107,132 +107,222 @@
         inset: 0;
         z-index: 3;
         background:
-            linear-gradient(180deg, rgba(6, 59, 104, 0.92) 0%, rgba(11, 79, 131, 0.8) 48%, rgba(255, 242, 229, 0.44) 100%),
-            linear-gradient(90deg, rgba(3, 18, 38, 0.14), rgba(3, 18, 38, 0.02));
+            linear-gradient(118deg, rgba(4, 22, 48, 0.92) 0%, rgba(6, 59, 104, 0.72) 38%, rgba(8, 72, 120, 0.38) 62%, rgba(255, 248, 240, 0.28) 100%),
+            linear-gradient(180deg, rgba(3, 18, 38, 0.35) 0%, transparent 42%, rgba(255, 242, 229, 0.35) 100%);
         pointer-events: none;
+    }
+
+    @keyframes hero-rise {
+        from {
+            opacity: 0;
+            transform: translateY(22px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes hero-shimmer {
+        0% {
+            transform: translateX(-120%);
+        }
+
+        100% {
+            transform: translateX(220%);
+        }
     }
 
     .hero-top {
         position: relative;
         z-index: 1;
         display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: 1rem;
+        grid-template-columns: minmax(0, 1fr);
+        gap: clamp(1rem, 2.5vw, 1.75rem);
+        width: 100%;
         align-items: center;
-        padding: 2.8rem 0 2rem;
+        min-height: clamp(380px, 52vh, 520px);
+        padding: clamp(2.25rem, 5vw, 3.75rem) 0 clamp(1.75rem, 3vw, 2.5rem);
     }
 
-    .hero-title-market {
-        display: flex;
-        align-items: baseline;
-        justify-content: center;
-        gap: 0.22em;
-        flex-wrap: nowrap;
-        margin: 0 0 1.45rem;
-        font-size: clamp(2rem, 4vw, 3.05rem);
-        font-weight: 800;
-        line-height: 1.1;
+    .hero-copy {
+        width: 100%;
+        min-width: 0;
+        max-width: 52rem;
         text-align: center;
-        white-space: nowrap;
     }
 
-    .hero-title-brand {
-        color: var(--t4d-accent);
-        font-weight: 700;
-    }
-
-    .hero-flip-text {
-        position: relative;
-        display: inline-block;
-        min-width: 8.7em;
-        min-height: 1.12em;
-        text-align: left;
-        perspective: 900px;
-    }
-
-    .hero-flip-word {
-        display: inline-block;
-        color: #fff;
-        opacity: 1;
-        transform: rotateX(0deg) translateY(0);
-        transform-origin: 50% 100%;
-        transition: opacity 0.28s ease, transform 0.28s ease;
-    }
-
-    .hero-flip-text.is-changing .hero-flip-word {
-        opacity: 0;
-        transform: rotateX(-75deg) translateY(-0.22em);
-    }
-
-    .hero-subtitle-market {
-        position: relative;
+    .hero-eyebrow {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
-        width: fit-content;
-        max-width: min(820px, 100%);
-        margin: 0 auto;
-        padding: 0.72rem 1.15rem;
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        border-radius: 999px;
-        background:
-            linear-gradient(90deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.07)),
-            rgba(4, 28, 58, 0.18);
-        color: rgba(255,255,255,0.92);
-        font-size: 1rem;
-        line-height: 1.35;
-        text-align: center;
-        box-shadow: 0 16px 36px rgba(2, 10, 28, 0.18);
-        backdrop-filter: blur(8px);
+        margin: 0 0 1rem;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: clamp(0.72rem, 1.2vw, 0.82rem);
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        animation: hero-rise 0.95s cubic-bezier(0.22, 1, 0.36, 1) 0.06s both;
     }
 
-    .hero-subtitle-market::before,
-    .hero-subtitle-market::after {
-        content: "";
-        width: 34px;
-        height: 2px;
-        border-radius: 999px;
-        background: linear-gradient(90deg, transparent, var(--t4d-accent));
+    .hero-eyebrow i {
+        color: var(--t4d-accent);
+        font-size: 1.1em;
+        filter: drop-shadow(0 0 12px rgba(245, 130, 32, 0.45));
     }
 
-    .hero-subtitle-market::after {
-        background: linear-gradient(90deg, var(--t4d-accent), transparent);
+    .hero-title-market {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.35rem;
+        width: 100%;
+        margin: 0 0 1.15rem;
+        font-family: var(--t4d-heading);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1.05;
+        animation: hero-rise 1s cubic-bezier(0.22, 1, 0.36, 1) 0.14s both;
     }
 
-    .hero-subtitle-highlight {
+    .hero-title-brand {
+        display: block;
         color: #fff;
-        font-weight: 850;
-        text-shadow: 0 6px 20px rgba(245, 130, 32, 0.28);
+        font-size: clamp(1.85rem, 4.8vw, 3.35rem);
+        font-weight: 800;
+        line-height: 1.02;
+        text-shadow: 0 12px 40px rgba(2, 10, 28, 0.35);
     }
 
-    .hero-subtitle-accent {
-        color: #ffd7ae;
-        font-weight: 850;
+    .hero-flip-text {
+        position: relative;
+        display: block;
+        min-width: 0;
+        min-height: 1.08em;
+        font-size: clamp(1.55rem, 3.8vw, 2.65rem);
+        font-weight: 800;
+        line-height: 1.08;
+        color: #ffd4a8;
+    }
+
+    .hero-flip-text::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: -0.35rem;
+        width: min(12rem, 42vw);
+        height: 3px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, transparent, var(--t4d-accent), transparent);
+        transform: translateX(-50%);
+        opacity: 0.85;
+    }
+
+    .hero-flip-word {
+        display: inline-block;
+        opacity: 1;
+        transform: translateY(0);
+        transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1), transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .hero-flip-text.is-changing .hero-flip-word {
+        opacity: 0;
+        transform: translateY(0.4em);
+    }
+
+    .hero-lead {
+        max-width: 38rem;
+        margin: 0 auto;
+        color: rgba(255, 255, 255, 0.88);
+        font-size: clamp(1rem, 1.65vw, 1.15rem);
+        font-weight: 500;
+        line-height: 1.65;
+        animation: hero-rise 1.05s cubic-bezier(0.22, 1, 0.36, 1) 0.24s both;
+    }
+
+    .hero-lead-em {
+        color: #fff;
+        font-weight: 800;
+    }
+
+    .hero-actions-panel {
+        position: relative;
+        width: 100%;
+        min-width: 0;
+        padding: clamp(1.15rem, 2.2vw, 1.55rem);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 24px 48px rgba(2, 10, 28, 0.2);
+        backdrop-filter: blur(18px);
+        animation: hero-rise 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.32s both;
+        overflow: hidden;
+    }
+
+    .hero-actions-panel::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.12) 50%, transparent 60%);
+        transform: translateX(-120%);
+        animation: hero-shimmer 8s ease-in-out 2s infinite;
+        pointer-events: none;
+    }
+
+    .hero-actions-panel > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-actions-title {
+        margin: 0 0 0.35rem;
+        color: #fff;
+        font-family: var(--t4d-heading);
+        font-size: 1.05rem;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+    }
+
+    .hero-actions-note {
+        margin: 0 0 0.75rem;
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 0.82rem;
+        line-height: 1.45;
     }
 
     .hero-action-pills {
         display: flex;
-        flex-wrap: wrap;
-        justify-content: flex-end;
-        gap: 0.85rem;
-        min-width: 520px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.65rem;
+        width: 100%;
+        min-width: 0;
     }
 
     .hero-pill {
         display: inline-flex;
         align-items: center;
-        justify-content: center;
+        justify-content: space-between;
         gap: 0.55rem;
+        width: 100%;
         min-height: 48px;
-        padding: 0.7rem 1.45rem;
+        padding: 0.72rem 1.1rem;
         border: 0;
-        border-radius: 999px;
+        border-radius: 12px;
         background: #fff;
         color: var(--t4d-primary);
+        font-size: 0.92rem;
         font-weight: 800;
         text-decoration: none;
-        box-shadow: 0 10px 26px rgba(10, 15, 45, 0.16);
+        box-shadow: 0 10px 26px rgba(10, 15, 45, 0.14);
+        transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
+    }
+
+    .hero-pill .bi-arrow-right {
+        margin-left: auto;
+        opacity: 0.75;
     }
 
     .hero-pill:hover {
@@ -282,8 +372,11 @@
     .trend-title {
         margin: 0 0 1rem;
         color: #fff;
-        font-size: 1.45rem;
+        font-family: var(--t4d-heading);
+        font-size: var(--t4d-title-md);
         font-weight: 800;
+        letter-spacing: -0.02em;
+        line-height: 1.15;
     }
 
     .category-tile-grid {
@@ -392,14 +485,28 @@
     .section-heading-row h2 {
         margin: 0;
         color: #061224;
-        font-size: 1.45rem;
-        font-weight: 850;
+        font-family: var(--t4d-heading);
+        font-size: var(--t4d-title-md);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        line-height: 1.15;
+    }
+
+    .section-heading-row h2::after {
+        content: "";
+        display: block;
+        width: 2.5rem;
+        height: 3px;
+        margin-top: 0.45rem;
+        border-radius: 2px;
+        background: var(--t4d-accent);
     }
 
     .section-heading-row p {
-        margin: 0.3rem 0 0;
-        color: #64748b;
+        margin: 0.45rem 0 0;
+        color: var(--t4d-muted);
         font-size: 0.92rem;
+        line-height: 1.45;
     }
 
     .product-category-block {
@@ -418,7 +525,7 @@
         background: #fff;
         color: var(--t4d-primary);
         font-size: 0.82rem;
-        font-weight: 850;
+        font-weight: 800;
         line-height: 1.1;
         text-decoration: none;
         white-space: nowrap;
@@ -497,6 +604,7 @@
     }
 
     .product-card-body h3 {
+        font-family: var(--t4d-heading);
         display: -webkit-box;
         min-height: 48px;
         max-height: 48px;
@@ -504,7 +612,7 @@
         overflow: hidden;
         color: #07111f;
         font-size: 0.93rem;
-        font-weight: 850;
+        font-weight: 800;
         line-height: 1.28;
         text-wrap: balance;
         overflow-wrap: break-word;
@@ -611,7 +719,7 @@
         border-radius: 10px;
         background:
             linear-gradient(90deg, rgba(6, 31, 73, 0.9), rgba(10, 55, 119, 0.78)),
-            url('{{ asset('images/electronics-logistics-bg.jpg') }}') center/cover no-repeat;
+            url('{{ asset(config('marketplace_assets.pages.electronics_logistics_bg')) }}') center/cover no-repeat;
         color: #fff;
         box-shadow: 0 18px 48px rgba(15, 23, 42, 0.15);
         isolation: isolate;
@@ -645,7 +753,7 @@
         align-items: center;
         gap: 0.85rem;
         min-width: 0;
-        font-weight: 850;
+        font-weight: 800;
         line-height: 1.25;
         text-shadow: 0 2px 14px rgba(0, 0, 0, 0.18);
     }
@@ -688,8 +796,10 @@
         position: relative;
         margin: 0 0 0.55rem;
         color: #0b3a6e;
-        font-size: clamp(1.45rem, 2.4vw, 2rem);
-        font-weight: 850;
+        font-family: var(--t4d-heading);
+        font-size: var(--t4d-title-md);
+        font-weight: 800;
+        letter-spacing: -0.02em;
         line-height: 1.15;
     }
 
@@ -713,7 +823,7 @@
         border-radius: 999px;
         background: #064475;
         color: #fff;
-        font-weight: 850;
+        font-weight: 800;
         text-decoration: none;
         box-shadow: 0 12px 25px rgba(6, 68, 117, 0.24);
     }
@@ -727,8 +837,10 @@
     .connected-sellers-title {
         margin: clamp(1.35rem, 3vw, 2.25rem) 0 1rem;
         text-align: center;
-        font-size: 1.1rem;
-        font-weight: 850;
+        font-family: var(--t4d-heading);
+        font-size: var(--t4d-title-sm);
+        font-weight: 800;
+        letter-spacing: -0.01em;
         text-shadow: 0 2px 14px rgba(0, 0, 0, 0.24);
     }
 
@@ -776,7 +888,7 @@
         bottom: 0.7rem;
         z-index: 1;
         font-size: 0.9rem;
-        font-weight: 850;
+        font-weight: 800;
         overflow-wrap: anywhere;
     }
 
@@ -784,9 +896,11 @@
         margin: 0.5rem 0 1.85rem;
         padding: clamp(1.35rem, 3vw, 2.35rem) clamp(1.25rem, 3.2vw, 3rem);
         border-radius: 10px;
-        background: #2e3192;
+        background:
+            linear-gradient(135deg, var(--t4d-primary) 0%, var(--t4d-primary-dark) 52%, #063b68 100%),
+            radial-gradient(circle at 90% 15%, rgba(245, 130, 32, 0.28), transparent 38%);
         color: #fff;
-        box-shadow: 0 18px 42px rgba(30, 41, 59, 0.12);
+        box-shadow: 0 18px 42px rgba(6, 68, 117, 0.18);
     }
 
     .construction-search-wrap {
@@ -797,18 +911,28 @@
     }
 
     .construction-search-kicker {
-        margin: 0 0 0.55rem;
-        font-size: 0.85rem;
-        font-weight: 850;
-        letter-spacing: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        margin: 0 0 0.75rem;
+        padding: 0.34rem 0.65rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.92);
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
         text-transform: uppercase;
     }
 
     .construction-search-showcase h3 {
         margin: 0 0 0.45rem;
-        font-size: clamp(1.75rem, 3.4vw, 2.35rem);
-        font-weight: 850;
+        font-family: var(--t4d-heading);
+        font-size: var(--t4d-title-lg);
+        font-weight: 800;
         line-height: 1.08;
+        letter-spacing: -0.02em;
     }
 
     .construction-search-showcase p {
@@ -840,7 +964,7 @@
     }
 
     .construction-search-field:focus {
-        box-shadow: 0 0 0 3px rgba(245, 130, 32, 0.32);
+        box-shadow: 0 0 0 3px rgba(245, 130, 32, 0.38);
     }
 
     .construction-search-submit {
@@ -849,15 +973,15 @@
         border: 0;
         border-radius: 8px;
         background: #fff;
-        color: #2e3192;
-        font-weight: 850;
-        letter-spacing: 0;
+        color: var(--t4d-primary);
+        font-weight: 800;
+        letter-spacing: 0.02em;
         text-transform: uppercase;
     }
 
     .construction-search-submit:hover {
         background: #fff7ed;
-        color: #1f2474;
+        color: var(--t4d-primary-dark);
     }
 
     .construction-search-modes {
@@ -882,12 +1006,12 @@
         background: transparent;
         color: rgba(255, 255, 255, 0.86);
         font-size: 0.86rem;
-        font-weight: 850;
+        font-weight: 800;
     }
 
     .construction-search-mode.is-active {
         background: #fff;
-        color: #2e3192;
+        color: var(--t4d-primary);
     }
 
     .construction-search-note {
@@ -964,7 +1088,7 @@
         display: block;
         color: #061224;
         font-size: 1rem;
-        font-weight: 850;
+        font-weight: 800;
         line-height: 1.35;
         text-decoration: none;
         overflow-wrap: anywhere;
@@ -1005,7 +1129,7 @@
         margin-bottom: 0.2rem;
         color: #64748b;
         font-size: 0.68rem;
-        font-weight: 850;
+        font-weight: 800;
         text-transform: uppercase;
     }
 
@@ -1055,7 +1179,7 @@
         border-radius: 8px;
         background: var(--t4d-primary);
         color: #fff;
-        font-weight: 850;
+        font-weight: 800;
         text-decoration: none;
     }
 
@@ -1069,7 +1193,7 @@
         position: relative;
         overflow: hidden;
         background:
-            linear-gradient(135deg, rgba(6, 68, 117, 0.96), rgba(30, 49, 146, 0.92)),
+            linear-gradient(135deg, var(--t4d-primary) 0%, var(--t4d-primary-dark) 55%, #063b68 100%),
             radial-gradient(circle at 12% 18%, rgba(245, 130, 32, 0.32), transparent 28%);
         color: #fff;
     }
@@ -1111,15 +1235,17 @@
         background: rgba(255, 255, 255, 0.1);
         color: rgba(255, 255, 255, 0.9);
         font-size: 0.75rem;
-        font-weight: 850;
+        font-weight: 800;
         text-transform: uppercase;
     }
 
     .how-premium-head h2 {
         margin: 0;
         color: #fff;
+        font-family: var(--t4d-heading);
         font-size: clamp(1.85rem, 3vw, 2.6rem);
-        font-weight: 850;
+        font-weight: 800;
+        letter-spacing: -0.02em;
         line-height: 1.08;
     }
 
@@ -1192,7 +1318,7 @@
         top: 0.8rem;
         color: rgba(255, 255, 255, 0.12);
         font-size: 3.5rem;
-        font-weight: 850;
+        font-weight: 800;
         line-height: 1;
     }
 
@@ -1223,7 +1349,7 @@
         margin: 0 0 0.55rem;
         color: #fff;
         font-size: 1.05rem;
-        font-weight: 850;
+        font-weight: 800;
     }
 
     .how-card p {
@@ -1262,6 +1388,18 @@
             transition: none;
         }
 
+        .hero-eyebrow,
+        .hero-title-market,
+        .hero-lead,
+        .hero-actions-panel {
+            animation: none;
+        }
+
+        .hero-actions-panel::after {
+            animation: none;
+            display: none;
+        }
+
         .hero-flip-word {
             transition: none;
         }
@@ -1272,16 +1410,61 @@
         }
     }
 
-    @media (max-width: 1199px) {
+    @media (min-width: 992px) {
         .hero-top {
-            grid-template-columns: 1fr;
+            grid-template-columns: minmax(0, 1fr) clamp(290px, 26vw, 420px);
+            gap: clamp(1.25rem, 3vw, 2.25rem);
+            align-items: center;
+        }
+
+        .hero-copy {
+            max-width: none;
+            text-align: left;
+            padding-right: clamp(0.75rem, 2vw, 1.5rem);
+        }
+
+        .hero-eyebrow {
+            justify-content: flex-start;
+        }
+
+        .hero-title-market {
+            align-items: flex-start;
+        }
+
+        .hero-flip-text::after {
+            left: 0;
+            transform: none;
+        }
+
+        .hero-lead {
+            margin: 0;
+            max-width: 36rem;
+        }
+
+        .hero-actions-panel {
+            align-self: stretch;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+    }
+
+    @media (min-width: 1200px) {
+        .hero-top {
+            grid-template-columns: minmax(0, 1.15fr) minmax(340px, 400px);
         }
 
         .hero-action-pills {
-            justify-content: center;
-            min-width: 0;
+            gap: 0.75rem;
         }
 
+        .hero-pill {
+            min-height: 50px;
+            font-size: 0.94rem;
+        }
+    }
+
+    @media (max-width: 1199px) {
         .category-tile {
             width: clamp(200px, 26vw, 270px);
         }
@@ -1307,33 +1490,17 @@
 
     @media (max-width: 1450px) {
         .hero-top {
-            grid-template-columns: 1fr;
-            gap: 0.85rem;
-            padding: 2.3rem 0 1.55rem;
+            padding: 2rem 0 1.45rem;
         }
 
         .hero-title-market {
-            flex-wrap: wrap;
-            font-size: clamp(2rem, 3.55vw, 2.75rem);
-            justify-content: center;
-            margin-bottom: 1rem;
-            white-space: normal;
-        }
-
-        .hero-action-pills {
-            justify-content: center;
-            min-width: 0;
-            gap: 0.7rem;
+            margin-bottom: 0.75rem;
         }
 
         .hero-pill {
             min-height: 44px;
-            padding: 0.62rem 1.15rem;
-            font-size: 0.92rem;
-        }
-
-        .hero-flip-text {
-            min-width: min(8.7em, 100%);
+            padding: 0.62rem 1rem;
+            font-size: 0.88rem;
         }
     }
 
@@ -1358,43 +1525,34 @@
         }
 
         .hero-top {
-            padding: 2rem 0 1.35rem;
+            padding: 1.75rem 0 1.2rem;
+            gap: 0.85rem;
         }
 
-        .hero-title-market,
-        .hero-subtitle-market {
-            text-align: left;
+        .hero-copy {
+            border-right: 0;
+            padding-right: 0;
         }
 
-        .hero-title-market {
-            justify-content: flex-start;
-            font-size: clamp(1rem, 4.5vw, 2rem);
+        .hero-top {
+            min-height: 0;
         }
 
         .hero-flip-text {
-            min-width: 8.4em;
+            font-size: clamp(1.35rem, 5.5vw, 1.85rem);
         }
 
-        .hero-subtitle-market {
-            flex-wrap: wrap;
-            justify-content: flex-start;
-            width: 100%;
-            padding: 0.68rem 0.85rem;
-            border-radius: 12px;
-            font-size: 0.92rem;
+        .hero-title-brand {
+            font-size: clamp(1.65rem, 7vw, 2.35rem);
         }
 
-        .hero-subtitle-market::before,
-        .hero-subtitle-market::after {
-            width: 24px;
+        .hero-actions-panel {
+            padding: 1rem;
+            border-radius: 14px;
         }
 
-        .hero-action-pills {
-            justify-content: flex-start;
-        }
-
-        .hero-pill {
-            width: 100%;
+        .hero-actions-title {
+            font-size: 0.98rem;
         }
 
         .hero-stats-bar {
@@ -1628,43 +1786,51 @@
     <section class="imart-hero" aria-labelledby="heroTitle">
         <div class="hero-media-slider" aria-hidden="true">
             <video class="hero-media-video is-active" autoplay muted playsinline preload="metadata">
-                <source src="{{ asset('images/trade4deal-hero-video.mp4') }}" type="video/mp4">
+                <source src="{{ asset(config('marketplace_assets.hero.video')) }}" type="video/mp4">
             </video>
             <div class="hero-image-slide">
-                <img src="https://images.unsplash.com/photo-1494412685616-a5d310fbb07d?auto=format&fit=crop&w=2200&q=85" alt="">
+                <img src="{{ asset(config('marketplace_assets.hero.slide_freight')) }}" alt="">
             </div>
             <div class="hero-image-slide">
-                <img src="{{ asset('images/trade4deal-hero-logistics.jpg') }}" alt="">
+                <img src="{{ asset(config('marketplace_assets.hero.logistics')) }}" alt="">
             </div>
             <div class="hero-media-scrim"></div>
         </div>
         <div class="imart-container">
             <div class="hero-top">
-                <div>
+                <div class="hero-copy">
+                    <p class="hero-eyebrow"><i class="bi bi-shield-check" aria-hidden="true"></i> Global B2B Marketplace</p>
                     <h1 class="hero-title-market" id="heroTitle">
                         <span class="hero-title-brand">Trade4Deal Online</span>
                         <span class="hero-flip-text" aria-label="B2B Marketplace">
                             <span class="hero-flip-word">B2B Marketplace</span>
                         </span>
                     </h1>
-                    <p class="hero-subtitle-market">
-                        <span class="hero-subtitle-highlight">One Platform</span>
-                        <span class="hero-subtitle-accent">Endless Business Opportunities</span>
+                    <p class="hero-lead">
+                        <span class="hero-lead-em">One platform.</span>
+                        Endless business opportunities for buyers, sellers, and cross-border trade.
                     </p>
                 </div>
-                <div class="hero-action-pills" aria-label="Primary marketplace actions">
-                    <button type="button" class="hero-pill" data-bs-toggle="modal" data-bs-target="#leadModal">
-                        <i class="bi bi-journal-plus"></i> Submit Requirement <i class="bi bi-arrow-right"></i>
-                    </button>
-                    <a href="{{ route('register') }}" class="hero-pill seller">
-                        <i class="bi bi-bar-chart-line"></i> List Your Business <i class="bi bi-arrow-right"></i>
-                    </a>
-                    @auth
-                        <a href="{{ route('dashboard') }}" class="hero-pill signin">
-                            <i class="bi bi-speedometer2"></i> Dashboard <i class="bi bi-arrow-right"></i>
+                <aside class="hero-actions-panel" aria-label="Primary marketplace actions">
+                    <h2 class="hero-actions-title">Start trading today</h2>
+                    <p class="hero-actions-note">Post requirements, list products, or open your seller dashboard.</p>
+                    <div class="hero-action-pills">
+                        <button type="button" class="hero-pill" data-bs-toggle="modal" data-bs-target="#leadModal">
+                            <span><i class="bi bi-journal-plus"></i> Submit Requirement</span>
+                            <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                        </button>
+                        <a href="{{ route('register') }}" class="hero-pill seller">
+                            <span><i class="bi bi-bar-chart-line"></i> List Your Business</span>
+                            <i class="bi bi-arrow-right" aria-hidden="true"></i>
                         </a>
-                    @endauth
-                </div>
+                        @auth
+                            <a href="{{ route('dashboard') }}" class="hero-pill signin">
+                                <span><i class="bi bi-speedometer2"></i> Dashboard</span>
+                                <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                            </a>
+                        @endauth
+                    </div>
+                </aside>
             </div>
 
             <div class="hero-stats-bar" aria-label="Marketplace overview">
@@ -1709,112 +1875,8 @@
 
     <section class="market-section" id="category-products" aria-labelledby="productsTitle">
         <div class="imart-container">
-            <div class="section-heading-row">
-                <div>
-                    <h2 id="productsTitle">Browse Products by Category</h2>
-                    <p>Active seller products organised by Trade4Deal marketplace categories.</p>
-                </div>
-                <button type="button" class="btn btn-primary-t4d text-white" data-bs-toggle="modal" data-bs-target="#leadModal">
-                    <i class="bi bi-plus-circle me-1"></i> Submit Requirement
-                </button>
-            </div>
 
-            <div class="section-heading-row mt-4 mb-2" id="leads">
-                <div>
-                    <h2 id="leadsTitle">Live Business Leads</h2>
-                    <p>Latest visible buyer and supplier opportunities. New leads appear first.</p>
-                </div>
-                <a class="view-all-leads-btn" href="{{ route('marketplace.page', ['page' => 'live-leads']) }}">
-                    View all leads <i class="bi bi-arrow-right"></i>
-                </a>
-            </div>
-
-            @if($isStaffViewer ?? false)
-                <div class="alert alert-success border-0 shadow-sm mb-3"><strong>Staff view</strong> - all approved leads are visible with no plan delay.</div>
-            @elseif($viewerPlan->isGold())
-                <div class="alert alert-warning border-0 shadow-sm mb-3"><strong>Gold member</strong> - you see new leads instantly as they are published.</div>
-            @else
-                <div class="alert alert-info border-0 shadow-sm mb-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
-                    <span><i class="bi bi-clock me-1"></i>Free accounts see leads <strong>24 hours</strong> after they go live.</span>
-                    <a href="{{ route('plans.index') }}" class="btn btn-sm btn-primary-t4d text-white">Upgrade to Gold</a>
-                </div>
-            @endif
-
-            <div class="lead-grid-wrap mb-4">
-                @if($leads->isEmpty())
-                    <div class="empty-state">
-                        <h3 class="h5 fw-bold">No leads visible yet</h3>
-                        <p class="mb-3">New leads appear here after review. @unless(($isStaffViewer ?? false) || $viewerPlan->isGold()) Gold members see them 24 hours sooner. @endunless</p>
-                        <button type="button" class="btn btn-primary-t4d text-white" data-bs-toggle="modal" data-bs-target="#leadModal">Submit a Lead</button>
-                    </div>
-                @else
-                    <div class="lead-card-grid" data-lead-slider aria-label="Latest business leads">
-                        @foreach($leads as $lead)
-                            <article class="lead-card-market marketplace-search-item" data-search-text="{{ strtolower($lead->product_interest.' '.$lead->company_name.' '.$lead->country.' '.$lead->product_type?->label().' '.$lead->business_type?->label()) }}">
-                                <a href="{{ route('leads.show', $lead) }}" class="lead-card-media" aria-label="View {{ $lead->product_interest }}">
-                                    @if($lead->productImageUrl())
-                                        <img src="{{ $lead->productImageUrl() }}" alt="{{ $lead->product_interest }}" loading="lazy">
-                                    @else
-                                        <i class="bi bi-image"></i>
-                                    @endif
-                                </a>
-                                <div class="lead-card-body">
-                                    <div>
-                                        <a href="{{ route('leads.show', $lead) }}" class="lead-card-title">{{ $lead->product_interest }}</a>
-                                        <div class="lead-card-meta">{{ $lead->published_at?->diffForHumans() }}</div>
-                                        <div class="lead-updated-meta">Updated {{ $lead->updated_at?->diffForHumans() }}</div>
-                                    </div>
-
-                                    <div>
-                                        <div class="lead-card-company">{{ $lead->company_name }}</div>
-                                        <div class="lead-card-meta"><i class="bi bi-geo-alt me-1"></i>{{ $lead->country }}</div>
-                                    </div>
-
-                                    <div class="lead-card-info">
-                                        <div>
-                                            <span class="lead-info-label">Category</span>
-                                            <span class="chip-market">{{ $lead->product_type?->label() ?? 'Product' }}</span>
-                                        </div>
-                                        <div>
-                                            <span class="lead-info-label">Trade</span>
-                                            <div class="lead-info-value">{{ $lead->currency?->value }} &middot; {{ $lead->units?->label() }}</div>
-                                            <div class="lead-card-meta">{{ $lead->business_type?->label() }}</div>
-                                        </div>
-                                    </div>
-
-                                    <a href="{{ route('leads.show', $lead) }}" class="btn btn-sm btn-outline-t4d w-100">View &amp; contact</a>
-                                </div>
-                            </article>
-                        @endforeach
-                    </div>
-                    <div class="leads-footer-action">
-                        <a class="view-all-leads-btn" href="{{ route('marketplace.page', ['page' => 'live-leads']) }}">
-                            View all leads <i class="bi bi-arrow-right"></i>
-                        </a>
-                    </div>
-                @endif
-            </div>
-
-            <?php
-                $categoryBannerGroups = [
-                    'machinery' => [
-                        ['src' => 'images/category-banners/Medical equipment for clinics and hospitals-1.png', 'alt' => 'Trade4Deal medical equipment banner'],
-                        ['src' => 'images/category-banners/Electronics & Electrical Product Showcase-2.png', 'alt' => 'Trade4Deal electronics and electrical banner'],
-                        ['src' => 'images/category-banners/Trade4Deal Machinery & Tools Showcase-3.png', 'alt' => 'Trade4Deal machinery and tools banner'],
-                        ['src' => 'images/category-banners/Construction materials sourcing showcase-3.png', 'alt' => 'Trade4Deal construction materials banner'],
-                        ['src' => 'images/category-banners/Golden grains and pulses marketplace-1.png', 'alt' => 'Trade4Deal agriculture and food banner'],
-                        ['src' => 'images/category-banners/Trade4Deal textiles and apparel showcase-2.png', 'alt' => 'Trade4Deal textiles and apparel banner'],
-                    ],
-                    'chemicals' => [
-                        ['src' => 'images/category-banners/Golden grains and pulses marketplace-1.png', 'alt' => 'Trade4Deal agriculture and food banner'],
-                        ['src' => 'images/category-banners/Trade4Deal textiles and apparel showcase-2.png', 'alt' => 'Trade4Deal textiles and apparel banner'],
-                        ['src' => 'images/category-banners/Construction materials sourcing showcase-3.png', 'alt' => 'Trade4Deal construction materials banner'],
-                        ['src' => 'images/category-banners/Medical equipment for clinics and hospitals-1.png', 'alt' => 'Trade4Deal medical equipment banner'],
-                        ['src' => 'images/category-banners/Electronics & Electrical Product Showcase-2.png', 'alt' => 'Trade4Deal electronics and electrical banner'],
-                        ['src' => 'images/category-banners/Trade4Deal Machinery & Tools Showcase-3.png', 'alt' => 'Trade4Deal machinery and tools banner'],
-                    ],
-                ];
-            ?>
+            @php($categoryBannerGroups = config('marketplace_assets.category_banners', []))
 
             @foreach($categories as $category)
                 @php($products = $productsByCategory->get($category->value, collect()))
@@ -2184,8 +2246,8 @@
                 wordIndex = (wordIndex + 1) % words.length;
                 flipWord.textContent = words[wordIndex];
                 flipText.classList.remove('is-changing');
-            }, 280);
-        }, 2500);
+            }, 480);
+        }, 3200);
     })();
 
     (function () {

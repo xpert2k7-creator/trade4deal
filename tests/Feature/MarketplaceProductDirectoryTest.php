@@ -112,7 +112,7 @@ class MarketplaceProductDirectoryTest extends TestCase
             ->assertDontSee('Mumbai Circuit Listing');
     }
 
-    public function test_location_filter_uses_and_logic_and_excludes_unknown_locations(): void
+    public function test_location_filter_includes_products_without_listing_location(): void
     {
         $seller = User::factory()->seller()->create([
             'company_name' => 'Public Seller',
@@ -153,8 +153,8 @@ class MarketplaceProductDirectoryTest extends TestCase
         ]))
             ->assertOk()
             ->assertSee('Delhi Industrial Pump')
-            ->assertDontSee('Noida Industrial Pump')
-            ->assertDontSee('Unknown Industrial Pump');
+            ->assertSee('Unknown Industrial Pump')
+            ->assertDontSee('Noida Industrial Pump');
     }
 
     public function test_duplicate_city_names_are_distinguished_by_canonical_location_id(): void

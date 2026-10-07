@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg navbar-t4d sticky-top">
     <div class="container">
-        <a class="navbar-brand d-flex align-items-center py-1" href="{{ route('home') }}">
-            <x-brand-logo :height="48" />
+        <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
+            <x-brand-logo :height="56" />
         </a>
 
         <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#appNav" aria-controls="appNav" aria-expanded="false" aria-label="Toggle navigation">
