@@ -12,6 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icons/7.5.0/css/flag-icons.min.css" integrity="sha512-+WVTaUIzUw5LFzqIqXOT3JVAc5SrMuvHm230I9QAZa6s+QRk8NDPswbHo2miIZj3yiFyV9lAgzO1wVrjdoO4tw==" crossorigin="anonymous" referrerpolicy="no-referrer">
 
     <style>
         /* Trade4Deal brand theme — Soft light + Deep navy (permanent) */
@@ -79,6 +80,84 @@
 
         [data-bs-theme="dark"] .navbar-t4d {
             background: #fff;
+        }
+
+        .market-topbar {
+            border-bottom: 1px solid #e5e7eb;
+            background: #fff;
+            color: #475569;
+            font-size: 0.78rem;
+            font-weight: 800;
+        }
+
+        .market-topbar-inner {
+            max-width: 1510px;
+            min-height: 34px;
+            display: grid;
+            grid-template-columns: minmax(170px, auto) minmax(0, 1fr) minmax(170px, auto);
+            align-items: center;
+            gap: 1rem;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .topbar-links,
+        .topbar-country {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            min-width: 0;
+        }
+
+        .topbar-links a {
+            color: #334155;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .topbar-links a:hover {
+            color: var(--t4d-primary);
+        }
+
+        .topbar-marquee {
+            min-width: 0;
+            overflow: hidden;
+            color: var(--t4d-primary);
+            white-space: nowrap;
+        }
+
+        .topbar-marquee-track {
+            display: inline-flex;
+            gap: 2.5rem;
+            width: max-content;
+            animation: topbarMarquee 24s linear infinite;
+            will-change: transform;
+        }
+
+        .topbar-marquee:hover .topbar-marquee-track {
+            animation-play-state: paused;
+        }
+
+        .topbar-marquee-track span {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+
+        .topbar-country {
+            justify-content: flex-end;
+            color: #334155;
+            white-space: nowrap;
+        }
+
+        .topbar-country i {
+            color: var(--t4d-accent);
+            font-size: 0.95rem;
+        }
+
+        @keyframes topbarMarquee {
+            from { transform: translateX(0); }
+            to { transform: translateX(calc(-50% - 1.25rem)); }
         }
 
         .navbar-t4d .nav-link {
@@ -313,6 +392,22 @@
             display: none;
         }
 
+        .mobile-nav-toggle {
+            display: none;
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            color: #334155;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-nav-icon {
+            font-size: 1.35rem;
+            line-height: 1;
+        }
+
         .market-header-action {
             display: inline-flex;
             min-width: 54px;
@@ -518,9 +613,30 @@
         }
 
         @media (max-width: 1199px) {
+            .market-topbar-inner {
+                grid-template-columns: auto minmax(0, 1fr) auto;
+                gap: 0.7rem;
+                padding: 0 0.75rem;
+            }
+
+            .topbar-links,
+            .topbar-country {
+                gap: 0.55rem;
+            }
+
+            .topbar-country-text {
+                max-width: 115px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
             .navbar-t4d .market-nav-wrap {
                 flex-wrap: wrap;
                 overflow: visible;
+            }
+
+            .mobile-nav-toggle {
+                display: inline-flex;
             }
 
             .market-search {
@@ -541,6 +657,28 @@
         }
 
         @media (max-width: 767px) {
+            .market-topbar-inner {
+                grid-template-columns: 1fr auto;
+                min-height: 36px;
+            }
+
+            .topbar-links {
+                display: none;
+            }
+
+            .topbar-marquee {
+                order: 1;
+            }
+
+            .topbar-country {
+                order: 2;
+                font-size: 0.68rem;
+            }
+
+            .topbar-country-text {
+                max-width: 82px;
+            }
+
             .page-shell {
                 padding-bottom: 76px;
             }
@@ -1818,6 +1956,412 @@
             border-radius: 50%;
             animation: spin 0.7s linear infinite;
         }
+
+        body.t4d-popup-open {
+            overflow: hidden;
+        }
+
+        .join-popup-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 1075;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background:
+                linear-gradient(140deg, rgba(3, 18, 38, 0.72), rgba(6, 68, 117, 0.58)),
+                rgba(15, 23, 42, 0.52);
+            backdrop-filter: blur(10px);
+        }
+
+        .join-popup-backdrop.is-visible {
+            display: flex;
+        }
+
+        .join-popup-card {
+            position: relative;
+            width: min(100%, 900px);
+            max-height: min(92vh, 760px);
+            display: grid;
+            grid-template-columns: minmax(255px, 0.88fr) minmax(0, 1.12fr);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.34);
+            border-radius: 14px;
+            background: #fff;
+            box-shadow: 0 30px 90px rgba(3, 18, 38, 0.36);
+            animation: joinPopupIn 0.34s ease both;
+        }
+
+        @keyframes joinPopupIn {
+            from { opacity: 0; transform: translateY(18px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .join-popup-visual {
+            position: relative;
+            min-height: 100%;
+            padding: 1.45rem;
+            background:
+                linear-gradient(145deg, rgba(6, 68, 117, 0.94), rgba(3, 29, 56, 0.88)),
+                url('https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?auto=format&fit=crop&w=900&q=78') center/cover no-repeat;
+            color: #fff;
+            isolation: isolate;
+        }
+
+        .join-popup-visual::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            background:
+                linear-gradient(180deg, rgba(245, 130, 32, 0.1), rgba(245, 130, 32, 0.32)),
+                radial-gradient(circle at 16% 18%, rgba(255, 255, 255, 0.18), transparent 26%);
+        }
+
+        .join-popup-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.42rem;
+            min-height: 32px;
+            padding: 0.35rem 0.72rem;
+            border: 1px solid rgba(255, 255, 255, 0.34);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.13);
+            font-size: 0.74rem;
+            font-weight: 850;
+            backdrop-filter: blur(8px);
+        }
+
+        .join-popup-visual h2 {
+            margin: 1.15rem 0 0.65rem;
+            font-size: clamp(1.45rem, 2.4vw, 2rem);
+            font-weight: 900;
+            line-height: 1.12;
+        }
+
+        .join-popup-visual p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.88);
+            font-size: 0.92rem;
+            line-height: 1.55;
+        }
+
+        .join-popup-proof {
+            display: grid;
+            gap: 0.7rem;
+            margin-top: 1.4rem;
+        }
+
+        .join-popup-proof span {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            font-size: 0.84rem;
+            font-weight: 800;
+        }
+
+        .join-popup-proof i {
+            color: #ffd4a8;
+            font-size: 1rem;
+        }
+
+        .join-popup-body {
+            position: relative;
+            overflow-y: auto;
+            padding: clamp(1.1rem, 2.2vw, 1.7rem);
+            background:
+                linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        }
+
+        .join-popup-close {
+            position: absolute;
+            top: 0.78rem;
+            right: 0.78rem;
+            z-index: 2;
+            width: 34px;
+            height: 34px;
+            border: 0;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: var(--t4d-accent);
+            color: #fff;
+            font-size: 1.05rem;
+            box-shadow: 0 10px 24px rgba(245, 130, 32, 0.32);
+        }
+
+        .join-popup-kicker {
+            margin: 0 2.25rem 0.28rem 0;
+            color: var(--t4d-accent-dark);
+            font-size: 0.75rem;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .join-popup-title {
+            margin: 0 2.2rem 0.95rem 0;
+            color: #07111f;
+            font-size: clamp(1.42rem, 3vw, 2rem);
+            font-weight: 900;
+            line-height: 1.12;
+        }
+
+        .join-role-switch {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.55rem;
+            margin-bottom: 0.85rem;
+            border-radius: 10px;
+            background: #eef3f8;
+            padding: 0.36rem;
+        }
+
+        .join-role-switch label {
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .join-role-switch input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .join-role-switch span {
+            min-height: 42px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.42rem;
+            color: #475569;
+            font-size: 0.88rem;
+            font-weight: 850;
+            transition: background 0.16s ease, color 0.16s ease, box-shadow 0.16s ease;
+        }
+
+        .join-role-switch input:checked + span {
+            background: #fff;
+            color: var(--t4d-primary);
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.1);
+        }
+
+        .join-popup-form {
+            display: grid;
+            gap: 0.65rem;
+        }
+
+        .join-field-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.65rem;
+        }
+
+        .join-popup-field {
+            position: relative;
+        }
+
+        .join-popup-field i {
+            position: absolute;
+            top: 50%;
+            left: 0.82rem;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 0.98rem;
+            pointer-events: none;
+        }
+
+        .join-country-selected-flag {
+            position: absolute;
+            top: 50%;
+            left: 0.82rem;
+            transform: translateY(-50%);
+            width: 1.25em;
+            border-radius: 50%;
+            box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.08);
+            pointer-events: none;
+        }
+
+        .join-popup-field input,
+        .join-popup-field select {
+            width: 100%;
+            min-height: 45px;
+            border: 1px solid #d5dde8;
+            border-radius: 9px;
+            background: #fff;
+            color: #0f172a;
+            padding: 0 0.88rem 0 2.45rem;
+            font-size: 0.9rem;
+            outline: 0;
+        }
+
+        .join-popup-field input::placeholder {
+            color: #94a3b8;
+        }
+
+        .join-popup-field select {
+            appearance: none;
+            padding-right: 2.3rem;
+            cursor: pointer;
+        }
+
+        .join-popup-field.has-select::after {
+            content: "\F282";
+            position: absolute;
+            top: 50%;
+            right: 0.88rem;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-family: "bootstrap-icons";
+            font-size: 0.76rem;
+            pointer-events: none;
+        }
+
+        .join-popup-field input:focus,
+        .join-popup-field select:focus {
+            border-color: var(--t4d-primary);
+            box-shadow: 0 0 0 3px rgba(6, 68, 117, 0.12);
+        }
+
+        .join-phone-row {
+            display: grid;
+            grid-template-columns: 124px minmax(0, 1fr);
+            gap: 0.65rem;
+        }
+
+        .join-phone-code {
+            min-height: 45px;
+            border: 1px solid #d5dde8;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.55rem;
+            background: #fff;
+            color: #0f172a;
+            font-size: 0.95rem;
+            font-weight: 800;
+        }
+
+        .join-phone-code .fi {
+            width: 1.4em;
+            border-radius: 50%;
+            box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.08);
+        }
+
+        .join-phone-field input {
+            padding-left: 0.95rem;
+        }
+
+        .join-phone-error {
+            display: none;
+            margin: -0.35rem 0 0;
+            color: #b91c1c;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+
+        .join-phone-error.is-visible {
+            display: block;
+        }
+
+        .join-seller-only.is-hidden {
+            display: none;
+        }
+
+        .join-popup-submit {
+            min-height: 48px;
+            margin-top: 0.12rem;
+            border: 0;
+            border-radius: 9px;
+            background: linear-gradient(135deg, var(--t4d-accent), #ff6b00);
+            color: #fff;
+            font-size: 0.98rem;
+            font-weight: 900;
+            box-shadow: 0 14px 26px rgba(245, 130, 32, 0.24);
+        }
+
+        .join-popup-submit:hover {
+            filter: brightness(0.98);
+            transform: translateY(-1px);
+        }
+
+        .join-popup-terms {
+            margin: 0.05rem 0 0;
+            color: #64748b;
+            font-size: 0.72rem;
+            line-height: 1.45;
+        }
+
+        .join-popup-terms a {
+            color: var(--t4d-primary);
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        @media (max-width: 767px) {
+            .join-popup-backdrop {
+                align-items: flex-end;
+                padding: 0.65rem;
+            }
+
+            .join-popup-card {
+                max-height: 92vh;
+                grid-template-columns: 1fr;
+                border-radius: 14px;
+            }
+
+            .join-popup-visual {
+                min-height: auto;
+                padding: 1rem 1.05rem 0.95rem;
+            }
+
+            .join-popup-visual h2 {
+                margin-top: 0.75rem;
+                font-size: 1.22rem;
+            }
+
+            .join-popup-visual p,
+            .join-popup-proof {
+                display: none;
+            }
+
+            .join-popup-body {
+                padding: 1rem;
+            }
+
+            .join-popup-title {
+                font-size: 1.32rem;
+                margin-bottom: 0.72rem;
+            }
+
+            .join-field-grid {
+                grid-template-columns: 1fr;
+                gap: 0.52rem;
+            }
+
+            .join-popup-form {
+                gap: 0.52rem;
+            }
+
+            .join-role-switch span {
+                min-height: 38px;
+                font-size: 0.78rem;
+            }
+
+            .join-popup-field input,
+            .join-popup-field select,
+            .join-phone-code {
+                min-height: 42px;
+                font-size: 0.8rem;
+            }
+
+            .join-phone-row {
+                grid-template-columns: 112px minmax(0, 1fr);
+                gap: 0.5rem;
+            }
+        }
     </style>
     @stack('styles')
 </head>
@@ -1832,6 +2376,32 @@
             if (el) el.classList.add('is-hidden');
         }, 1500);
     </script>
+
+    <div class="market-topbar" aria-label="Marketplace updates">
+        <div class="market-topbar-inner">
+            <div class="topbar-links">
+                <a href="{{ route('marketplace.page', ['page' => 'about-us']) }}">About Us</a>
+                <a href="{{ route('marketplace.page', ['page' => 'customer-care']) }}">Support</a>
+            </div>
+
+            <div class="topbar-marquee" aria-label="Trade4Deal live updates">
+                <div class="topbar-marquee-track">
+                    <span><i class="bi bi-lightning-charge"></i> Connect with verified buyers and suppliers worldwide</span>
+                    <span><i class="bi bi-megaphone"></i> Submit your business requirement and receive relevant trade responses</span>
+                    <span><i class="bi bi-shield-check"></i> Trade smarter with Trade4Deal B2B marketplace tools</span>
+                    <span><i class="bi bi-lightning-charge"></i> Connect with verified buyers and suppliers worldwide</span>
+                    <span><i class="bi bi-megaphone"></i> Submit your business requirement and receive relevant trade responses</span>
+                    <span><i class="bi bi-shield-check"></i> Trade smarter with Trade4Deal B2B marketplace tools</span>
+                </div>
+            </div>
+
+            <div class="topbar-country" title="Your current country">
+                <i class="bi bi-geo-alt-fill"></i>
+                <span>Country:</span>
+                <span class="topbar-country-text" id="topbarCountryName">Detecting...</span>
+            </div>
+        </div>
+    </div>
 
     <nav class="navbar navbar-expand-xl navbar-t4d sticky-top">
         <div class="container-fluid market-nav-wrap gap-3 py-2">
@@ -2046,6 +2616,118 @@
                 </div>
             </div>
         </div>
+
+        @guest
+            @unless(request()->routeIs('register', 'login', 'password.*', 'verification.*'))
+                <div class="join-popup-backdrop" id="joinAutoPopup" aria-hidden="true">
+                    <section class="join-popup-card" role="dialog" aria-modal="true" aria-labelledby="joinPopupTitle">
+                        <div class="join-popup-visual">
+                            <span class="join-popup-badge"><i class="bi bi-stars"></i> Free B2B account</span>
+                            <h2>Start finding buyers and suppliers faster.</h2>
+                            <p>Join Trade4Deal to connect with verified business opportunities, product listings, and active marketplace leads.</p>
+                            <div class="join-popup-proof">
+                                <span><i class="bi bi-check-circle-fill"></i> Buyer and seller profiles</span>
+                                <span><i class="bi bi-check-circle-fill"></i> Live trade leads</span>
+                                <span><i class="bi bi-check-circle-fill"></i> Global B2B reach</span>
+                            </div>
+                        </div>
+
+                        <div class="join-popup-body">
+                            <button type="button" class="join-popup-close" data-join-popup-close aria-label="Close create account popup">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                            <p class="join-popup-kicker">Trade4Deal Marketplace</p>
+                            <h2 class="join-popup-title" id="joinPopupTitle">Create Account</h2>
+
+                            <form class="join-popup-form" method="POST" action="{{ route('register') }}" data-join-popup-form>
+                                @csrf
+
+                                <div class="join-role-switch" aria-label="Select account type">
+                                    <label>
+                                        <input type="radio" name="user_type" value="buyer" data-join-role>
+                                        <span><i class="bi bi-bag-check"></i> Buyer</span>
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="user_type" value="seller" data-join-role checked>
+                                        <span><i class="bi bi-shop-window"></i> Seller</span>
+                                    </label>
+                                </div>
+
+                                <div class="join-field-grid">
+                                    <div class="join-popup-field">
+                                        <i class="bi bi-person"></i>
+                                        <input type="text" name="name" placeholder="Name" autocomplete="name" required>
+                                    </div>
+                                    <div class="join-popup-field has-select">
+                                        <span class="fi fi-in join-country-selected-flag" data-join-country-select-flag></span>
+                                        <select name="country" data-join-country-select required>
+                                            <option value="India" data-iso="in" data-dial="+91" data-min="10" data-max="10" selected>🇮🇳 India</option>
+                                            <option value="United States" data-iso="us" data-dial="+1" data-min="10" data-max="10">🇺🇸 United States</option>
+                                            <option value="United Kingdom" data-iso="gb" data-dial="+44" data-min="10" data-max="10">🇬🇧 United Kingdom</option>
+                                            <option value="United Arab Emirates" data-iso="ae" data-dial="+971" data-min="9" data-max="9">🇦🇪 United Arab Emirates</option>
+                                            <option value="Saudi Arabia" data-iso="sa" data-dial="+966" data-min="9" data-max="9">🇸🇦 Saudi Arabia</option>
+                                            <option value="Canada" data-iso="ca" data-dial="+1" data-min="10" data-max="10">🇨🇦 Canada</option>
+                                            <option value="Australia" data-iso="au" data-dial="+61" data-min="9" data-max="9">🇦🇺 Australia</option>
+                                            <option value="Singapore" data-iso="sg" data-dial="+65" data-min="8" data-max="8">🇸🇬 Singapore</option>
+                                            <option value="Germany" data-iso="de" data-dial="+49" data-min="10" data-max="11">🇩🇪 Germany</option>
+                                            <option value="France" data-iso="fr" data-dial="+33" data-min="9" data-max="9">🇫🇷 France</option>
+                                            <option value="China" data-iso="cn" data-dial="+86" data-min="11" data-max="11">🇨🇳 China</option>
+                                            <option value="Japan" data-iso="jp" data-dial="+81" data-min="10" data-max="10">🇯🇵 Japan</option>
+                                            <option value="Bangladesh" data-iso="bd" data-dial="+880" data-min="10" data-max="10">🇧🇩 Bangladesh</option>
+                                            <option value="Pakistan" data-iso="pk" data-dial="+92" data-min="10" data-max="10">🇵🇰 Pakistan</option>
+                                            <option value="Nepal" data-iso="np" data-dial="+977" data-min="10" data-max="10">🇳🇵 Nepal</option>
+                                            <option value="Sri Lanka" data-iso="lk" data-dial="+94" data-min="9" data-max="9">🇱🇰 Sri Lanka</option>
+                                            <option value="Nigeria" data-iso="ng" data-dial="+234" data-min="10" data-max="10">🇳🇬 Nigeria</option>
+                                            <option value="South Africa" data-iso="za" data-dial="+27" data-min="9" data-max="9">🇿🇦 South Africa</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="join-phone-row">
+                                    <div class="join-phone-code" aria-label="Selected country calling code">
+                                        <span class="fi fi-in" data-join-phone-flag></span>
+                                        <span data-join-phone-code>+91</span>
+                                    </div>
+                                    <div class="join-popup-field join-phone-field">
+                                        <input type="tel" data-join-phone-local placeholder="Mobile number" inputmode="numeric" autocomplete="tel-national" maxlength="10" required>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="phone" data-join-phone-full>
+                                <p class="join-phone-error" data-join-phone-error>Please enter a valid mobile number for selected country.</p>
+
+                                <div class="join-popup-field">
+                                    <i class="bi bi-envelope"></i>
+                                    <input type="email" name="email" placeholder="Email" autocomplete="email" required>
+                                </div>
+
+                                <div class="join-field-grid">
+                                    <div class="join-popup-field join-seller-only">
+                                        <i class="bi bi-box-seam"></i>
+                                        <input type="text" name="selling_products" placeholder="Selling Products">
+                                    </div>
+                                    <div class="join-popup-field">
+                                        <i class="bi bi-building"></i>
+                                        <input type="text" name="company_name" placeholder="Company Name" autocomplete="organization" required>
+                                    </div>
+                                </div>
+
+                                <input type="hidden" name="password" data-join-generated-password>
+                                <input type="hidden" name="password_confirmation" data-join-generated-password-confirmation>
+
+                                <button type="submit" class="join-popup-submit">Submit</button>
+
+                                <p class="join-popup-terms">
+                                    * By joining, I agree to Trade4Deal
+                                    <a href="{{ route('marketplace.page', ['page' => 'terms-of-use']) }}">terms of use</a>
+                                    and
+                                    <a href="{{ route('marketplace.page', ['page' => 'privacy-policy']) }}">Privacy Policy</a>.
+                                </p>
+                            </form>
+                        </div>
+                    </section>
+                </div>
+            @endunless
+        @endguest
 
         <section class="testimonial-strip py-5" aria-labelledby="testimonialTitle">
             <div class="container">
@@ -2368,6 +3050,197 @@
             }
             window.addEventListener('load', hidePageLoader);
             setTimeout(hidePageLoader, 2000);
+
+            const topbarCountryName = document.getElementById('topbarCountryName');
+            if (topbarCountryName) {
+                const timezoneCountryMap = {
+                    'Asia/Calcutta': 'India',
+                    'Asia/Kolkata': 'India',
+                    'Asia/Dubai': 'United Arab Emirates',
+                    'Asia/Riyadh': 'Saudi Arabia',
+                    'Asia/Singapore': 'Singapore',
+                    'Asia/Dhaka': 'Bangladesh',
+                    'Asia/Karachi': 'Pakistan',
+                    'Asia/Kathmandu': 'Nepal',
+                    'Asia/Colombo': 'Sri Lanka',
+                    'Asia/Shanghai': 'China',
+                    'Asia/Tokyo': 'Japan',
+                    'Europe/London': 'United Kingdom',
+                    'Europe/Berlin': 'Germany',
+                    'Europe/Paris': 'France',
+                    'Australia/Sydney': 'Australia',
+                    'America/New_York': 'United States',
+                    'America/Chicago': 'United States',
+                    'America/Denver': 'United States',
+                    'America/Los_Angeles': 'United States',
+                    'America/Toronto': 'Canada',
+                    'Africa/Lagos': 'Nigeria',
+                    'Africa/Johannesburg': 'South Africa',
+                };
+
+                function countryFromLocationLabel(label) {
+                    const cleaned = (label || '').trim();
+                    if (!cleaned || cleaned === 'All locations' || cleaned === 'Select location') return '';
+                    const parts = cleaned.split(',').map((part) => part.trim()).filter(Boolean);
+
+                    return parts[parts.length - 1] || cleaned;
+                }
+
+                function fallbackCountry() {
+                    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+                    return timezoneCountryMap[timezone] || timezone.split('/').pop()?.replace(/_/g, ' ') || 'Your country';
+                }
+
+                function setTopbarCountry(label) {
+                    topbarCountryName.textContent = countryFromLocationLabel(label) || fallbackCountry();
+                }
+
+                try {
+                    const storedLocation = JSON.parse(localStorage.getItem('t4d-location-selection') || 'null');
+                    setTopbarCountry(storedLocation?.full_label || storedLocation?.label || '');
+                } catch (error) {
+                    setTopbarCountry('');
+                }
+
+                window.addEventListener('t4d-location-change', (event) => {
+                    setTopbarCountry(event.detail?.label || '');
+                });
+            }
+
+            const joinPopup = document.getElementById('joinAutoPopup');
+            if (joinPopup) {
+                const closeButtons = Array.from(joinPopup.querySelectorAll('[data-join-popup-close]'));
+                const roleInputs = Array.from(joinPopup.querySelectorAll('[data-join-role]'));
+                const sellerFields = Array.from(joinPopup.querySelectorAll('.join-seller-only'));
+                const popupForm = joinPopup.querySelector('[data-join-popup-form]');
+                const countrySelect = joinPopup.querySelector('[data-join-country-select]');
+                const phoneLocal = joinPopup.querySelector('[data-join-phone-local]');
+                const phoneFull = joinPopup.querySelector('[data-join-phone-full]');
+                const phoneFlag = joinPopup.querySelector('[data-join-phone-flag]');
+                const countrySelectFlag = joinPopup.querySelector('[data-join-country-select-flag]');
+                const phoneCode = joinPopup.querySelector('[data-join-phone-code]');
+                const phoneError = joinPopup.querySelector('[data-join-phone-error]');
+                const generatedPassword = joinPopup.querySelector('[data-join-generated-password]');
+                const generatedPasswordConfirmation = joinPopup.querySelector('[data-join-generated-password-confirmation]');
+                const sessionKey = 't4d-join-popup-dismissed';
+                let hasOpened = false;
+
+                function syncJoinRole() {
+                    const selected = roleInputs.find((input) => input.checked)?.value || 'seller';
+                    sellerFields.forEach((field) => {
+                        field.classList.toggle('is-hidden', selected !== 'seller');
+                    });
+                }
+
+                function selectedCountryMeta() {
+                    const option = countrySelect?.selectedOptions?.[0];
+
+                    return {
+                        dial: option?.dataset.dial || '+91',
+                        iso: option?.dataset.iso || 'in',
+                        min: Number(option?.dataset.min || 10),
+                        max: Number(option?.dataset.max || 10),
+                    };
+                }
+
+                function syncJoinCountry() {
+                    const country = selectedCountryMeta();
+                    if (phoneFlag) phoneFlag.className = `fi fi-${country.iso}`;
+                    if (countrySelectFlag) countrySelectFlag.className = `fi fi-${country.iso} join-country-selected-flag`;
+                    if (phoneCode) phoneCode.textContent = country.dial;
+                    if (phoneLocal) {
+                        phoneLocal.maxLength = country.max;
+                        phoneLocal.placeholder = country.max === country.min
+                            ? `Mobile number (${country.max} digits)`
+                            : `Mobile number (${country.min}-${country.max} digits)`;
+                    }
+                    validateJoinPhone(false);
+                }
+
+                function normalizePhoneDigits(value) {
+                    return (value || '').replace(/\D/g, '');
+                }
+
+                function validateJoinPhone(showError = true) {
+                    if (!phoneLocal || !phoneFull) return true;
+                    const country = selectedCountryMeta();
+                    const digits = normalizePhoneDigits(phoneLocal.value).slice(0, country.max);
+                    if (phoneLocal.value !== digits) phoneLocal.value = digits;
+
+                    const isValid = digits.length >= country.min && digits.length <= country.max;
+                    phoneFull.value = isValid ? `${country.dial}${digits}` : '';
+
+                    if (phoneError) phoneError.classList.toggle('is-visible', showError && !isValid);
+                    phoneLocal.setCustomValidity(isValid ? '' : 'Enter a valid mobile number for selected country.');
+
+                    return isValid;
+                }
+
+                function generatePopupPassword() {
+                    const bytes = new Uint32Array(2);
+                    if (window.crypto?.getRandomValues) {
+                        window.crypto.getRandomValues(bytes);
+                    } else {
+                        bytes[0] = Math.floor(Math.random() * 1000000000);
+                        bytes[1] = Date.now();
+                    }
+
+                    return `T4d#${bytes[0].toString(36)}${bytes[1].toString(36)}X9`;
+                }
+
+                function openJoinPopup() {
+                    if (hasOpened || sessionStorage.getItem(sessionKey) === 'true') return;
+                    hasOpened = true;
+                    joinPopup.classList.add('is-visible');
+                    joinPopup.setAttribute('aria-hidden', 'false');
+                    document.body.classList.add('t4d-popup-open');
+                    window.setTimeout(() => {
+                        joinPopup.querySelector('input[name="name"]')?.focus({ preventScroll: true });
+                    }, 120);
+                }
+
+                function closeJoinPopup(remember = true) {
+                    joinPopup.classList.remove('is-visible');
+                    joinPopup.setAttribute('aria-hidden', 'true');
+                    document.body.classList.remove('t4d-popup-open');
+                    if (remember) sessionStorage.setItem(sessionKey, 'true');
+                }
+
+                function maybeOpenJoinPopup() {
+                    if (hasOpened || sessionStorage.getItem(sessionKey) === 'true') return;
+                    const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+                    const progress = scrollable > 0 ? window.scrollY / scrollable : 0;
+                    if (window.scrollY > 260 || progress > 0.18) openJoinPopup();
+                }
+
+                syncJoinRole();
+                syncJoinCountry();
+                roleInputs.forEach((input) => input.addEventListener('change', syncJoinRole));
+                countrySelect?.addEventListener('change', syncJoinCountry);
+                phoneLocal?.addEventListener('input', () => validateJoinPhone(false));
+                phoneLocal?.addEventListener('blur', () => validateJoinPhone(true));
+                popupForm?.addEventListener('submit', (event) => {
+                    if (!validateJoinPhone(true)) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        phoneLocal?.focus();
+                        return;
+                    }
+
+                    const password = generatePopupPassword();
+                    if (generatedPassword) generatedPassword.value = password;
+                    if (generatedPasswordConfirmation) generatedPasswordConfirmation.value = password;
+                });
+                closeButtons.forEach((button) => button.addEventListener('click', () => closeJoinPopup()));
+                joinPopup.addEventListener('click', (event) => {
+                    if (event.target === joinPopup) closeJoinPopup();
+                });
+                document.addEventListener('keydown', (event) => {
+                    if (event.key === 'Escape' && joinPopup.classList.contains('is-visible')) closeJoinPopup();
+                });
+                window.addEventListener('scroll', maybeOpenJoinPopup, { passive: true });
+                window.setTimeout(maybeOpenJoinPopup, 1800);
+            }
 
             function scrollToMarketplaceResult(query) {
                 const normalized = (query || '').trim().toLowerCase();

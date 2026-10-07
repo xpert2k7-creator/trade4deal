@@ -527,6 +527,74 @@
         font-size: 0.8rem;
     }
 
+    .category-banner-slider {
+        position: relative;
+        overflow: hidden;
+        margin: 1rem 0 1.7rem;
+        border: 1px solid #d6dce8;
+        border-radius: 10px;
+        background: #fff;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.09);
+    }
+
+    .category-banner-track {
+        display: flex;
+        width: 300%;
+        animation: categoryBannerSlide 15s ease-in-out infinite;
+    }
+
+    .category-banner-slider:hover .category-banner-track,
+    .category-banner-slider:focus-within .category-banner-track {
+        animation-play-state: paused;
+    }
+
+    .category-banner-panel {
+        width: calc(100% / 3);
+        flex: 0 0 calc(100% / 3);
+        padding: 0.85rem;
+    }
+
+    .category-banner-slide {
+        display: block;
+        width: 100%;
+        min-width: 0;
+        overflow: hidden;
+        border-radius: 8px;
+        background: #fff;
+    }
+
+    .category-banner-slide img {
+        width: 100%;
+        height: auto;
+        display: block;
+        object-fit: contain;
+    }
+
+    .category-banner-dots {
+        position: absolute;
+        left: 50%;
+        bottom: 0.72rem;
+        display: flex;
+        gap: 0.38rem;
+        transform: translateX(-50%);
+        pointer-events: none;
+    }
+
+    .category-banner-dots span {
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.1);
+    }
+
+    @keyframes categoryBannerSlide {
+        0%, 27% { transform: translateX(0); }
+        33%, 60% { transform: translateX(-33.3333%); }
+        66%, 93% { transform: translateX(-66.6666%); }
+        100% { transform: translateX(0); }
+    }
+
     .empty-product-strip {
         border: 1px dashed #cbd5e1;
         border-radius: 9px;
@@ -1230,13 +1298,38 @@
             height: 178px;
             min-height: 178px;
         }
+
+        .category-banner-panel {
+            padding: 0.65rem;
+        }
+
     }
 
     @media (max-width: 1450px) {
+        .hero-top {
+            grid-template-columns: 1fr;
+            gap: 0.85rem;
+            padding: 2.3rem 0 1.55rem;
+        }
+
         .hero-title-market {
             flex-wrap: wrap;
             font-size: clamp(2rem, 3.55vw, 2.75rem);
+            justify-content: center;
+            margin-bottom: 1rem;
             white-space: normal;
+        }
+
+        .hero-action-pills {
+            justify-content: center;
+            min-width: 0;
+            gap: 0.7rem;
+        }
+
+        .hero-pill {
+            min-height: 44px;
+            padding: 0.62rem 1.15rem;
+            font-size: 0.92rem;
         }
 
         .hero-flip-text {
@@ -1310,6 +1403,11 @@
 
         .hero-stat-market {
             padding: 0.9rem;
+        }
+
+        .category-banner-slider {
+            margin: 0.85rem 0 1.25rem;
+            border-radius: 8px;
         }
 
         .how-compact {
@@ -1697,6 +1795,27 @@
                 @endif
             </div>
 
+            <?php
+                $categoryBannerGroups = [
+                    'machinery' => [
+                        ['src' => 'images/category-banners/Medical equipment for clinics and hospitals-1.png', 'alt' => 'Trade4Deal medical equipment banner'],
+                        ['src' => 'images/category-banners/Electronics & Electrical Product Showcase-2.png', 'alt' => 'Trade4Deal electronics and electrical banner'],
+                        ['src' => 'images/category-banners/Trade4Deal Machinery & Tools Showcase-3.png', 'alt' => 'Trade4Deal machinery and tools banner'],
+                        ['src' => 'images/category-banners/Construction materials sourcing showcase-3.png', 'alt' => 'Trade4Deal construction materials banner'],
+                        ['src' => 'images/category-banners/Golden grains and pulses marketplace-1.png', 'alt' => 'Trade4Deal agriculture and food banner'],
+                        ['src' => 'images/category-banners/Trade4Deal textiles and apparel showcase-2.png', 'alt' => 'Trade4Deal textiles and apparel banner'],
+                    ],
+                    'chemicals' => [
+                        ['src' => 'images/category-banners/Golden grains and pulses marketplace-1.png', 'alt' => 'Trade4Deal agriculture and food banner'],
+                        ['src' => 'images/category-banners/Trade4Deal textiles and apparel showcase-2.png', 'alt' => 'Trade4Deal textiles and apparel banner'],
+                        ['src' => 'images/category-banners/Construction materials sourcing showcase-3.png', 'alt' => 'Trade4Deal construction materials banner'],
+                        ['src' => 'images/category-banners/Medical equipment for clinics and hospitals-1.png', 'alt' => 'Trade4Deal medical equipment banner'],
+                        ['src' => 'images/category-banners/Electronics & Electrical Product Showcase-2.png', 'alt' => 'Trade4Deal electronics and electrical banner'],
+                        ['src' => 'images/category-banners/Trade4Deal Machinery & Tools Showcase-3.png', 'alt' => 'Trade4Deal machinery and tools banner'],
+                    ],
+                ];
+            ?>
+
             @foreach($categories as $category)
                 @php($products = $productsByCategory->get($category->value, collect()))
                 <div class="category-products-group" data-category-group="{{ $category->value }}">
@@ -1738,6 +1857,28 @@
                                         </div>
                                     </a>
                                 @endforeach
+                            </div>
+                        @endif
+
+                        @if(isset($categoryBannerGroups[$category->value]))
+                            <?php $categoryBannerPairs = array_chunk($categoryBannerGroups[$category->value], 2); ?>
+                            <div class="category-banner-slider" aria-label="{{ $category->label() }} promotional banners">
+                                <div class="category-banner-track">
+                                    @foreach($categoryBannerPairs as $bannerPair)
+                                        <div class="category-banner-panel row g-3">
+                                            @foreach($bannerPair as $banner)
+                                                <div class="col-6">
+                                                    <a class="category-banner-slide" href="{{ route('marketplace.page', ['page' => 'product-directory', 'category' => $category->value]) }}" data-category-view-all data-category="{{ $category->value }}">
+                                                        <img src="{{ asset($banner['src']) }}" alt="{{ $banner['alt'] }}" loading="lazy">
+                                                    </a>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <div class="category-banner-dots" aria-hidden="true">
+                                    <span></span><span></span><span></span>
+                                </div>
                             </div>
                         @endif
                     </div>
