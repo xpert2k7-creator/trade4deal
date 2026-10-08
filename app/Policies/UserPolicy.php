@@ -28,6 +28,19 @@ class UserPolicy
         return $actor->isAdmin() && $target->user_type === UserType::Seller;
     }
 
+    public function deleteMarketplaceUser(User $actor, User $target): bool
+    {
+        if (! $actor->canModerateLeads()) {
+            return false;
+        }
+
+        if ($actor->id === $target->id) {
+            return false;
+        }
+
+        return in_array($target->user_type, [UserType::Buyer, UserType::Seller], true);
+    }
+
     public function manageSourcingTeam(User $actor): bool
     {
         return $actor->isAdmin();

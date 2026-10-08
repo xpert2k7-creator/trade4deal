@@ -94,6 +94,7 @@ Route::middleware(['auth', 'role:admin|employee'])->prefix('verification')->name
     Route::post('/leads/{lead}/reject', [LeadModerationController::class, 'reject'])->name('leads.reject');
 
     Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
+    Route::delete('/users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
     Route::patch('/users/{user}/plan', [UserManagementController::class, 'updatePlan'])->name('users.plan.update');
     Route::get('/users/{user}/seller', [UserManagementController::class, 'editSeller'])->name('users.sellers.edit');
     Route::put('/users/{user}/seller', [UserManagementController::class, 'updateSeller'])->name('users.sellers.update');

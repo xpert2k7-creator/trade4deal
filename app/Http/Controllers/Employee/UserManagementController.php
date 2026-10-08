@@ -132,4 +132,17 @@ class UserManagementController extends Controller
             ->route('verification.users.index', $request->only('q'))
             ->with('success', "{$user->name} has been {$action}.");
     }
+
+    public function destroy(Request $request, User $user): RedirectResponse
+    {
+        $this->authorize('deleteMarketplaceUser', $user);
+
+        $name = $user->name;
+        $user->syncRoles([]);
+        $user->delete();
+
+        return redirect()
+            ->route('verification.users.index', $request->only('q'))
+            ->with('success', "{$name} has been removed from the system.");
+    }
 }

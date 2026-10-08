@@ -168,4 +168,41 @@ class EmployeeUserPlanTest extends TestCase
             ->get(route('verification.users.index'))
             ->assertForbidden();
     }
+
+    public function test_employee_can_delete_marketplace_buyer(): void
+    {
+        $buyer = User::factory()->create([
+            'user_type' => UserType::Buyer,
+            'name' => 'Removable Buyer',
+        ]);
+        $buyer->assignRole('buyer');
+
+        $this->actingAs($this->employee())
+            ->delete(route('verification.users.destroy', $buyer))
+            ->assertRedirect(route('verification.users.index'))
+            ->assertSessionHas('success');
+
+        $this->assertSoftDeleted('users', ['id' => $buyer->id]);
+    }
+
+    public function test_employee_cannot_delete_themselves(): void
+    {
+        $employee = $this->employee();
+
+        $this->actingAs($employee)
+            ->delete(route('verification.users.destroy', $employee))
+            ->assertForbidden();
+    }
+
+    public function test_employee_cannot_delete_other_staff(): void
+    {
+        $staff = User::factory()->create([
+            'user_type' => UserType::Employee,
+        ]);
+        $staff->assignRole('employee');
+
+        $this->actingAs($this->employee())
+            ->delete(route('verification.users.destroy', $staff))
+            ->assertForbidden();
+    }
 }

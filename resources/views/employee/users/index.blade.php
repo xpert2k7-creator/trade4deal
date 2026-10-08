@@ -27,7 +27,7 @@
                     <th>Company</th>
                     <th>Current plan</th>
                     <th>Change plan</th>
-                    <th class="text-end">Seller details</th>
+                    <th class="text-end">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -75,11 +75,29 @@
                             </form>
                         </td>
                         <td class="text-end">
-                            @can('updateSellerDetails', $user)
-                                <a href="{{ route('verification.users.sellers.edit', $user) }}" class="btn btn-sm btn-outline-secondary">Edit seller</a>
-                            @else
-                                <span class="text-muted small">—</span>
-                            @endcan
+                            <div class="d-flex flex-wrap gap-2 justify-content-end align-items-center">
+                                @can('updateSellerDetails', $user)
+                                    <a href="{{ route('verification.users.sellers.edit', $user) }}" class="btn btn-sm btn-outline-secondary">Edit seller</a>
+                                @endcan
+                                @can('deleteMarketplaceUser', $user)
+                                    <form method="POST"
+                                          action="{{ route('verification.users.destroy', $user) }}"
+                                          class="d-inline user-delete-form"
+                                          data-user-name="{{ $user->name }}">
+                                        @csrf
+                                        @method('DELETE')
+                                        @if ($search)
+                                            <input type="hidden" name="q" value="{{ $search }}">
+                                        @endif
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                @endcan
+                                @cannot('updateSellerDetails', $user)
+                                    @cannot('deleteMarketplaceUser', $user)
+                                        <span class="text-muted small">—</span>
+                                    @endcannot
+                                @endcannot
+                            </div>
                         </td>
                     </tr>
                 @endforeach
@@ -113,6 +131,17 @@
             } else {
                 message = 'Are you sure you want to downgrade ' + userName + ' to the Free plan?';
             }
+
+            if (! confirm(message)) {
+                event.preventDefault();
+            }
+        });
+    });
+
+    document.querySelectorAll('.user-delete-form').forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            const userName = form.dataset.userName;
+            const message = 'Delete ' + userName + '? This removes their account from the system (products and listings will be removed). This cannot be undone from this panel.';
 
             if (! confirm(message)) {
                 event.preventDefault();
