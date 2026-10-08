@@ -11,12 +11,12 @@ class UserPolicy
 {
     public function manage(User $actor): bool
     {
-        return $actor->canModerateLeads();
+        return $actor->isAdmin();
     }
 
     public function updatePlan(User $actor, User $target): bool
     {
-        if (! $actor->canModerateLeads()) {
+        if (! $actor->isAdmin()) {
             return false;
         }
 
@@ -30,7 +30,7 @@ class UserPolicy
 
     public function deleteMarketplaceUser(User $actor, User $target): bool
     {
-        if (! $actor->canModerateLeads()) {
+        if (! $actor->isAdmin()) {
             return false;
         }
 

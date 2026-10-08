@@ -317,9 +317,11 @@
             <a href="{{ route('verification.leads.index', ['status' => 'pending']) }}" class="{{ request()->routeIs('verification.leads.index') || request()->routeIs('verification.leads.edit') ? 'active' : '' }}">
                 <i class="bi bi-inbox"></i> Leads
             </a>
-            <a href="{{ route('verification.users.index') }}" class="{{ request()->routeIs('verification.users.*') ? 'active' : '' }}">
-                <i class="bi bi-people"></i> {{ auth()->user()->isAdmin() ? 'Users & Sellers' : 'User Plans' }}
-            </a>
+            @if (auth()->user()->isAdmin())
+                <a href="{{ route('verification.users.index') }}" class="{{ request()->routeIs('verification.users.*') ? 'active' : '' }}">
+                    <i class="bi bi-people"></i> Users & Sellers
+                </a>
+            @endif
             @if (auth()->user()->isAdmin())
                 <a href="{{ route('verification.employee-team.index') }}" class="{{ request()->routeIs('verification.employee-team.*') ? 'active' : '' }}">
                     <i class="bi bi-person-gear"></i> Employees

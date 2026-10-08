@@ -232,7 +232,6 @@ class AllRoutesSmokeTest extends TestCase
             fn () => route('verification.leads.index'),
             fn () => route('verification.leads.create'),
             fn () => route('verification.leads.edit', $lead),
-            fn () => route('verification.users.index'),
         ];
 
         foreach ($routes as $urlResolver) {
@@ -250,6 +249,7 @@ class AllRoutesSmokeTest extends TestCase
         $sourcingUser = $this->sourcingUser();
 
         $routes = [
+            fn () => route('verification.users.index'),
             fn () => route('verification.employee-team.index'),
             fn () => route('verification.employee-team.create'),
             fn () => route('verification.employee-team.edit', $employeeUser),

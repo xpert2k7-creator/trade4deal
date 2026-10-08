@@ -93,11 +93,13 @@ Route::middleware(['auth', 'role:admin|employee'])->prefix('verification')->name
     Route::post('/leads/{lead}/approve', [LeadModerationController::class, 'approve'])->name('leads.approve');
     Route::post('/leads/{lead}/reject', [LeadModerationController::class, 'reject'])->name('leads.reject');
 
-    Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
-    Route::delete('/users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
-    Route::patch('/users/{user}/plan', [UserManagementController::class, 'updatePlan'])->name('users.plan.update');
-    Route::get('/users/{user}/seller', [UserManagementController::class, 'editSeller'])->name('users.sellers.edit');
-    Route::put('/users/{user}/seller', [UserManagementController::class, 'updateSeller'])->name('users.sellers.update');
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
+        Route::delete('/users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
+        Route::patch('/users/{user}/plan', [UserManagementController::class, 'updatePlan'])->name('users.plan.update');
+        Route::get('/users/{user}/seller', [UserManagementController::class, 'editSeller'])->name('users.sellers.edit');
+        Route::put('/users/{user}/seller', [UserManagementController::class, 'updateSeller'])->name('users.sellers.update');
+    });
 
     Route::middleware('role:admin')->prefix('sourcing-team')->name('sourcing-team.')->group(function () {
         Route::get('/', [SourcingTeamController::class, 'index'])->name('index');

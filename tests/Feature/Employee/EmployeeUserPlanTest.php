@@ -42,7 +42,7 @@ class EmployeeUserPlanTest extends TestCase
         return $user;
     }
 
-    public function test_employee_can_view_user_plan_management_page(): void
+    public function test_employee_cannot_view_user_plan_management_page(): void
     {
         User::factory()->create([
             'name' => 'Market Buyer',
@@ -52,8 +52,21 @@ class EmployeeUserPlanTest extends TestCase
 
         $this->actingAs($this->employee())
             ->get(route('verification.users.index'))
+            ->assertForbidden();
+    }
+
+    public function test_admin_can_view_user_management_page(): void
+    {
+        User::factory()->create([
+            'name' => 'Market Buyer',
+            'user_type' => UserType::Buyer,
+            'plan' => UserPlan::Free,
+        ]);
+
+        $this->actingAs($this->admin())
+            ->get(route('verification.users.index'))
             ->assertOk()
-            ->assertSee('User Plans')
+            ->assertSee('Marketplace users')
             ->assertSee('Market Buyer');
     }
 
@@ -109,7 +122,24 @@ class EmployeeUserPlanTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_employee_can_upgrade_user_to_gold(): void
+    public function test_admin_can_upgrade_user_to_gold(): void
+    {
+        $buyer = User::factory()->create([
+            'user_type' => UserType::Buyer,
+            'plan' => UserPlan::Free,
+        ]);
+
+        $this->actingAs($this->admin())
+            ->patch(route('verification.users.plan.update', $buyer), [
+                'plan' => UserPlan::Gold->value,
+            ])
+            ->assertRedirect(route('verification.users.index'))
+            ->assertSessionHas('success');
+
+        $this->assertEquals(UserPlan::Gold, $buyer->fresh()->plan);
+    }
+
+    public function test_employee_cannot_upgrade_user_to_gold(): void
     {
         $buyer = User::factory()->create([
             'user_type' => UserType::Buyer,
@@ -120,20 +150,19 @@ class EmployeeUserPlanTest extends TestCase
             ->patch(route('verification.users.plan.update', $buyer), [
                 'plan' => UserPlan::Gold->value,
             ])
-            ->assertRedirect(route('verification.users.index'))
-            ->assertSessionHas('success');
+            ->assertForbidden();
 
-        $this->assertEquals(UserPlan::Gold, $buyer->fresh()->plan);
+        $this->assertEquals(UserPlan::Free, $buyer->fresh()->plan);
     }
 
-    public function test_employee_can_downgrade_user_to_free(): void
+    public function test_admin_can_downgrade_user_to_free(): void
     {
         $buyer = User::factory()->create([
             'user_type' => UserType::Buyer,
             'plan' => UserPlan::Gold,
         ]);
 
-        $this->actingAs($this->employee())
+        $this->actingAs($this->admin())
             ->patch(route('verification.users.plan.update', $buyer), [
                 'plan' => UserPlan::Free->value,
             ])
@@ -169,7 +198,23 @@ class EmployeeUserPlanTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_employee_can_delete_marketplace_buyer(): void
+    public function test_admin_can_delete_marketplace_buyer(): void
+    {
+        $buyer = User::factory()->create([
+            'user_type' => UserType::Buyer,
+            'name' => 'Removable Buyer',
+        ]);
+        $buyer->assignRole('buyer');
+
+        $this->actingAs($this->admin())
+            ->delete(route('verification.users.destroy', $buyer))
+            ->assertRedirect(route('verification.users.index'))
+            ->assertSessionHas('success');
+
+        $this->assertSoftDeleted('users', ['id' => $buyer->id]);
+    }
+
+    public function test_employee_cannot_delete_marketplace_buyer(): void
     {
         $buyer = User::factory()->create([
             'user_type' => UserType::Buyer,
@@ -179,10 +224,9 @@ class EmployeeUserPlanTest extends TestCase
 
         $this->actingAs($this->employee())
             ->delete(route('verification.users.destroy', $buyer))
-            ->assertRedirect(route('verification.users.index'))
-            ->assertSessionHas('success');
+            ->assertForbidden();
 
-        $this->assertSoftDeleted('users', ['id' => $buyer->id]);
+        $this->assertNotSoftDeleted('users', ['id' => $buyer->id]);
     }
 
     public function test_employee_cannot_delete_themselves(): void
