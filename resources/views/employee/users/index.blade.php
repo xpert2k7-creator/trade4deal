@@ -25,6 +25,7 @@
                     <th>User</th>
                     <th>Type</th>
                     <th>Company</th>
+                    <th>Selling Products</th>
                     <th>Current plan</th>
                     <th>Change plan</th>
                     <th class="text-end">Actions</th>
@@ -48,6 +49,7 @@
                         </td>
                         <td>{{ $user->user_type?->label() }}</td>
                         <td>{{ $user->company_name ?? '—' }}</td>
+                        <td>{{ $user->selling_products ?? '—' }}</td>
                         <td>
                             <span class="badge {{ $user->plan?->badgeClass() ?? 'bg-secondary' }}">
                                 {{ $user->plan?->label() ?? 'Free' }}

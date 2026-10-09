@@ -24,6 +24,7 @@ class AuthService
             'phone' => $dto->phone,
             'phone_normalized' => PhoneNumber::normalize($dto->phone, $dto->country),
             'company_name' => $dto->companyName,
+            'selling_products' => $dto->sellingProducts,
             'country' => $dto->country,
             'user_type' => $dto->userType,
             'plan' => UserPlan::Free,

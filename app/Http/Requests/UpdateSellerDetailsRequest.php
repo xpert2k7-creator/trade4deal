@@ -37,6 +37,7 @@ class UpdateSellerDetailsRequest extends FormRequest
             ],
             'designation' => ['nullable', 'string', 'max:120'],
             'company_name' => ['required', 'string', 'max:180'],
+            'selling_products' => ['nullable', 'string', 'max:255'],
             'tagline' => ['nullable', 'string', 'max:200'],
             'about' => ['nullable', 'string', 'max:8000'],
             'phone' => ['nullable', 'string', 'max:40'],

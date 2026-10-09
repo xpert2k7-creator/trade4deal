@@ -14,6 +14,7 @@ readonly class RegisterUserDTO
         public string $password,
         public ?string $phone,
         public string $companyName,
+        public ?string $sellingProducts,
         public string $country,
         public UserType $userType,
     ) {}
@@ -29,6 +30,7 @@ readonly class RegisterUserDTO
             password: $data['password'],
             phone: $data['phone'] ?? null,
             companyName: $data['company_name'],
+            sellingProducts: $data['selling_products'] ?? null,
             country: $data['country'],
             userType: UserType::from($data['user_type']),
         );
@@ -45,6 +47,7 @@ readonly class RegisterUserDTO
             'password' => $this->password,
             'phone' => $this->phone,
             'company_name' => $this->companyName,
+            'selling_products' => $this->sellingProducts,
             'country' => $this->country,
             'user_type' => $this->userType,
         ];

@@ -96,7 +96,9 @@ final class CountryRegion
             return null;
         }
 
-        $supported = PhoneNumberUtil::getInstance()->getSupportedRegions();
+        $supported = class_exists(PhoneNumberUtil::class)
+            ? PhoneNumberUtil::getInstance()->getSupportedRegions()
+            : array_values(self::ALIASES);
 
         if (strlen($country) === 2 && ctype_alpha($country)) {
             $iso = strtoupper($country);

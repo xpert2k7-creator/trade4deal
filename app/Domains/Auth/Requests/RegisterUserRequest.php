@@ -30,6 +30,7 @@ class RegisterUserRequest extends FormRequest
             'password' => ['required', 'confirmed', Password::defaults()],
             'phone' => ['nullable', 'string', 'max:30'],
             'company_name' => ['required', 'string', 'max:255'],
+            'selling_products' => ['nullable', 'string', 'max:255'],
             'country' => ['required', 'string', 'max:100'],
             'user_type' => ['required', Rule::in([UserType::Buyer->value, UserType::Seller->value])],
         ];

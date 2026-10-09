@@ -37,6 +37,7 @@ class RegistrationTest extends TestCase
             'password' => 'password',
             'password_confirmation' => 'password',
             'company_name' => 'Acme Trading Co',
+            'selling_products' => 'Industrial pumps and valves',
             'country' => 'India',
             'user_type' => 'buyer',
             'phone' => '+919876543210',
@@ -47,6 +48,7 @@ class RegistrationTest extends TestCase
 
         $user = User::query()->where('email', 'test@example.com')->first();
         $this->assertNotNull($user);
+        $this->assertSame('Industrial pumps and valves', $user->selling_products);
         $this->assertNotNull($user->email_verified_at);
         $this->assertTrue(password_verify('password', $user->password));
 

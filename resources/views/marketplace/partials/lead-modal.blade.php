@@ -619,9 +619,6 @@
 
                     <form class="supplier-register-form" method="POST" action="{{ route('leads.store') }}">
                         @csrf
-                        <input type="hidden" name="email" value="{{ old('email', 'requirements@trade4deal.com') }}">
-                        <input type="hidden" name="country" value="{{ old('country', 'India') }}">
-                        <input type="hidden" name="product_type" value="{{ old('product_type', 'other') }}">
                         <input type="hidden" name="currency" value="{{ old('currency', 'INR') }}">
                         <input type="hidden" name="units" value="{{ old('units', 'pieces') }}">
                         <input type="hidden" name="payment_methods[]" value="wire_transfer">
@@ -646,9 +643,34 @@
                             </div>
                         </div>
 
+                        <div class="supplier-two-col">
+                            <div class="supplier-field">
+                                <i class="bi bi-envelope"></i>
+                                <input id="modal_email" type="email" class="@error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" placeholder="Business Email" required>
+                                @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+
+                            <div class="supplier-field">
+                                <i class="bi bi-geo-alt"></i>
+                                <input id="modal_country" type="text" class="@error('country') is-invalid @enderror" name="country" value="{{ old('country', 'India') }}" placeholder="Country" required>
+                                @error('country')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                        </div>
+
+                        <div class="supplier-field">
+                            <i class="bi bi-grid"></i>
+                            <select id="modal_product_type" name="product_type" class="@error('product_type') is-invalid @enderror" required>
+                                <option value="" disabled @selected(old('product_type') === null)>Product Category</option>
+                                @foreach (\App\Support\Enums\ProductType::cases() as $type)
+                                    <option value="{{ $type->value }}" @selected(old('product_type') === $type->value)>{{ $type->label() }}</option>
+                                @endforeach
+                            </select>
+                            @error('product_type')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+
                         <div class="supplier-field">
                             <i class="bi bi-box-seam"></i>
-                            <input id="modal_product_interest" type="text" class="@error('product_interest') is-invalid @enderror" name="product_interest" value="{{ old('product_interest') }}" placeholder="Product Type" required>
+                            <input id="modal_product_interest" type="text" class="@error('product_interest') is-invalid @enderror" name="product_interest" value="{{ old('product_interest') }}" placeholder="Product / Requirement Details" required>
                             @error('product_interest')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
 

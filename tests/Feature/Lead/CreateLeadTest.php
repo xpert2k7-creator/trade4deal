@@ -65,6 +65,27 @@ class CreateLeadTest extends TestCase
         $home->assertDontSee('Zephyr Trading Partners');
     }
 
+    public function test_guest_can_submit_requirement_without_image(): void
+    {
+        $response = $this->post(route('leads.store'), $this->validPayload([
+            'company_name' => 'Modal Requirement Co',
+            'email' => 'requirement@example.test',
+            'product_type' => ProductType::Other->value,
+            'product_interest' => 'Packaging material requirement',
+        ]));
+
+        $response->assertRedirect(route('home'));
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('leads', [
+            'company_name' => 'Modal Requirement Co',
+            'email' => 'requirement@example.test',
+            'status' => RecordStatus::Pending->value,
+            'product_type' => ProductType::Other->value,
+            'product_interest' => 'Packaging material requirement',
+        ]);
+    }
+
     public function test_lead_submission_requires_valid_data(): void
     {
         $response = $this->post(route('leads.store'), []);

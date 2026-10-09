@@ -59,6 +59,11 @@
                             <input id="company_name" name="company_name" type="text" class="form-control @error('company_name') is-invalid @enderror" value="{{ old('company_name', $seller->company_name) }}" required>
                             @error('company_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
+                        <div class="col-12">
+                            <label for="selling_products" class="form-label">Selling products</label>
+                            <input id="selling_products" name="selling_products" type="text" class="form-control @error('selling_products') is-invalid @enderror" value="{{ old('selling_products', $seller->selling_products) }}">
+                            @error('selling_products')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
                         <div class="col-md-6">
                             <label for="gstin" class="form-label">GSTIN No.</label>
                             <input id="gstin" name="gstin" type="text" class="form-control @error('gstin') is-invalid @enderror" value="{{ old('gstin', $seller->gstin) }}" maxlength="30">

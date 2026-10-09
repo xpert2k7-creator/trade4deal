@@ -26,6 +26,10 @@ final class PhoneNumber
             return null;
         }
 
+        if (! class_exists(PhoneNumberUtil::class)) {
+            return self::normalizeWithoutLibPhoneNumber($phone, $countryHint);
+        }
+
         $util = PhoneNumberUtil::getInstance();
         $region = CountryRegion::toIso2($countryHint);
 
@@ -46,5 +50,55 @@ final class PhoneNumber
         $e164 = $util->format($parsed, PhoneNumberFormat::E164);
 
         return ltrim($e164, '+');
+    }
+
+    private static function normalizeWithoutLibPhoneNumber(string $phone, ?string $countryHint = null): ?string
+    {
+        $digits = preg_replace('/\D+/', '', $phone) ?? '';
+        if ($digits === '') {
+            return null;
+        }
+
+        $region = CountryRegion::toIso2($countryHint);
+        $dialCode = match ($region) {
+            'IN' => '91',
+            'US', 'CA' => '1',
+            'GB' => '44',
+            'AE' => '971',
+            'SA' => '966',
+            'AU' => '61',
+            'SG' => '65',
+            'DE' => '49',
+            'FR' => '33',
+            'CN' => '86',
+            'JP' => '81',
+            'BD' => '880',
+            'PK' => '92',
+            'NP' => '977',
+            'LK' => '94',
+            'NG' => '234',
+            'ZA' => '27',
+            default => null,
+        };
+
+        if (str_starts_with($phone, '+')) {
+            return strlen($digits) >= 8 && strlen($digits) <= 15 ? $digits : null;
+        }
+
+        if ($dialCode === null) {
+            return null;
+        }
+
+        if (str_starts_with($digits, '0')) {
+            $digits = ltrim($digits, '0');
+        }
+
+        if (str_starts_with($digits, $dialCode) && strlen($digits) > strlen($dialCode) + 6) {
+            return strlen($digits) <= 15 ? $digits : null;
+        }
+
+        $normalized = $dialCode.$digits;
+
+        return strlen($digits) >= 8 && strlen($normalized) <= 15 ? $normalized : null;
     }
 }

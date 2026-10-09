@@ -43,6 +43,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'designation',
         'secondary_phone',
         'company_name',
+        'selling_products',
         'slug',
         'logo_path',
         'cover_image_path',
