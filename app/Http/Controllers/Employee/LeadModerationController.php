@@ -11,7 +11,7 @@ use App\Domains\Lead\Actions\UpdateLeadAction;
 use App\Domains\Lead\DTOs\CreateLeadDTO;
 use App\Domains\Lead\DTOs\UpdateLeadDTO;
 use App\Domains\Lead\Models\Lead;
-use App\Domains\Lead\Requests\StoreLeadRequest;
+use App\Domains\Lead\Requests\StoreEmployeeLeadRequest;
 use App\Domains\Lead\Requests\UpdateLeadRequest;
 use App\Domains\Lead\Services\LeadService;
 use App\Http\Controllers\Controller;
@@ -68,16 +68,16 @@ class LeadModerationController extends Controller
 
     public function create(): View
     {
-        $this->authorize('create', Lead::class);
+        $this->authorize('moderate', Lead::class);
 
         return view('employee.leads.create');
     }
 
     public function store(
-        StoreLeadRequest $request,
+        StoreEmployeeLeadRequest $request,
         CreateLeadAction $createLeadAction,
     ): RedirectResponse {
-        $this->authorize('create', Lead::class);
+        $this->authorize('moderate', Lead::class);
 
         $data = $request->validated();
         $data['user_id'] = auth()->id();

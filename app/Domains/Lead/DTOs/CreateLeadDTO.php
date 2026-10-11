@@ -6,6 +6,8 @@ namespace App\Domains\Lead\DTOs;
 
 use App\Support\Enums\BusinessType;
 use App\Support\Enums\Currency;
+use App\Support\Enums\Incoterm;
+use App\Support\Enums\LeadPaymentTerm;
 use App\Support\Enums\LeadSource;
 use App\Support\Enums\LeadUnit;
 use App\Support\Enums\ProductType;
@@ -32,6 +34,14 @@ readonly class CreateLeadDTO
         public ?string $message,
         public ?string $userId = null,
         public LeadSource $source = LeadSource::User,
+        public ?string $packagingRequirement = null,
+        public ?string $requiredQuantity = null,
+        public ?string $packagingSize = null,
+        public ?string $targetPrice = null,
+        public ?Incoterm $preferredIncoterm = null,
+        public ?string $portOfLoading = null,
+        public ?string $destinationPort = null,
+        public ?LeadPaymentTerm $paymentTerms = null,
     ) {}
 
     /**
@@ -58,6 +68,14 @@ readonly class CreateLeadDTO
             source: isset($data['source'])
                 ? ($data['source'] instanceof LeadSource ? $data['source'] : LeadSource::from((string) $data['source']))
                 : LeadSource::User,
+            packagingRequirement: $data['packaging_requirement'] ?? null,
+            requiredQuantity: isset($data['required_quantity']) ? (string) $data['required_quantity'] : null,
+            packagingSize: $data['packaging_size'] ?? null,
+            targetPrice: isset($data['target_price']) ? (string) $data['target_price'] : null,
+            preferredIncoterm: isset($data['preferred_incoterm']) ? Incoterm::from($data['preferred_incoterm']) : null,
+            portOfLoading: $data['port_of_loading'] ?? null,
+            destinationPort: $data['destination_port'] ?? null,
+            paymentTerms: isset($data['payment_terms']) ? LeadPaymentTerm::from($data['payment_terms']) : null,
         );
     }
 
@@ -80,6 +98,14 @@ readonly class CreateLeadDTO
             'currency' => $this->currency->value,
             'units' => $this->units->value,
             'payment_methods' => $this->paymentMethods,
+            'packaging_requirement' => $this->packagingRequirement,
+            'required_quantity' => $this->requiredQuantity,
+            'packaging_size' => $this->packagingSize,
+            'target_price' => $this->targetPrice,
+            'preferred_incoterm' => $this->preferredIncoterm?->value,
+            'port_of_loading' => $this->portOfLoading,
+            'destination_port' => $this->destinationPort,
+            'payment_terms' => $this->paymentTerms?->value,
             'message' => $this->message,
             'user_id' => $this->userId,
             'source' => $this->source->value,

@@ -54,6 +54,9 @@ class EmployeeLeadSubmissionTest extends TestCase
             'currency' => Currency::INR->value,
             'units' => LeadUnit::Kg->value,
             'payment_methods' => [PaymentMethod::WireTransfer->value],
+            'required_quantity' => '25',
+            'preferred_incoterm' => 'cif',
+            'payment_terms' => 'lc',
             'message' => 'Submitted by employee.',
         ];
     }
@@ -64,7 +67,9 @@ class EmployeeLeadSubmissionTest extends TestCase
             ->get(route('verification.leads.create'))
             ->assertOk()
             ->assertSee('Submit Lead')
-            ->assertSee('New business lead');
+            ->assertSee('New business lead')
+            ->assertSee('Preferred incoterm')
+            ->assertSee('Payment terms');
     }
 
     public function test_employee_can_submit_lead_from_dashboard(): void
@@ -83,6 +88,8 @@ class EmployeeLeadSubmissionTest extends TestCase
             'email' => 'client@example.com',
             'status' => RecordStatus::Pending->value,
             'source' => LeadSource::Employee->value,
+            'preferred_incoterm' => 'cif',
+            'payment_terms' => 'lc',
         ]);
     }
 

@@ -127,6 +127,7 @@
                             </div>
                             @error('payment_methods')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                         </div>
+                        @include('employee.leads.partials.trade-fields')
                         <div class="col-12">
                             <label for="message" class="form-label">Message</label>
                             <textarea id="message" name="message" rows="4"

@@ -151,6 +151,10 @@ class LeadModerationTest extends TestCase
                 'currency' => 'USD',
                 'units' => 'pieces',
                 'payment_methods' => ['wire_transfer'],
+                'required_quantity' => '12.5',
+                'preferred_incoterm' => 'fob',
+                'payment_terms' => 'tt',
+                'packaging_size' => '25 kg bags',
                 'message' => 'Updated message',
             ])
             ->assertRedirect(route('verification.leads.edit', $lead));
@@ -160,6 +164,68 @@ class LeadModerationTest extends TestCase
             'company_name' => 'New Name Co',
             'product_interest' => 'Electronics',
             'business_type' => 'seller',
+            'preferred_incoterm' => 'fob',
+            'payment_terms' => 'tt',
         ]);
+    }
+
+    public function test_employee_edit_form_shows_trade_term_fields(): void
+    {
+        $lead = Lead::factory()->pending()->create([
+            'company_name' => 'CVF Test',
+            'currency' => 'INR',
+            'units' => 'pieces',
+            'payment_methods' => ['wire_transfer'],
+        ]);
+
+        $this->actingAs($this->employee())
+            ->get(route('verification.leads.edit', $lead))
+            ->assertOk()
+            ->assertSee('Currency')
+            ->assertSee('Units')
+            ->assertSee('Payment Methods')
+            ->assertSee('Preferred incoterm')
+            ->assertSee('Payment terms')
+            ->assertSee('Required quantity');
+    }
+
+    public function test_admin_can_access_lead_edit_form(): void
+    {
+        $admin = User::factory()->create([
+            'user_type' => UserType::Admin,
+            'email_verified_at' => now(),
+            'status' => RecordStatus::Active,
+        ]);
+        $admin->assignRole('admin');
+
+        $lead = Lead::factory()->pending()->create();
+
+        $this->actingAs($admin)
+            ->get(route('verification.leads.edit', $lead))
+            ->assertOk()
+            ->assertSee('Preferred incoterm');
+    }
+
+    public function test_buyer_cannot_update_verification_lead(): void
+    {
+        $lead = Lead::factory()->pending()->create();
+
+        $this->actingAs($this->buyer())
+            ->put(route('verification.leads.update', $lead), [
+                'company_name' => 'Hacked Name',
+                'contact_name' => 'Jane Doe',
+                'email' => 'jane@example.com',
+                'country' => 'India',
+                'business_type' => 'seller',
+                'product_interest' => 'Electronics',
+                'product_type' => 'electronics',
+                'currency' => 'USD',
+                'units' => 'pieces',
+                'payment_methods' => ['wire_transfer'],
+                'required_quantity' => '10',
+                'preferred_incoterm' => 'fob',
+                'payment_terms' => 'tt',
+            ])
+            ->assertForbidden();
     }
 }

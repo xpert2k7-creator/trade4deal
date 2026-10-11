@@ -125,6 +125,7 @@
                                 @endforeach
                             </div>
                         </div>
+                        @include('employee.leads.partials.trade-fields', ['lead' => $lead])
                         <div class="col-12">
                             <label for="message" class="form-label">Message</label>
                             <textarea id="message" name="message" rows="4"

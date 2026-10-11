@@ -7,14 +7,15 @@ namespace App\Domains\Lead\Models;
 use App\Models\User;
 use App\Support\Enums\BusinessType;
 use App\Support\Enums\Currency;
-use App\Support\Enums\LeadUnit;
+use App\Support\Enums\Incoterm;
+use App\Support\Enums\LeadPaymentTerm;
 use App\Support\Enums\LeadSource;
+use App\Support\Enums\LeadUnit;
 use App\Support\Enums\PaymentMethod;
 use App\Support\Enums\ProductType;
 use App\Support\Enums\RecordStatus;
 use App\Support\Models\BaseModel;
 use Database\Factories\LeadFactory;
-use Illuminate\Database\Eloquent\Casts\AsEnumCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -37,6 +38,14 @@ class Lead extends BaseModel
         'currency',
         'units',
         'payment_methods',
+        'packaging_requirement',
+        'required_quantity',
+        'packaging_size',
+        'target_price',
+        'preferred_incoterm',
+        'port_of_loading',
+        'destination_port',
+        'payment_terms',
         'message',
         'user_id',
         'source',
@@ -50,6 +59,10 @@ class Lead extends BaseModel
         'currency' => Currency::class,
         'units' => LeadUnit::class,
         'payment_methods' => 'array',
+        'required_quantity' => 'decimal:3',
+        'target_price' => 'decimal:2',
+        'preferred_incoterm' => Incoterm::class,
+        'payment_terms' => LeadPaymentTerm::class,
         'source' => LeadSource::class,
         'status' => RecordStatus::class,
         'published_at' => 'datetime',

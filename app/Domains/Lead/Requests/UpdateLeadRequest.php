@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domains\Lead\Requests;
 
+use App\Domains\Lead\Requests\Concerns\ValidatesLeadTradeTerms;
 use App\Support\Enums\BusinessType;
 use App\Support\Enums\Currency;
 use App\Support\Enums\LeadUnit;
@@ -14,6 +15,8 @@ use Illuminate\Validation\Rule;
 
 class UpdateLeadRequest extends FormRequest
 {
+    use ValidatesLeadTradeTerms;
+
     public function authorize(): bool
     {
         return $this->user()?->canModerateLeads() ?? false;
@@ -39,6 +42,15 @@ class UpdateLeadRequest extends FormRequest
             'payment_methods' => ['required', 'array', 'min:1'],
             'payment_methods.*' => [Rule::enum(PaymentMethod::class)],
             'message' => ['nullable', 'string', 'max:2000'],
+            ...$this->leadTradeTermRules(),
         ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return $this->leadTradeTermMessages();
     }
 }
