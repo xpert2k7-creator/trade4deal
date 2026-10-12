@@ -1834,10 +1834,10 @@
             </div>
 
             <div class="hero-stats-bar" aria-label="Marketplace overview">
-                <div class="hero-stat-market"><strong>{{ number_format($marketplaceStats['visible_leads']) }}</strong> Visible leads</div>
-                <div class="hero-stat-market"><strong>{{ number_format($marketplaceStats['sellers']) }}</strong> Public sellers</div>
-                <div class="hero-stat-market"><strong>{{ number_format($marketplaceStats['products']) }}</strong> Products</div>
-                <div class="hero-stat-market"><strong>{{ number_format($marketplaceStats['categories']) }}</strong> Categories</div>
+                <div class="hero-stat-market"><strong>2.5L</strong> verified leads</div>
+                <div class="hero-stat-market"><strong>1L</strong> verified supplier</div>
+                <div class="hero-stat-market"><strong>90k</strong> products</div>
+                <div class="hero-stat-market"><strong>10k</strong> Categories</div>
             </div>
 
             <div class="trend-area" id="categories">
