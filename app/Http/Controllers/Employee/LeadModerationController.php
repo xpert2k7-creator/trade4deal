@@ -128,6 +128,10 @@ class LeadModerationController extends Controller
             $data['product_image_path'] = $lead->product_image_path;
         }
 
+        if (empty($data['payment_methods'])) {
+            $data['payment_methods'] = $lead->payment_methods ?? [];
+        }
+
         unset($data['product_image']);
 
         $updateLeadAction->execute($lead, UpdateLeadDTO::fromArray($data));

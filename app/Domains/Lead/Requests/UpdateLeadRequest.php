@@ -39,11 +39,18 @@ class UpdateLeadRequest extends FormRequest
             'product_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'currency' => ['required', Rule::enum(Currency::class)],
             'units' => ['required', Rule::enum(LeadUnit::class)],
-            'payment_methods' => ['required', 'array', 'min:1'],
+            'payment_methods' => ['nullable', 'array'],
             'payment_methods.*' => [Rule::enum(PaymentMethod::class)],
             'message' => ['nullable', 'string', 'max:2000'],
             ...$this->leadTradeTermRules(),
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'payment_methods' => $this->input('payment_methods', []),
+        ]);
     }
 
     /**

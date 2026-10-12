@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Employee;
 
-use App\Domains\Lead\Models\Lead;
 use App\Models\User;
 use App\Support\Enums\Currency;
 use App\Support\Enums\LeadSource;
 use App\Support\Enums\LeadUnit;
-use App\Support\Enums\PaymentMethod;
 use App\Support\Enums\ProductType;
 use App\Support\Enums\RecordStatus;
-use App\Support\Enums\UserPlan;
 use App\Support\Enums\UserType;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -53,7 +50,6 @@ class EmployeeLeadSubmissionTest extends TestCase
             'product_type' => ProductType::Textiles->value,
             'currency' => Currency::INR->value,
             'units' => LeadUnit::Kg->value,
-            'payment_methods' => [PaymentMethod::WireTransfer->value],
             'required_quantity' => '25',
             'preferred_incoterm' => 'cif',
             'payment_terms' => 'lc',
@@ -69,7 +65,8 @@ class EmployeeLeadSubmissionTest extends TestCase
             ->assertSee('Submit Lead')
             ->assertSee('New business lead')
             ->assertSee('Preferred incoterm')
-            ->assertSee('Payment terms');
+            ->assertSee('Payment terms')
+            ->assertDontSee('Payment Methods');
     }
 
     public function test_employee_can_submit_lead_from_dashboard(): void

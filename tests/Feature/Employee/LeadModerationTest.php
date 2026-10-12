@@ -136,6 +136,7 @@ class LeadModerationTest extends TestCase
     {
         $lead = Lead::factory()->pending()->create([
             'company_name' => 'Old Name',
+            'payment_methods' => ['wire_transfer'],
         ]);
 
         $this->actingAs($this->employee())
@@ -150,7 +151,6 @@ class LeadModerationTest extends TestCase
                 'product_type' => 'electronics',
                 'currency' => 'USD',
                 'units' => 'pieces',
-                'payment_methods' => ['wire_transfer'],
                 'required_quantity' => '12.5',
                 'preferred_incoterm' => 'fob',
                 'payment_terms' => 'tt',
@@ -167,6 +167,8 @@ class LeadModerationTest extends TestCase
             'preferred_incoterm' => 'fob',
             'payment_terms' => 'tt',
         ]);
+
+        $this->assertSame(['wire_transfer'], $lead->fresh()->payment_methods);
     }
 
     public function test_employee_edit_form_shows_trade_term_fields(): void
@@ -183,7 +185,7 @@ class LeadModerationTest extends TestCase
             ->assertOk()
             ->assertSee('Currency')
             ->assertSee('Units')
-            ->assertSee('Payment Methods')
+            ->assertDontSee('Payment Methods')
             ->assertSee('Preferred incoterm')
             ->assertSee('Payment terms')
             ->assertSee('Required quantity');

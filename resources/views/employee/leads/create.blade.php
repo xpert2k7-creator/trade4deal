@@ -112,21 +112,6 @@
                             </select>
                             @error('units')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
-                        <div class="col-12">
-                            <label class="form-label d-block">Payment Methods</label>
-                            <div class="row g-2">
-                                @foreach (\App\Support\Enums\PaymentMethod::cases() as $method)
-                                    <div class="col-md-6">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="payment_methods[]" value="{{ $method->value }}" id="create_pay_{{ $method->value }}"
-                                                @checked(in_array($method->value, old('payment_methods', []), true))>
-                                            <label class="form-check-label" for="create_pay_{{ $method->value }}">{{ $method->label() }}</label>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                            @error('payment_methods')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
-                        </div>
                         @include('employee.leads.partials.trade-fields')
                         <div class="col-12">
                             <label for="message" class="form-label">Message</label>
