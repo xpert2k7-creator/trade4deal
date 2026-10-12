@@ -1801,7 +1801,7 @@
                 <div class="hero-copy">
                     <p class="hero-eyebrow"><i class="bi bi-shield-check" aria-hidden="true"></i> Global B2B Marketplace</p>
                     <h1 class="hero-title-market" id="heroTitle">
-                        <span class="hero-title-brand">Trade4Deal Online</span>
+                        <span class="hero-title-brand">Trade4Deal</span>
                         <span class="hero-flip-text" aria-label="B2B Marketplace">
                             <span class="hero-flip-word">B2B Marketplace</span>
                         </span>
