@@ -4,7 +4,7 @@
 @section('page-title', 'Edit employee login')
 
 @section('topbar-actions')
-    <a href="{{ route('verification.employee-team.index') }}" class="btn btn-sm btn-outline-secondary">Back</a>
+    <a href="{{ route('verification.employee-team.index', ['member' => $member->id]) }}" class="btn btn-sm btn-outline-secondary">Back</a>
 @endsection
 
 @section('content')

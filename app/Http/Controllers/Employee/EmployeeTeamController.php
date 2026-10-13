@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Employee;
 
+use App\Domains\Lead\Services\LeadService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreEmployeeUserRequest;
 use App\Http\Requests\UpdateEmployeeUserRequest;
@@ -12,22 +13,38 @@ use App\Support\Enums\RecordStatus;
 use App\Support\Enums\UserType;
 use App\Support\Permissions\EmployeeRole;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
 class EmployeeTeamController extends Controller
 {
-    public function index(): View
+    public function index(Request $request, LeadService $leadService): View
     {
         $this->authorize('manageEmployeeTeam', User::class);
 
         $members = User::query()
             ->where('user_type', UserType::Employee)
             ->orderBy('name')
-            ->get();
+            ->get()
+            ->map(function (User $user) use ($leadService): array {
+                $counts = $leadService->employeeSubmissionCounts($user);
+                $chart = $leadService->employeeDailyChart($user, 30);
+
+                return [
+                    'user' => $user,
+                    'counts' => $counts,
+                    'chartLabels' => $chart->pluck('day')->all(),
+                    'chartValues' => $chart->pluck('total')->map(fn ($value) => (int) $value)->all(),
+                ];
+            });
+
+        $selectedId = $request->string('member')->toString() ?: ($members->first()['user']->id ?? null);
+        $selected = $members->firstWhere(fn (array $row) => $row['user']->id === $selectedId) ?? $members->first();
 
         return view('employee.employee-team.index', [
             'members' => $members,
+            'selected' => $selected,
         ]);
     }
 
@@ -91,7 +108,7 @@ class EmployeeTeamController extends Controller
         $employeeUser->save();
 
         return redirect()
-            ->route('verification.employee-team.index')
+            ->route('verification.employee-team.index', ['member' => $employeeUser->id])
             ->with('success', 'Employee account updated successfully.');
     }
 

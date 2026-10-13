@@ -270,11 +270,15 @@ class LeadRepository implements LeadRepositoryInterface
         return $query->paginate($perPage)->withQueryString();
     }
 
-    public function countForCreator(string $creatorId, ?Carbon $from = null, ?Carbon $to = null): int
-    {
+    public function countForCreator(
+        string $creatorId,
+        ?Carbon $from = null,
+        ?Carbon $to = null,
+        LeadSource $source = LeadSource::Sourcing,
+    ): int {
         $query = Lead::query()
             ->where('created_by', $creatorId)
-            ->where('source', LeadSource::Sourcing);
+            ->where('source', $source);
 
         if ($from !== null) {
             $query->where('created_at', '>=', $from);
@@ -287,12 +291,16 @@ class LeadRepository implements LeadRepositoryInterface
         return $query->count();
     }
 
-    public function dailyCountsForCreator(string $creatorId, Carbon $from, Carbon $to): Collection
-    {
+    public function dailyCountsForCreator(
+        string $creatorId,
+        Carbon $from,
+        Carbon $to,
+        LeadSource $source = LeadSource::Sourcing,
+    ): Collection {
         return Lead::query()
             ->selectRaw('DATE(created_at) as day, COUNT(*) as total')
             ->where('created_by', $creatorId)
-            ->where('source', LeadSource::Sourcing)
+            ->where('source', $source)
             ->whereBetween('created_at', [$from->copy()->startOfDay(), $to->copy()->endOfDay()])
             ->groupBy('day')
             ->orderBy('day')

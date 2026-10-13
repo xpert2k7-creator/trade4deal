@@ -206,4 +206,30 @@ class LeadService
 
         return $this->leadRepository->dailyCountsForCreator($user->id, $from, $to);
     }
+
+    /**
+     * @return array{today: int, month: int, total: int}
+     */
+    public function employeeSubmissionCounts(User $user): array
+    {
+        $todayStart = now()->startOfDay();
+        $monthStart = now()->startOfMonth();
+
+        return [
+            'today' => $this->leadRepository->countForCreator($user->id, $todayStart, null, LeadSource::Employee),
+            'month' => $this->leadRepository->countForCreator($user->id, $monthStart, null, LeadSource::Employee),
+            'total' => $this->leadRepository->countForCreator($user->id, null, null, LeadSource::Employee),
+        ];
+    }
+
+    /**
+     * @return Collection<int, object{day: string, total: int}>
+     */
+    public function employeeDailyChart(User $user, int $days = 30): Collection
+    {
+        $from = now()->subDays($days - 1)->startOfDay();
+        $to = now()->endOfDay();
+
+        return $this->leadRepository->dailyCountsForCreator($user->id, $from, $to, LeadSource::Employee);
+    }
 }

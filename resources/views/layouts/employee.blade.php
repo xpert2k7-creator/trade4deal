@@ -324,7 +324,7 @@
             @endif
             @if (auth()->user()->isAdmin())
                 <a href="{{ route('verification.employee-team.index') }}" class="{{ request()->routeIs('verification.employee-team.*') ? 'active' : '' }}">
-                    <i class="bi bi-person-gear"></i> Verification Employee
+                    <i class="bi bi-person-gear"></i> Verification Team
                 </a>
                 <a href="{{ route('verification.sourcing-team.index') }}" class="{{ request()->routeIs('verification.sourcing-team.*') ? 'active' : '' }}">
                     <i class="bi bi-person-badge"></i> Sourcing team

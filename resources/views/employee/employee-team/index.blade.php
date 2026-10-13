@@ -1,7 +1,7 @@
 @extends('layouts.employee')
 
-@section('title', 'Employees')
-@section('page-title', 'Employee logins')
+@section('title', 'Verification Team')
+@section('page-title', 'Verification Team')
 
 @section('topbar-actions')
     <a href="{{ route('verification.employee-team.create') }}" class="btn btn-sm btn-primary-t4d">
@@ -10,43 +10,72 @@
 @endsection
 
 @section('content')
-<div class="panel">
-    <div class="panel-header">
-        <h2>Moderation employees</h2>
-        <span class="small text-muted">{{ $members->count() }} account{{ $members->count() === 1 ? '' : 's' }}</span>
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="panel">
+            <div class="panel-header">
+                <h2>Team members</h2>
+            </div>
+            @if ($members->isEmpty())
+                <div class="panel-body text-muted">No verification employee logins yet.</div>
+            @else
+                <div class="list-group list-group-flush">
+                    @foreach ($members as $row)
+                        <a href="{{ route('verification.employee-team.index', ['member' => $row['user']->id]) }}"
+                           class="list-group-item list-group-item-action {{ ($selected['user']->id ?? null) === $row['user']->id ? 'active' : '' }}">
+                            <div class="fw-semibold">{{ $row['user']->name }}</div>
+                            <div class="small opacity-75">{{ $row['user']->email }}</div>
+                            <div class="small mt-1">Total leads: {{ $row['counts']['total'] }}</div>
+                        </a>
+                    @endforeach
+                </div>
+            @endif
+        </div>
     </div>
 
-    @if ($members->isEmpty())
-        <div class="panel-body text-muted">No employee logins yet.</div>
-    @else
-        <div class="table-responsive">
-            <table class="table table-emp align-middle mb-0">
-                <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Added</th>
-                    <th class="text-end">Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach ($members as $member)
-                    <tr>
-                        <td class="fw-semibold">{{ $member->name }}</td>
-                        <td>{{ $member->email }}</td>
-                        <td class="small text-muted">{{ $member->created_at?->format('M j, Y') }}</td>
-                        <td class="text-end text-nowrap">
-                            <a href="{{ route('verification.employee-team.edit', $member) }}" class="btn btn-sm btn-outline-secondary me-1">Edit</a>
-                            @include('partials.delete-staff-account-form', [
-                                'action' => route('verification.employee-team.destroy', $member),
-                                'name' => $member->name,
-                            ])
-                        </td>
-                    </tr>
-                @endforeach
-                </tbody>
-            </table>
-        </div>
-    @endif
+    <div class="col-lg-8">
+        @if ($selected)
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="kpi-card">
+                        <div class="label">Today</div>
+                        <div class="value">{{ $selected['counts']['today'] }}</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="kpi-card active">
+                        <div class="label">This month</div>
+                        <div class="value">{{ $selected['counts']['month'] }}</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="kpi-card pending">
+                        <div class="label">Total</div>
+                        <div class="value">{{ $selected['counts']['total'] }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mb-3">
+                <a href="{{ route('verification.employee-team.edit', $selected['user']) }}" class="btn btn-sm btn-outline-secondary">
+                    Edit account
+                </a>
+                @include('partials.delete-staff-account-form', [
+                    'action' => route('verification.employee-team.destroy', $selected['user']),
+                    'name' => $selected['user']->name,
+                ])
+            </div>
+
+            @include('partials.sourcing-submission-chart', [
+                'chartId' => 'admin-verification-team-chart',
+                'labels' => $selected['chartLabels'],
+                'values' => $selected['chartValues'],
+            ])
+        @else
+            <div class="panel">
+                <div class="panel-body text-muted">Create a verification employee login to start tracking submissions.</div>
+            </div>
+        @endif
+    </div>
 </div>
 @endsection

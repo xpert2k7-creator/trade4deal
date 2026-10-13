@@ -76,12 +76,22 @@ interface LeadRepositoryInterface
         int $perPage = 15,
     ): LengthAwarePaginator;
 
-    public function countForCreator(string $creatorId, ?Carbon $from = null, ?Carbon $to = null): int;
+    public function countForCreator(
+        string $creatorId,
+        ?Carbon $from = null,
+        ?Carbon $to = null,
+        LeadSource $source = LeadSource::Sourcing,
+    ): int;
 
     /**
      * @return Collection<int, object{day: string, total: int}>
      */
-    public function dailyCountsForCreator(string $creatorId, Carbon $from, Carbon $to): Collection;
+    public function dailyCountsForCreator(
+        string $creatorId,
+        Carbon $from,
+        Carbon $to,
+        LeadSource $source = LeadSource::Sourcing,
+    ): Collection;
 
     public function countBySource(LeadSource $source, ?Carbon $from = null, ?Carbon $to = null): int;
 }
