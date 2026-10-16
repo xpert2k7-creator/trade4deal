@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Web;
 
-use App\Domains\Product\Models\Product;
 use App\Domains\Lead\Services\LeadService;
+use App\Domains\Product\Models\Product;
 use App\Http\Controllers\Controller;
-use App\Support\Location;
 use App\Support\Enums\ProductType;
 use App\Support\Enums\RecordStatus;
 use App\Support\Enums\UserType;
+use App\Support\Location;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -133,13 +133,14 @@ class MarketplacePageController extends Controller
                 });
             }
 
-            $locationOptions = Product::query()
+            $locationOptions = Product::query()->publiclyListed()
                 ->whereNotNull('location_id')
                 ->whereNotNull('location_city')
                 ->whereNotNull('location_country')
                 ->select('location_id', 'location_city', 'location_state', 'location_country')
                 ->distinct()
                 ->orderBy('location_city')
+                ->limit(100)
                 ->get()
                 ->map(fn (Product $product): array => [
                     'id' => $product->location_id,
@@ -467,4 +468,3 @@ class MarketplacePageController extends Controller
         );
     }
 }
-

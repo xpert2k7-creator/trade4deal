@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace App\Listeners;
 
 use App\Models\User;
-use App\Support\Enums\UserPlan;
-use Laravel\Cashier\Events\WebhookReceived;
+use Laravel\Cashier\Events\WebhookHandled;
 
 class SyncUserPlanFromStripeWebhook
 {
-    public function handle(WebhookReceived $event): void
+    public function handle(WebhookHandled $event): void
     {
         $type = $event->payload['type'] ?? null;
 
@@ -32,12 +31,6 @@ class SyncUserPlanFromStripeWebhook
         $user = User::query()->where('stripe_id', $customerId)->first();
 
         if (! $user) {
-            return;
-        }
-
-        if (in_array($type, ['customer.subscription.deleted'], true)) {
-            $user->forceFill(['plan' => UserPlan::Free])->save();
-
             return;
         }
 

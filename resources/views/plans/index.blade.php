@@ -13,6 +13,9 @@
             @endauth
         </div>
 
+        @if(session('status'))
+            <div class="alert alert-info">{{ session('status') }}</div>
+        @endif
         @if(session('error'))
             <div class="alert alert-danger border-0 shadow-sm">{{ session('error') }}</div>
         @endif
@@ -60,12 +63,19 @@
                             @if(auth()->user()->userPlan()->isGold())
                                 <button class="btn btn-warning w-100 fw-semibold" disabled>You're on Gold</button>
                             @else
-                                <form method="POST" action="{{ route('plans.gold.checkout') }}">
+                                <form method="POST" action="{{ route('plans.razorpay.checkout') }}">
                                     @csrf
                                     <button type="submit" class="btn btn-primary-t4d text-white w-100 py-2">
-                                        <i class="bi bi-star-fill me-1"></i> Upgrade to Gold
+                                        <i class="bi bi-star-fill me-1"></i> Pay with Razorpay
                                     </button>
                                 </form>
+                                <p class="small text-muted mt-2 mb-0">USD 174 for six months. One-time payment.</p>
+                                @if (config('trade4deal.gold_stripe_price_id'))
+                                    <form method="POST" action="{{ route('plans.gold.checkout') }}" class="mt-2">
+                                        @csrf
+                                        <button class="btn btn-outline-secondary w-100" type="submit">Pay with Stripe</button>
+                                    </form>
+                                @endif
                             @endif
                         @else
                             <a href="{{ route('login') }}" class="btn btn-primary-t4d text-white w-100">Sign in to upgrade</a>

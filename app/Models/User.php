@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Domains\Billing\Models\RazorpayPayment;
 use App\Domains\Product\Models\Product;
 use App\Support\Enums\EmployeesRange;
 use App\Support\Enums\ProductType;
 use App\Support\Enums\RecordStatus;
 use App\Support\Enums\UserPlan;
 use App\Support\Enums\UserType;
+use App\Support\PhoneNumber;
 use App\Support\Traits\Auditable;
 use App\Support\Traits\HasUuid;
 use Database\Factories\UserFactory;
@@ -27,6 +29,7 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use Auditable;
+
     use Billable;
     use HasFactory;
     use HasRoles;
@@ -82,6 +85,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
             'user_type' => UserType::class,
             'plan' => UserPlan::class,
+            'plan_override' => UserPlan::class,
             'status' => RecordStatus::class,
             'industries' => 'array',
             'is_public' => 'boolean',
@@ -93,6 +97,15 @@ class User extends Authenticatable implements MustVerifyEmail
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);
+    }
+
+    protected static function booted(): void
+    {
+        static::saving(function (User $user): void {
+            if ($user->isDirty('phone') || $user->isDirty('country')) {
+                $user->phone_normalized = PhoneNumber::normalize($user->phone, $user->country);
+            }
+        });
     }
 
     public function liveProducts(): HasMany
@@ -132,23 +145,33 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function userPlan(): UserPlan
     {
+        if ($this->plan_override !== null) {
+            return $this->plan_override;
+        }
         $planName = config('trade4deal.gold_plan_name', 'gold');
 
-        if ($this->subscribed($planName)) {
+        if ($this->subscribed($planName) || $this->loadMissing('activeRazorpayPayments')->activeRazorpayPayments->isNotEmpty()) {
             return UserPlan::Gold;
         }
 
-        return $this->plan ?? UserPlan::Free;
+        return UserPlan::Free;
     }
 
     public function syncPlanFromSubscription(): void
     {
-        $planName = config('trade4deal.gold_plan_name', 'gold');
-        $plan = $this->subscribed($planName) ? UserPlan::Gold : UserPlan::Free;
+        $this->unsetRelation('subscriptions');
+        $this->unsetRelation('activeRazorpayPayments');
+        $plan = $this->userPlan();
 
         if ($this->plan !== $plan) {
             $this->forceFill(['plan' => $plan])->save();
         }
+    }
+
+    public function activeRazorpayPayments(): HasMany
+    {
+        return $this->hasMany(RazorpayPayment::class)
+            ->where('status', 'paid')->where('starts_at', '<=', now())->where('expires_at', '>', now())->limit(1);
     }
 
     public function ensureSellerSlug(): string

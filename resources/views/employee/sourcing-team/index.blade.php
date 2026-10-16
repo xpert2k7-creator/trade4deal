@@ -21,7 +21,7 @@
             @else
                 <div class="list-group list-group-flush">
                     @foreach ($members as $row)
-                        <a href="{{ route('verification.sourcing-team.index', ['member' => $row['user']->id]) }}"
+                        <a href="{{ route('verification.sourcing-team.index', ['member' => $row['user']->id, 'page' => request('page', 1)]) }}"
                            class="list-group-item list-group-item-action {{ ($selected['user']->id ?? null) === $row['user']->id ? 'active' : '' }}">
                             <div class="fw-semibold">{{ $row['user']->name }}</div>
                             <div class="small opacity-75">{{ $row['user']->email }}</div>
@@ -29,6 +29,7 @@
                         </a>
                     @endforeach
                 </div>
+                <div class="panel-body">{{ $members->links() }}</div>
             @endif
         </div>
     </div>

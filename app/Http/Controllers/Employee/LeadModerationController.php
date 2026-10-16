@@ -16,9 +16,9 @@ use App\Domains\Lead\Requests\UpdateLeadRequest;
 use App\Domains\Lead\Services\LeadService;
 use App\Http\Controllers\Controller;
 use App\Support\Enums\LeadSource;
+use App\Support\Storage\PublicFileTransaction;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class LeadModerationController extends Controller
@@ -79,23 +79,22 @@ class LeadModerationController extends Controller
     ): RedirectResponse {
         $this->authorize('moderate', Lead::class);
 
-        $data = $request->validated();
-        $data['user_id'] = auth()->id();
-        $data['source'] = LeadSource::Employee->value;
+        app(PublicFileTransaction::class)->run(function () use ($request, $createLeadAction): void {
+            $data = $request->validated();
+            $data['user_id'] = auth()->id();
+            $data['source'] = LeadSource::Employee->value;
 
-        if ($request->hasFile('product_image')) {
-            $file = $request->file('product_image');
-            $path = $file->store('leads', 'public');
-            $path = is_string($path) ? $path : $file->hashName('leads');
+            if ($request->hasFile('product_image')) {
+                $file = $request->file('product_image');
+                $path = app(PublicFileTransaction::class)->store($file, 'leads', 'product_image');
 
-            Storage::disk('public')->put($path, $file->get());
+                $data['product_image_path'] = $path;
+            }
 
-            $data['product_image_path'] = $path;
-        }
+            unset($data['product_image']);
 
-        unset($data['product_image']);
-
-        $createLeadAction->execute(CreateLeadDTO::fromArray($data));
+            $createLeadAction->execute(CreateLeadDTO::fromArray($data));
+        });
 
         return redirect()
             ->route('verification.leads.index', ['status' => 'pending'])
@@ -116,25 +115,26 @@ class LeadModerationController extends Controller
     ): RedirectResponse {
         $this->authorize('update', $lead);
 
-        $data = $request->validated();
+        app(PublicFileTransaction::class)->run(function () use ($request, $lead, $updateLeadAction): void {
+            $data = $request->validated();
 
-        if ($request->hasFile('product_image')) {
-            if ($lead->product_image_path) {
-                Storage::disk('public')->delete($lead->product_image_path);
+            if ($request->hasFile('product_image')) {
+                if ($lead->product_image_path) {
+                    app(PublicFileTransaction::class)->removeAfterCommit($lead->product_image_path);
+                }
+                $data['product_image_path'] = app(PublicFileTransaction::class)->store($request->file('product_image'), 'leads', 'product_image');
+            } else {
+                $data['product_image_path'] = $lead->product_image_path;
             }
-            $data['product_image_path'] = $request->file('product_image')
-                ->store('leads', 'public');
-        } else {
-            $data['product_image_path'] = $lead->product_image_path;
-        }
 
-        if (empty($data['payment_methods'])) {
-            $data['payment_methods'] = $lead->payment_methods ?? [];
-        }
+            if (empty($data['payment_methods'])) {
+                $data['payment_methods'] = $lead->payment_methods ?? [];
+            }
 
-        unset($data['product_image']);
+            unset($data['product_image']);
 
-        $updateLeadAction->execute($lead, UpdateLeadDTO::fromArray($data));
+            $updateLeadAction->execute($lead, UpdateLeadDTO::fromArray($data));
+        });
 
         return redirect()
             ->route('verification.leads.edit', $lead)

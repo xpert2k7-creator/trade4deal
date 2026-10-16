@@ -5,6 +5,7 @@ namespace Tests\Feature\Auth;
 use App\Domains\Auth\Notifications\WelcomeUserNotification;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
@@ -47,12 +48,13 @@ class RegistrationTest extends TestCase
 
         $user = User::query()->where('email', 'test@example.com')->first();
         $this->assertNotNull($user);
-        $this->assertNotNull($user->email_verified_at);
+        $this->assertNull($user->email_verified_at);
+        Notification::assertSentTo($user, VerifyEmail::class);
         $this->assertTrue(password_verify('password', $user->password));
 
         Notification::assertSentTo($user, WelcomeUserNotification::class);
 
-        $this->get('/dashboard')->assertOk();
+        $this->get('/dashboard')->assertRedirect(route('verification.notice'));
     }
 
     public function test_registration_rejects_duplicate_phone_after_normalization(): void

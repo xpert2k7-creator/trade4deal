@@ -6,10 +6,6 @@ namespace Tests\Feature\Lead;
 
 use App\Domains\Lead\Models\Lead;
 use App\Models\User;
-use App\Support\Enums\Currency;
-use App\Support\Enums\LeadUnit;
-use App\Support\Enums\PaymentMethod;
-use App\Support\Enums\ProductType;
 use App\Support\Enums\UserPlan;
 use App\Support\Enums\UserType;
 use Database\Seeders\RolePermissionSeeder;
@@ -56,6 +52,7 @@ class LeadVisibilityPlanTest extends TestCase
         $user = User::factory()->create([
             'user_type' => UserType::Buyer,
             'plan' => UserPlan::Gold,
+            'plan_override' => UserPlan::Gold,
         ]);
         $user->assignRole('buyer');
 

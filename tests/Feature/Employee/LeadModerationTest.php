@@ -98,6 +98,7 @@ class LeadModerationTest extends TestCase
         $goldUser = User::factory()->create([
             'user_type' => UserType::Buyer,
             'plan' => UserPlan::Gold,
+            'plan_override' => UserPlan::Gold,
         ]);
         $goldUser->assignRole('buyer');
 

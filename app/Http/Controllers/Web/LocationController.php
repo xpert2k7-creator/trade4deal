@@ -7,6 +7,8 @@ namespace App\Http\Controllers\Web;
 use App\Domains\Product\Models\Product;
 use App\Http\Controllers\Controller;
 use App\Support\Location;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -26,10 +28,10 @@ class LocationController extends Controller
             return response()->json(['locations' => []]);
         }
 
-        $cacheKey = 'locations.search.v3.'.sha1(mb_strtolower($query));
+        $cacheKey = 'locations.search.v4.'.sha1(mb_strtolower($query));
 
         $locations = Cache::remember($cacheKey, now()->addMinutes(30), function () use ($query): array {
-            $local = Product::query()
+            $local = Product::query()->publiclyListed()
                 ->whereNotNull('location_id')
                 ->whereNotNull('location_city')
                 ->whereNotNull('location_country')
@@ -333,7 +335,7 @@ class LocationController extends Controller
     /**
      * @param  array<string, mixed>  $query
      */
-    private function geocoderRequest(string $path, array $query): ?\Illuminate\Http\Client\Response
+    private function geocoderRequest(string $path, array $query): ?Response
     {
         $baseUrl = rtrim((string) config('services.location_geocoder.base_url'), '/');
 
@@ -341,11 +343,17 @@ class LocationController extends Controller
             return null;
         }
 
-        return Http::timeout(4)
-            ->acceptJson()
-            ->withHeaders([
-                'User-Agent' => (string) config('app.name', 'Trade4Deal').' location lookup',
-            ])
-            ->get($baseUrl.'/'.$path, $query);
+        try {
+            return Http::timeout(4)
+                ->acceptJson()
+                ->withHeaders([
+                    'User-Agent' => (string) config('app.name', 'Trade4Deal').' location lookup',
+                ])
+                ->get($baseUrl.'/'.$path, $query);
+        } catch (ConnectionException $exception) {
+            report($exception);
+
+            return null;
+        }
     }
 }

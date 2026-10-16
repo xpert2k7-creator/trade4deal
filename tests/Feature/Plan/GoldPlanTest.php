@@ -9,7 +9,7 @@ use App\Support\Enums\UserPlan;
 use App\Support\Enums\UserType;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Laravel\Cashier\Events\WebhookReceived;
+use Laravel\Cashier\Events\WebhookHandled;
 use Tests\TestCase;
 
 class GoldPlanTest extends TestCase
@@ -43,7 +43,7 @@ class GoldPlanTest extends TestCase
             ->assertRedirect(route('login'));
     }
 
-    public function test_success_route_upgrades_user_to_gold(): void
+    public function test_success_route_cannot_grant_gold_without_a_subscription(): void
     {
         $user = User::factory()->create([
             'user_type' => UserType::Buyer,
@@ -53,9 +53,10 @@ class GoldPlanTest extends TestCase
 
         $this->actingAs($user)
             ->get(route('plans.gold.success'))
-            ->assertRedirect(route('dashboard'));
+            ->assertRedirect(route('plans.index'));
 
-        $this->assertEquals(UserPlan::Gold, $user->fresh()->plan);
+        $this->assertEquals(UserPlan::Free, $user->fresh()->plan);
+        $this->assertSame(UserPlan::Free, $user->fresh()->userPlan());
     }
 
     public function test_subscription_deleted_webhook_reverts_user_to_free(): void
@@ -65,7 +66,7 @@ class GoldPlanTest extends TestCase
             'plan' => UserPlan::Gold,
         ]);
 
-        WebhookReceived::dispatch([
+        WebhookHandled::dispatch([
             'type' => 'customer.subscription.deleted',
             'data' => [
                 'object' => [

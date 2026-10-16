@@ -4,6 +4,13 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Domains\Auth\Listeners\RecordLoginHistory;
+use App\Domains\Lead\Events\LeadApproved;
+use App\Domains\Lead\Events\LeadCreated;
+use App\Domains\Lead\Events\LeadRejected;
+use App\Domains\Lead\Listeners\SendLeadApprovedNotification;
+use App\Domains\Lead\Listeners\SendLeadCreatedNotification;
+use App\Domains\Lead\Listeners\SendLeadRejectedNotification;
 use App\Domains\Lead\Models\Lead;
 use App\Domains\Lead\Policies\LeadPolicy;
 use App\Domains\Lead\Repositories\Contracts\LeadRepositoryInterface;
@@ -33,28 +40,25 @@ class DomainServiceProvider extends ServiceProvider
         Gate::policy(User::class, UserPolicy::class);
 
         Event::listen(
-            \App\Domains\Lead\Events\LeadCreated::class,
-            \App\Domains\Lead\Listeners\SendLeadCreatedNotification::class,
+            LeadCreated::class,
+            SendLeadCreatedNotification::class,
         );
 
         Event::listen(
-            \App\Domains\Lead\Events\LeadApproved::class,
-            \App\Domains\Lead\Listeners\SendLeadApprovedNotification::class,
+            LeadApproved::class,
+            SendLeadApprovedNotification::class,
         );
 
         Event::listen(
-            \App\Domains\Lead\Events\LeadRejected::class,
-            \App\Domains\Lead\Listeners\SendLeadRejectedNotification::class,
+            LeadRejected::class,
+            SendLeadRejectedNotification::class,
         );
 
         Event::listen(
             Login::class,
-            \App\Domains\Auth\Listeners\RecordLoginHistory::class,
+            RecordLoginHistory::class,
         );
 
-        Event::listen(
-            \Laravel\Cashier\Events\WebhookReceived::class,
-            \App\Listeners\SyncUserPlanFromStripeWebhook::class,
-        );
+        // App/Listeners is discovered automatically by Laravel.
     }
 }

@@ -1,19 +1,22 @@
 <?php
 
-use App\Http\Controllers\Employee\LeadModerationController;
 use App\Http\Controllers\Employee\EmployeeTeamController;
+use App\Http\Controllers\Employee\LeadModerationController;
 use App\Http\Controllers\Employee\SourcingTeamController;
 use App\Http\Controllers\Employee\UserManagementController;
-use App\Http\Controllers\Sourcing\DashboardController as SourcingDashboardController;
-use App\Http\Controllers\Sourcing\LeadController as SourcingLeadController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Seller\SellerDashboardController;
+use App\Http\Controllers\Sourcing\DashboardController as SourcingDashboardController;
+use App\Http\Controllers\Sourcing\LeadController as SourcingLeadController;
 use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Web\LeadController;
 use App\Http\Controllers\Web\LocationController;
 use App\Http\Controllers\Web\MarketplacePageController;
 use App\Http\Controllers\Web\PlanController;
+use App\Http\Controllers\Web\RazorpayCheckoutController;
+use App\Http\Controllers\Web\RazorpayWebhookController;
 use App\Http\Controllers\Web\SellerProfileController;
+use App\Http\Middleware\RequireStripeWebhookSecret;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Cashier\Http\Controllers\WebhookController;
@@ -58,19 +61,27 @@ Route::get('/dashboard', function () {
     }
 
     return view('dashboard');
-})->middleware(['auth'])->name('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/plans', [PlanController::class, 'index'])->name('plans.index');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/plans/gold/checkout', [PlanController::class, 'checkout'])->name('plans.gold.checkout');
     Route::get('/plans/gold/success', [PlanController::class, 'success'])->name('plans.gold.success');
     Route::get('/plans/gold/cancel', [PlanController::class, 'cancel'])->name('plans.gold.cancel');
+    Route::post('/plans/gold/razorpay/checkout', [RazorpayCheckoutController::class, 'store'])
+        ->middleware('throttle:6,1')->name('plans.razorpay.checkout');
+    Route::get('/plans/gold/razorpay/{payment}', [RazorpayCheckoutController::class, 'show'])->name('plans.razorpay.show');
+    Route::post('/plans/gold/razorpay/{payment}/verify', [RazorpayCheckoutController::class, 'verify'])
+        ->middleware('throttle:12,1')->name('plans.razorpay.verify');
 });
 
-Route::post('/stripe/webhook', [WebhookController::class, 'handleWebhook'])->name('cashier.webhook');
+Route::post('/razorpay/webhook', RazorpayWebhookController::class)->name('razorpay.webhook');
 
-Route::middleware(['auth', 'role:seller|admin'])->prefix('seller')->name('seller.')->group(function () {
+Route::post('/stripe/webhook', [WebhookController::class, 'handleWebhook'])
+    ->middleware(RequireStripeWebhookSecret::class)->name('cashier.webhook');
+
+Route::middleware(['auth', 'verified', 'role:seller|admin'])->prefix('seller')->name('seller.')->group(function () {
     Route::get('/', [SellerDashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [SellerDashboardController::class, 'editProfile'])->name('profile.edit');
     Route::put('/profile', [SellerDashboardController::class, 'updateProfile'])->name('profile.update');
@@ -83,7 +94,7 @@ Route::middleware(['auth', 'role:seller|admin'])->prefix('seller')->name('seller
     Route::delete('/products/{product}', [SellerDashboardController::class, 'destroyProduct'])->name('products.destroy');
 });
 
-Route::middleware(['auth', 'role:admin|employee'])->prefix('verification')->name('verification.')->group(function () {
+Route::middleware(['auth', 'verified', 'role:admin|employee'])->prefix('verification')->name('verification.')->group(function () {
     Route::get('/', [LeadModerationController::class, 'dashboard'])->name('dashboard');
     Route::get('/leads/create', [LeadModerationController::class, 'create'])->name('leads.create');
     Route::post('/leads', [LeadModerationController::class, 'store'])->name('leads.store');
@@ -120,7 +131,7 @@ Route::middleware(['auth', 'role:admin|employee'])->prefix('verification')->name
     });
 });
 
-Route::middleware(['auth', 'role:sourcing'])->prefix('sourcing')->name('sourcing.')->group(function () {
+Route::middleware(['auth', 'verified', 'role:sourcing'])->prefix('sourcing')->name('sourcing.')->group(function () {
     Route::get('/', SourcingDashboardController::class)->name('dashboard');
     Route::get('/leads/create', [SourcingLeadController::class, 'create'])->name('leads.create');
     Route::post('/leads', [SourcingLeadController::class, 'store'])->name('leads.store');

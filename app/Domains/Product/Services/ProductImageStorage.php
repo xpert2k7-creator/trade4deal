@@ -5,14 +5,18 @@ declare(strict_types=1);
 namespace App\Domains\Product\Services;
 
 use App\Domains\Product\Models\Product;
+use App\Support\Storage\PublicFileTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
 
 class ProductImageStorage
 {
+    public function __construct(private PublicFileTransaction $files) {}
+
     private const DISK = 'public';
 
     public static function memberProductDirectory(string $memberId): string
@@ -59,7 +63,7 @@ class ProductImageStorage
                 continue;
             }
 
-            Storage::disk(self::DISK)->delete($path);
+            $this->files->removeAfterCommit($path);
             $paths = $paths->reject(fn (string $stored): bool => $stored === $path);
             Log::info('product_image.removed', [
                 'member_id' => $memberId,
@@ -111,7 +115,7 @@ class ProductImageStorage
     public function deleteAllImages(Product $product): void
     {
         foreach ($product->imagePathsList() as $path) {
-            Storage::disk(self::DISK)->delete($path);
+            $this->files->removeAfterCommit($path);
         }
     }
 
@@ -132,20 +136,10 @@ class ProductImageStorage
                 'error_message' => $file->getErrorMessage(),
             ]);
 
-            return null;
+            throw ValidationException::withMessages(['product_images' => 'An uploaded image is invalid.']);
         }
 
-        $stored = $file->store($directory, self::DISK);
-
-        if ($stored === false) {
-            Log::error('product_image.upload.store_failed', [
-                'member_id' => $memberId,
-                'directory' => $directory,
-                'client_name' => $file->getClientOriginalName(),
-            ]);
-
-            return null;
-        }
+        $stored = $this->files->store($file, $directory, 'product_images');
 
         Log::info('product_image.upload.stored', [
             'member_id' => $memberId,

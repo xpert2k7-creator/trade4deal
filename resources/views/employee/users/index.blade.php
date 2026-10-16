@@ -49,8 +49,8 @@
                         <td>{{ $user->user_type?->label() }}</td>
                         <td>{{ $user->company_name ?? '—' }}</td>
                         <td>
-                            <span class="badge {{ $user->plan?->badgeClass() ?? 'bg-secondary' }}">
-                                {{ $user->plan?->label() ?? 'Free' }}
+                            <span class="badge {{ $user->userPlan()->badgeClass() ?? 'bg-secondary' }}">
+                                {{ $user->userPlan()->label() ?? 'Free' }}
                             </span>
                         </td>
                         <td>
@@ -58,7 +58,7 @@
                                   action="{{ route('verification.users.plan.update', $user) }}"
                                   class="d-flex gap-2 align-items-center plan-change-form"
                                   data-user-name="{{ $user->name }}"
-                                  data-current-plan="{{ $user->plan?->value ?? 'free' }}">
+                                  data-current-plan="{{ $user->userPlan()->value ?? 'free' }}">
                                 @csrf
                                 @method('PATCH')
                                 @if ($search)
@@ -66,7 +66,7 @@
                                 @endif
                                 <select name="plan" class="form-select form-select-sm" style="min-width:120px;">
                                     @foreach (\App\Support\Enums\UserPlan::cases() as $plan)
-                                        <option value="{{ $plan->value }}" @selected(($user->plan?->value ?? 'free') === $plan->value)>
+                                        <option value="{{ $plan->value }}" @selected(($user->userPlan()->value ?? 'free') === $plan->value)>
                                             {{ $plan->label() }}
                                         </option>
                                     @endforeach

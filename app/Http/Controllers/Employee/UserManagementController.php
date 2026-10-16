@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Employee;
 
+use App\Domains\Seller\Services\UpdateSellerProfile;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateSellerDetailsRequest;
 use App\Http\Requests\UpdateUserPlanRequest;
@@ -12,12 +13,12 @@ use App\Support\Enums\UserPlan;
 use App\Support\Enums\UserType;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class UserManagementController extends Controller
 {
     private const SELLER_LOGO_DIRECTORY = 'sellers/logos';
+
     private const SELLER_COVER_DIRECTORY = 'sellers/covers';
 
     public function index(Request $request): View
@@ -27,6 +28,7 @@ class UserManagementController extends Controller
         $search = $request->string('q')->toString() ?: null;
 
         $users = User::query()
+            ->with(['subscriptions', 'activeRazorpayPayments'])
             ->whereIn('user_type', [UserType::Buyer, UserType::Seller])
             ->when($search, function ($query) use ($search): void {
                 $query->where(function ($inner) use ($search): void {
@@ -58,54 +60,7 @@ class UserManagementController extends Controller
     {
         $this->authorize('updateSellerDetails', $user);
 
-        $data = $request->safe()->except(['logo', 'cover_image', 'remove_logo', 'remove_cover']);
-
-        if ($request->boolean('remove_logo') && $user->logo_path) {
-            Storage::disk('public')->delete($user->logo_path);
-            $data['logo_path'] = null;
-        }
-
-        if ($request->boolean('remove_cover') && $user->cover_image_path) {
-            Storage::disk('public')->delete($user->cover_image_path);
-            $data['cover_image_path'] = null;
-        }
-
-        if ($request->hasFile('logo')) {
-            if ($user->logo_path) {
-                Storage::disk('public')->delete($user->logo_path);
-            }
-
-            $path = $request->file('logo')->store(self::SELLER_LOGO_DIRECTORY, 'public');
-            if ($path === false) {
-                return back()
-                    ->withInput()
-                    ->withErrors(['logo' => 'Company logo could not be uploaded. Please try again.']);
-            }
-
-            $data['logo_path'] = $path;
-        }
-
-        if ($request->hasFile('cover_image')) {
-            if ($user->cover_image_path) {
-                Storage::disk('public')->delete($user->cover_image_path);
-            }
-
-            $path = $request->file('cover_image')->store(self::SELLER_COVER_DIRECTORY, 'public');
-            if ($path === false) {
-                return back()
-                    ->withInput()
-                    ->withErrors(['cover_image' => 'Cover image could not be uploaded. Please try again.']);
-            }
-
-            $data['cover_image_path'] = $path;
-        }
-
-        $user->fill($data);
-        if ($user->isDirty('email')) {
-            $user->email_verified_at = null;
-        }
-        $user->save();
-        $user->ensureSellerSlug();
+        app(UpdateSellerProfile::class)->execute($user, $request);
 
         return redirect()
             ->route('verification.users.sellers.edit', $user)
@@ -118,13 +73,13 @@ class UserManagementController extends Controller
 
         $plan = UserPlan::from($request->validated('plan'));
 
-        if ($user->plan === $plan) {
+        if ($user->plan_override === $plan) {
             return redirect()
                 ->route('verification.users.index', $request->only('q'))
                 ->with('success', "{$user->name} is already on the {$plan->label()} plan.");
         }
 
-        $user->forceFill(['plan' => $plan])->save();
+        $user->forceFill(['plan' => $plan, 'plan_override' => $plan])->save();
 
         $action = $plan->isGold() ? 'upgraded to Gold' : 'downgraded to Free';
 

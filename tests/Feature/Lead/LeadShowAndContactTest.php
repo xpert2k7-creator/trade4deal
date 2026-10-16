@@ -56,6 +56,7 @@ class LeadShowAndContactTest extends TestCase
         $user = User::factory()->create([
             'user_type' => UserType::Buyer,
             'plan' => UserPlan::Gold,
+            'plan_override' => UserPlan::Gold,
         ]);
         $user->assignRole('buyer');
 

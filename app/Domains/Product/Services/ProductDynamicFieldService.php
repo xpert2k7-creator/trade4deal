@@ -11,14 +11,16 @@ use App\Domains\Product\Models\ProductFieldValue;
 use App\Support\Enums\ProductFieldType;
 use App\Support\Enums\ProductType;
 use App\Support\Enums\RecordStatus;
+use App\Support\Storage\PublicFileTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class ProductDynamicFieldService
 {
+    public function __construct(private PublicFileTransaction $files) {}
+
     private const FILE_DIRECTORY = 'products/specifications';
 
     /**
@@ -182,14 +184,8 @@ class ProductDynamicFieldService
             return;
         }
 
-        if ($existing?->value) {
-            Storage::disk('public')->delete($existing->value);
-        }
-
-        $path = $file->store(self::FILE_DIRECTORY, 'public');
-        if ($path === false) {
-            return;
-        }
+        $path = $this->files->store($file, self::FILE_DIRECTORY, 'dynamic_fields.'.$field->id);
+        $this->files->removeAfterCommit($existing?->value);
 
         ProductFieldValue::query()->updateOrCreate(
             [
@@ -233,7 +229,7 @@ class ProductDynamicFieldService
     private function deleteValueRow(ProductFieldValue $row, ?ProductField $field): void
     {
         if ($field?->field_type === ProductFieldType::File && filled($row->value)) {
-            Storage::disk('public')->delete($row->value);
+            $this->files->removeAfterCommit($row->value);
         }
     }
 

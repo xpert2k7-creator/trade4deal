@@ -37,6 +37,11 @@
         <env name="STRIPE_SECRET" value="sk_test_fake"/>
         <env name="STRIPE_WEBHOOK_SECRET" value="whsec_fake"/>
         <env name="STRIPE_GOLD_PRICE_ID" value="price_test_gold"/>
+        <env name="RAZORPAY_KEY_ID" value="rzp_test_example" force="true"/>
+        <env name="RAZORPAY_KEY_SECRET" value="razorpay_test_secret" force="true"/>
+        <env name="RAZORPAY_WEBHOOK_SECRET" value="razorpay_webhook_test_secret" force="true"/>
+        <env name="RAZORPAY_GOLD_AMOUNT" value="17400" force="true"/>
+        <env name="RAZORPAY_GOLD_CURRENCY" value="USD" force="true"/>
         <env name="LEAD_VISIBILITY_DELAY_HOURS" value="24"/>
         <env name="LOCATION_GEOCODER" value="none"/>
     </php>

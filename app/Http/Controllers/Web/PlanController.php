@@ -26,7 +26,7 @@ class PlanController extends Controller
     {
         $priceId = config('trade4deal.gold_stripe_price_id');
 
-        if (! $priceId) {
+        if (! $priceId || ! config('cashier.webhook.secret')) {
             return back()->with('error', 'Gold plan is not configured yet. Please contact support.');
         }
 
@@ -46,7 +46,8 @@ class PlanController extends Controller
         $request->user()->syncPlanFromSubscription();
 
         if ($request->user()->userPlan() !== UserPlan::Gold) {
-            $request->user()->forceFill(['plan' => UserPlan::Gold])->save();
+            return redirect()->route('plans.index')->with('status',
+                'Your payment is being verified. Gold access will activate after confirmation.');
         }
 
         return redirect()

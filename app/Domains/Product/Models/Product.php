@@ -9,9 +9,12 @@ use App\Support\Enums\Currency;
 use App\Support\Enums\LeadUnit;
 use App\Support\Enums\ProductType;
 use App\Support\Enums\RecordStatus;
+use App\Support\Enums\UserType;
+use App\Support\Location;
 use App\Support\Models\BaseModel;
 use App\Support\Storage\PublicUploads;
 use Database\Factories\ProductFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -94,6 +97,16 @@ class Product extends BaseModel
         return $this->belongsTo(User::class);
     }
 
+    public function scopePubliclyListed(Builder $query): void
+    {
+        $query->where('status', RecordStatus::Active)
+            ->whereHas('user', function ($seller): void {
+                $seller->where('user_type', UserType::Seller)
+                    ->where('status', RecordStatus::Active)->where('is_public', true)
+                    ->whereNotNull('slug');
+            });
+    }
+
     public function fieldValues(): HasMany
     {
         return $this->hasMany(ProductFieldValue::class);
@@ -146,7 +159,7 @@ class Product extends BaseModel
 
     public function locationLabel(): string
     {
-        return \App\Support\Location::label(
+        return Location::label(
             $this->location_city,
             $this->location_state,
             $this->location_country,

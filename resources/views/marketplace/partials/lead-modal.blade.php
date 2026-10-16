@@ -619,9 +619,28 @@
 
                     <form class="supplier-register-form" method="POST" action="{{ route('leads.store') }}">
                         @csrf
-                        <input type="hidden" name="email" value="{{ old('email', 'requirements@trade4deal.com') }}">
-                        <input type="hidden" name="country" value="{{ old('country', 'India') }}">
-                        <input type="hidden" name="product_type" value="{{ old('product_type', 'other') }}">
+                        <div class="supplier-field">
+                            <label for="modal_email">Business email</label>
+                            <input id="modal_email" type="email" name="email" value="{{ old('email', auth()->user()?->email) }}" required maxlength="255">
+                            @error('email')<div class="text-danger">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="supplier-two-col">
+                            <div class="supplier-field">
+                                <label for="modal_country">Country</label>
+                                <input id="modal_country" name="country" value="{{ old('country', auth()->user()?->country) }}" required maxlength="100">
+                                @error('country')<div class="text-danger">{{ $message }}</div>@enderror
+                            </div>
+                            <div class="supplier-field">
+                                <label for="modal_product_type">Product category</label>
+                                <select id="modal_product_type" name="product_type" required>
+                                    <option value="">Select category</option>
+                                    @foreach (\App\Support\Enums\ProductType::cases() as $type)
+                                        <option value="{{ $type->value }}" @selected(old('product_type') === $type->value)>{{ $type->label() }}</option>
+                                    @endforeach
+                                </select>
+                                @error('product_type')<div class="text-danger">{{ $message }}</div>@enderror
+                            </div>
+                        </div>
                         <input type="hidden" name="currency" value="{{ old('currency', 'INR') }}">
                         <input type="hidden" name="units" value="{{ old('units', 'pieces') }}">
                         <input type="hidden" name="payment_methods[]" value="wire_transfer">

@@ -28,8 +28,7 @@ class AuthService
             'user_type' => $dto->userType,
             'plan' => UserPlan::Free,
             'status' => RecordStatus::Active,
-            // Auto-verify so users can open the dashboard without SMTP setup.
-            'email_verified_at' => now(),
+            'email_verified_at' => null,
         ]);
 
         Role::findOrCreate($dto->userType->value, 'web');

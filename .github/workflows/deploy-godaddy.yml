@@ -1,74 +1,95 @@
-name: Deploy to GoDaddy
+name: Validate and deploy
 
 on:
+  pull_request:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
-concurrency:
-  group: deploy-godaddy
-  cancel-in-progress: true
+permissions:
+  contents: read
 
 jobs:
-  deploy:
+  validate:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: mbstring, xml, ctype, curl, dom, fileinfo, pdo, sqlite
+          extensions: mbstring, xml, ctype, curl, dom, fileinfo, pdo_sqlite, bcmath, gd
           tools: composer:v2
           coverage: none
-
-      - name: Install Composer dependencies
-        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - run: composer install --no-interaction --prefer-dist --optimize-autoloader
+      - run: composer audit --locked
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-
-      - name: Build frontend assets
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm audit
+      - run: npm run build
+      - name: Prepare isolated test environment
         run: |
-          npm install
-          npm run build
-
-      - name: Deploy to GoDaddy (FTP)
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+          cp .env.example .env
+          php artisan key:generate
+      - run: php artisan test
+      - run: bash -n scripts/deploy-release.sh
+      - run: bash scripts/test-deploy-release.sh
+      - name: Build release archive
+        if: github.event_name != 'pull_request'
+        run: |
+          composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+          tar --exclude='./.git' --exclude='./.github' --exclude='./.env*' --exclude='./node_modules' \
+              --exclude='./tests' --exclude='./docs' --exclude='./storage' --exclude='./bootstrap/cache/*.php' \
+              --exclude='./public/hot' --exclude='./public/storage' --exclude='./public/build.zip' \
+              --exclude='./trade4deal' --exclude='./trade4deal.zip' --exclude='./500' \
+              -czf "$RUNNER_TEMP/release.tar.gz" .
+      - uses: actions/upload-artifact@v4
+        if: github.event_name != 'pull_request'
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          port: 21
-          protocol: ftp
-          local-dir: ./
-          server-dir: ./
-          state-name: .ftp-deploy-sync-state.json
-          log-level: minimal
-          dry-run: false
-          dangerous-clean-slate: false
-          exclude: |
-            **/.git/**
-            **/.github/**
-            **/node_modules/**
-            **/tests/**
-            **/.env
-            **/.env.*
-            **/.editorconfig
-            **/.phpunit.result.cache
-            **/phpunit.xml
-            **/storage/logs/**
-            **/storage/framework/cache/data/**
-            **/storage/framework/sessions/**
-            **/storage/framework/views/**
-            **/storage/pail/**
-            **/.DS_Store
-            **/.ftpquota
-            **/trade4deal.zip
-            **/__MACOSX/**
-            **/500/**
+          name: release
+          path: ${{ runner.temp }}/release.tar.gz
+          retention-days: 3
+
+  deploy:
+    needs: validate
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: deploy-godaddy-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: release
+      - name: Deploy an atomic release over verified SSH
+        shell: bash
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+          DEPLOY_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          DEPLOY_ROOT: ${{ secrets.DEPLOY_ROOT }}
+          DEPLOY_HEALTH_URL: ${{ secrets.DEPLOY_HEALTH_URL }}
+        run: |
+          set -euo pipefail
+          : "${DEPLOY_HOST:?}" "${DEPLOY_USER:?}" "${DEPLOY_KEY:?}" "${DEPLOY_KNOWN_HOSTS:?}" "${DEPLOY_ROOT:?}" "${DEPLOY_HEALTH_URL:?}"
+          DEPLOY_PORT="${DEPLOY_PORT:-22}"
+          [[ "$DEPLOY_HOST" =~ ^[a-zA-Z0-9.-]+$ && "$DEPLOY_USER" =~ ^[a-zA-Z0-9_-]+$ && "$DEPLOY_PORT" =~ ^[0-9]+$ ]]
+          [[ "$DEPLOY_ROOT" =~ ^/[a-zA-Z0-9/_-]+$ && "$DEPLOY_HEALTH_URL" =~ ^https://[a-zA-Z0-9./_-]+$ ]]
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/deploy_key
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/deploy_key ~/.ssh/known_hosts
+          trap 'rm -f ~/.ssh/deploy_key' EXIT
+          release_id="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          upload_dir="/tmp/trade4deal-${release_id}"
+          ssh_options=(-i ~/.ssh/deploy_key -o BatchMode=yes -o StrictHostKeyChecking=yes)
+          ssh "${ssh_options[@]}" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p '$upload_dir'"
+          scp "${ssh_options[@]}" -P "$DEPLOY_PORT" release.tar.gz "$DEPLOY_USER@$DEPLOY_HOST:$upload_dir/release.tar.gz"
+          ssh "${ssh_options[@]}" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
+            "bash -s -- '$DEPLOY_ROOT' '$release_id' '$upload_dir/release.tar.gz' '$DEPLOY_HEALTH_URL'" < scripts/deploy-release.sh

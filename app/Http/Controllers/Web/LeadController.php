@@ -13,9 +13,9 @@ use App\Domains\Lead\Requests\StoreLeadRequest;
 use App\Domains\Lead\Services\LeadService;
 use App\Http\Controllers\Controller;
 use App\Support\Enums\LeadSource;
+use App\Support\Storage\PublicFileTransaction;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class LeadController extends Controller
@@ -60,23 +60,22 @@ class LeadController extends Controller
     ): RedirectResponse {
         $this->authorize('create', Lead::class);
 
-        $data = $request->validated();
-        $data['user_id'] = auth()->id();
-        $data['source'] = LeadSource::User->value;
+        app(PublicFileTransaction::class)->run(function () use ($request, $createLeadAction): void {
+            $data = $request->validated();
+            $data['user_id'] = auth()->id();
+            $data['source'] = LeadSource::User->value;
 
-        if ($request->hasFile('product_image')) {
-            $file = $request->file('product_image');
-            $path = $file->store('leads', 'public');
-            $path = is_string($path) ? $path : $file->hashName('leads');
+            if ($request->hasFile('product_image')) {
+                $file = $request->file('product_image');
+                $path = app(PublicFileTransaction::class)->store($file, 'leads', 'product_image');
 
-            Storage::disk('public')->put($path, $file->get());
+                $data['product_image_path'] = $path;
+            }
 
-            $data['product_image_path'] = $path;
-        }
+            unset($data['product_image']);
 
-        unset($data['product_image']);
-
-        $createLeadAction->execute(CreateLeadDTO::fromArray($data));
+            $createLeadAction->execute(CreateLeadDTO::fromArray($data));
+        });
 
         return redirect()
             ->route('home')

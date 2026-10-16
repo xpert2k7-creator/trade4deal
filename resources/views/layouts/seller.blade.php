@@ -275,12 +275,12 @@
         </header>
         <div class="seller-content">
             @if (session('success'))
-                <div class="alert alert-success border-0 shadow-sm mb-3">
+                <div class="alert alert-success border-0 shadow-xs mb-3">
                     <i class="bi bi-check-circle me-1"></i>{{ session('success') }}
                 </div>
             @endif
             @if ($errors->any())
-                <div class="alert alert-danger border-0 shadow-sm mb-3">
+                <div class="alert alert-danger border-0 shadow-xs mb-3">
                     <ul class="mb-0 ps-3">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>

@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Employee;
 
 use App\Domains\Lead\Services\LeadService;
+use App\Domains\Lead\Services\TeamSubmissionStats;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreEmployeeUserRequest;
 use App\Http\Requests\UpdateEmployeeUserRequest;
 use App\Models\User;
+use App\Support\Enums\LeadSource;
 use App\Support\Enums\RecordStatus;
 use App\Support\Enums\UserType;
 use App\Support\Permissions\EmployeeRole;
@@ -23,24 +25,8 @@ class EmployeeTeamController extends Controller
     {
         $this->authorize('manageEmployeeTeam', User::class);
 
-        $members = User::query()
-            ->where('user_type', UserType::Employee)
-            ->orderBy('name')
-            ->get()
-            ->map(function (User $user) use ($leadService): array {
-                $counts = $leadService->employeeSubmissionCounts($user);
-                $chart = $leadService->employeeDailyChart($user, 30);
-
-                return [
-                    'user' => $user,
-                    'counts' => $counts,
-                    'chartLabels' => $chart->pluck('day')->all(),
-                    'chartValues' => $chart->pluck('total')->map(fn ($value) => (int) $value)->all(),
-                ];
-            });
-
-        $selectedId = $request->string('member')->toString() ?: ($members->first()['user']->id ?? null);
-        $selected = $members->firstWhere(fn (array $row) => $row['user']->id === $selectedId) ?? $members->first();
+        ['members' => $members, 'selected' => $selected] = app(TeamSubmissionStats::class)
+            ->forTeam(UserType::Employee, LeadSource::Employee, $request);
 
         return view('employee.employee-team.index', [
             'members' => $members,

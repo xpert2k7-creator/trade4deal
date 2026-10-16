@@ -40,4 +40,13 @@ return [
         'base_url' => env('LOCATION_GEOCODER_BASE_URL', 'https://nominatim.openstreetmap.org'),
     ],
 
+    'razorpay' => [
+        'key_id' => env('RAZORPAY_KEY_ID'),
+        'key_secret' => env('RAZORPAY_KEY_SECRET'),
+        'webhook_secret' => env('RAZORPAY_WEBHOOK_SECRET'),
+        // Currency subunits: USD 174.00 = 17400 cents.
+        'gold_amount' => (int) env('RAZORPAY_GOLD_AMOUNT', 17400),
+        'gold_currency' => env('RAZORPAY_GOLD_CURRENCY', 'USD'),
+    ],
+
 ];

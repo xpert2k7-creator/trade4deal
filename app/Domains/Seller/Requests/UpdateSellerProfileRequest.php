@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domains\Seller\Requests;
 
+use App\Rules\UniquePhoneNumber;
 use App\Support\Enums\EmployeesRange;
 use App\Support\Enums\ProductType;
 use Illuminate\Foundation\Http\FormRequest;
@@ -33,7 +34,8 @@ class UpdateSellerProfileRequest extends FormRequest
             'company_name' => ['required', 'string', 'max:180'],
             'tagline' => ['nullable', 'string', 'max:200'],
             'about' => ['nullable', 'string', 'max:8000'],
-            'phone' => ['nullable', 'string', 'max:40'],
+            'phone' => ['nullable', 'string', 'max:30', new UniquePhoneNumber(
+                is_string($this->input('country')) ? $this->input('country') : null, $this->user()?->id)],
             'secondary_phone' => ['nullable', 'string', 'max:40'],
             'country' => ['required', 'string', 'max:100'],
             'city' => ['nullable', 'string', 'max:120'],
