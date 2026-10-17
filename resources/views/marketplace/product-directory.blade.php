@@ -644,14 +644,21 @@
 
                     <article class="product-card marketplace-search-item" data-search-text="{{ strtolower($product->name.' '.$product->description.' '.$seller?->company_name.' '.$displayLocation.' '.$product->product_type?->label()) }}">
                         <span class="product-badge">Verified Supplier</span>
+                        @php($productImageUrls = $product->imageUrls())
                         <a class="product-media" href="{{ $sellerUrl }}" aria-label="View {{ $product->name }}">
-                            @if($product->imageUrl())
-                                <img src="{{ $product->imageUrl() }}" alt="{{ $product->name }}" loading="lazy" onerror="this.nextElementSibling.classList.remove('d-none'); this.remove();">
-                                <span class="product-img-fallback d-none" aria-hidden="true"><i class="bi bi-box-seam"></i></span>
-                            @else
+                            @if($productImageUrls === [])
                                 <span class="product-img-fallback" aria-hidden="true"><i class="bi bi-box-seam"></i></span>
+                                <span class="product-photo-count"><i class="bi bi-images"></i> 0</span>
+                            @else
+                                @include('marketplace.partials.product-image-gallery', [
+                                    'urls' => $productImageUrls,
+                                    'alt' => $product->name,
+                                    'showCount' => true,
+                                ])
+                                @if(count($productImageUrls) === 1)
+                                    <span class="product-img-fallback d-none" aria-hidden="true"><i class="bi bi-box-seam"></i></span>
+                                @endif
                             @endif
-                            <span class="product-photo-count"><i class="bi bi-images"></i> {{ $product->imageUrl() ? '1' : '0' }}</span>
                         </a>
 
                         <div class="product-body">

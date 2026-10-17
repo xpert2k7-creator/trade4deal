@@ -302,27 +302,45 @@
                 <div class="contact-form-card p-4 p-lg-5 h-100">
                     <span class="badge rounded-pill text-bg-primary px-3 py-2 mb-3">Write to us</span>
                     <h2 class="section-title mb-3">Tell us what you need</h2>
-                    <form action="mailto:info@trade4deal.com" method="POST" enctype="text/plain">
+
+                    @if ($errors->any())
+                        <div class="alert alert-danger border-0 shadow-sm mb-3">
+                            <strong>Please check the form.</strong>
+                            <ul class="mb-0 mt-2 small">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <form action="{{ route('contact.store') }}" method="POST">
+                        @csrf
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label" for="name">Name</label>
-                                <input class="form-control" id="name" name="name" type="text" placeholder="Your name">
+                                <input class="form-control @error('name') is-invalid @enderror" id="name" name="name" type="text" value="{{ old('name') }}" placeholder="Your name" required>
+                                @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="company">Company</label>
-                                <input class="form-control" id="company" name="company" type="text" placeholder="Company name">
+                                <input class="form-control @error('company') is-invalid @enderror" id="company" name="company" type="text" value="{{ old('company') }}" placeholder="Company name">
+                                @error('company')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="email">Email</label>
-                                <input class="form-control" id="email" name="email" type="email" placeholder="you@company.com">
+                                <input class="form-control @error('email') is-invalid @enderror" id="email" name="email" type="email" value="{{ old('email') }}" placeholder="you@company.com" required>
+                                @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="phone">Phone</label>
-                                <input class="form-control" id="phone" name="phone" type="tel" placeholder="+91">
+                                <input class="form-control @error('phone') is-invalid @enderror" id="phone" name="phone" type="tel" value="{{ old('phone') }}" placeholder="+91">
+                                @error('phone')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                             <div class="col-12">
                                 <label class="form-label" for="message">Message</label>
-                                <textarea class="form-control" id="message" name="message" rows="5" placeholder="Share your requirement"></textarea>
+                                <textarea class="form-control @error('message') is-invalid @enderror" id="message" name="message" rows="5" placeholder="Share your requirement" required>{{ old('message') }}</textarea>
+                                @error('message')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                             <div class="col-12">
                                 <button class="btn btn-primary-t4d text-white px-4" type="submit">

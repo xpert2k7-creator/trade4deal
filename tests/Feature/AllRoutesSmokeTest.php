@@ -30,6 +30,7 @@ class AllRoutesSmokeTest extends TestCase
         'sell-on-trade4deal',
         'latest-trade-leads',
         'product-directory',
+        'lead-directory',
         'lead-board',
         'submit-requirement',
         'search-products',

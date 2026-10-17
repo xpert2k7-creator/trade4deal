@@ -40,7 +40,14 @@ interface LeadRepositoryInterface
      */
     public function matchingCategoriesForSeller(User $seller): Collection;
 
-    public function paginateVisible(?User $viewer, int $perPage = 10): LengthAwarePaginator;
+    public function paginateVisible(
+        ?User $viewer,
+        int $perPage = 10,
+        ?string $search = null,
+        ?string $productType = null,
+        ?string $country = null,
+        ?string $fragment = 'leads',
+    ): LengthAwarePaginator;
 
     public function paginateActive(int $perPage = 15): LengthAwarePaginator;
 

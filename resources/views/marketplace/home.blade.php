@@ -1904,12 +1904,19 @@
                                 @foreach($products as $product)
                                     @php($sellerUrl = $product->user?->slug ? route('sellers.show', $product->user->slug) : '#')
                                     <a class="product-card-market marketplace-search-item" href="{{ $sellerUrl }}" data-search-text="{{ strtolower($category->label().' '.$product->name.' '.$product->user?->company_name) }}">
+                                        @php($productImageUrls = $product->imageUrls())
                                         <div class="product-media">
-                                            @if($product->imageUrl())
-                                                <img src="{{ $product->imageUrl() }}" alt="{{ $product->name }}" loading="lazy" onerror="this.nextElementSibling.classList.remove('d-none'); this.remove();">
-                                                <span class="product-img-fallback d-none" aria-hidden="true"><i class="bi bi-box-seam"></i></span>
-                                            @else
+                                            @if($productImageUrls === [])
                                                 <span class="product-img-fallback" aria-hidden="true"><i class="bi bi-box-seam"></i></span>
+                                            @else
+                                                @include('marketplace.partials.product-image-gallery', [
+                                                    'urls' => $productImageUrls,
+                                                    'alt' => $product->name,
+                                                    'showCount' => false,
+                                                ])
+                                                @if(count($productImageUrls) === 1)
+                                                    <span class="product-img-fallback d-none" aria-hidden="true"><i class="bi bi-box-seam"></i></span>
+                                                @endif
                                             @endif
                                         </div>
                                         <div class="product-card-body">
@@ -2052,11 +2059,24 @@
                 </div>
             @endif
 
+            @if(($leadSearch ?? '') !== '')
+                <div class="alert alert-light border shadow-sm mb-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
+                    <span><i class="bi bi-search me-1"></i>Showing buyer leads matching <strong>{{ $leadSearch }}</strong></span>
+                    <a href="{{ route('home') }}#leads" class="btn btn-sm btn-outline-t4d">Clear search</a>
+                </div>
+            @endif
+
             <div class="lead-grid-wrap">
                 @if($leads->isEmpty())
                     <div class="empty-state">
-                        <h3 class="h5 fw-bold">No leads visible yet</h3>
-                        <p class="mb-3">New leads appear here after review. @unless(($isStaffViewer ?? false) || $viewerPlan->isGold()) Gold members see them 24 hours sooner. @endunless</p>
+                        <h3 class="h5 fw-bold">{{ ($leadSearch ?? '') !== '' ? 'No matching buyer leads' : 'No leads visible yet' }}</h3>
+                        <p class="mb-3">
+                            @if(($leadSearch ?? '') !== '')
+                                Try a different product, company, or country keyword.
+                            @else
+                                New leads appear here after review. @unless(($isStaffViewer ?? false) || $viewerPlan->isGold()) Gold members see them 24 hours sooner. @endunless
+                            @endif
+                        </p>
                         <button type="button" class="btn btn-primary-t4d text-white" data-bs-toggle="modal" data-bs-target="#leadModal">Submit a Lead</button>
                     </div>
                 @else

@@ -82,6 +82,39 @@ class MarketplacePageController extends Controller
             ]);
         }
 
+        if ($page === 'lead-directory') {
+            $viewer = auth()->user();
+            $categories = collect(ProductType::cases());
+            $filters = [
+                'search' => mb_substr(trim((string) $request->query('search', '')), 0, 120),
+                'category' => (string) $request->query('category', ''),
+                'country' => mb_substr(trim((string) $request->query('country', '')), 0, 120),
+            ];
+
+            if (ProductType::tryFrom($filters['category']) === null) {
+                $filters['category'] = '';
+            }
+
+            $leads = $leadService->paginateLeadsForViewer(
+                $viewer,
+                30,
+                $filters['search'] !== '' ? $filters['search'] : null,
+                $filters['category'] !== '' ? $filters['category'] : null,
+                $filters['country'] !== '' ? $filters['country'] : null,
+                null,
+            );
+
+            return view('marketplace.lead-directory', [
+                'page' => $pages[$page],
+                'leads' => $leads,
+                'categories' => $categories,
+                'countries' => $leadService->moderationCountries(),
+                'filters' => $filters,
+                'viewerPlan' => $leadService->viewerPlan($viewer),
+                'isStaffViewer' => $viewer?->canModerateLeads() ?? false,
+            ]);
+        }
+
         if ($page === 'product-directory') {
             $categories = collect(ProductType::cases());
             $filters = [
@@ -302,6 +335,19 @@ class MarketplacePageController extends Controller
                 'cta_label' => 'Open Directory',
                 'cta_route' => 'home',
                 'cta_fragment' => 'category-products',
+            ],
+            'lead-directory' => [
+                'title' => 'Buyer Lead Directory',
+                'eyebrow' => 'Buyers Tool Kit',
+                'icon' => 'bi-person-lines-fill',
+                'summary' => 'Search active Trade4Deal buyer leads by product need, category, company, and country.',
+                'sections' => [
+                    ['title' => 'Lead search', 'body' => 'Find buyer requirements using product interest, company name, country, or message details.'],
+                    ['title' => 'Category filters', 'body' => 'Narrow results by marketplace category to match supplier capabilities.'],
+                    ['title' => 'Direct contact', 'body' => 'Open a lead detail page to review the requirement and contact the business.'],
+                ],
+                'cta_label' => 'Browse Buyer Leads',
+                'cta_route' => 'marketplace.page',
             ],
             'lead-board' => [
                 'title' => 'Lead Board',

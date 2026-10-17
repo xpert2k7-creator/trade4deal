@@ -8,6 +8,7 @@ use App\Http\Controllers\Sourcing\DashboardController as SourcingDashboardContro
 use App\Http\Controllers\Sourcing\LeadController as SourcingLeadController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Seller\SellerDashboardController;
+use App\Http\Controllers\Web\ContactController;
 use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Web\LeadController;
 use App\Http\Controllers\Web\LocationController;
@@ -19,7 +20,10 @@ use Illuminate\Support\Facades\Storage;
 use Laravel\Cashier\Http\Controllers\WebhookController;
 
 Route::get('/', HomeController::class)->name('home');
-Route::view('/contact', 'marketplace.contact')->name('contact');
+Route::get('/contact', [ContactController::class, 'show'])->name('contact');
+Route::post('/contact', [ContactController::class, 'store'])
+    ->middleware('throttle:10,1')
+    ->name('contact.store');
 Route::get('/pages/{page}', [MarketplacePageController::class, 'show'])->name('marketplace.page');
 Route::get('/locations/search', [LocationController::class, 'search'])
     ->middleware('throttle:30,1')

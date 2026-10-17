@@ -84,9 +84,22 @@ class LeadService
         return $this->leadRepository->matchingCategoriesForSeller($seller);
     }
 
-    public function paginateLeadsForViewer(?User $viewer, int $perPage = 10): LengthAwarePaginator
-    {
-        return $this->leadRepository->paginateVisible($viewer, $perPage);
+    public function paginateLeadsForViewer(
+        ?User $viewer,
+        int $perPage = 10,
+        ?string $search = null,
+        ?string $productType = null,
+        ?string $country = null,
+        ?string $fragment = 'leads',
+    ): LengthAwarePaginator {
+        return $this->leadRepository->paginateVisible(
+            $viewer,
+            $perPage,
+            $search,
+            $productType,
+            $country,
+            $fragment,
+        );
     }
 
     /**

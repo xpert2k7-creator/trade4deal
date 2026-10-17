@@ -498,41 +498,247 @@
             color: var(--t4d-accent-dark);
         }
 
+        .finder-modal .modal-dialog {
+            max-width: 520px;
+        }
+
         .finder-modal .modal-content {
             border: 0;
-            border-radius: 14px;
-            box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22);
+            border-radius: 20px;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 28px 80px rgba(15, 23, 42, 0.28);
         }
 
         .finder-modal .modal-header {
-            border-bottom: 1px solid var(--t4d-border);
-            background: linear-gradient(135deg, rgba(6,68,117,0.08), rgba(245,130,32,0.08));
+            position: relative;
+            display: block;
+            border: 0;
+            padding: 1.35rem 1.35rem 1.1rem;
+            background:
+                radial-gradient(circle at 88% 12%, rgba(245, 130, 32, 0.28), transparent 42%),
+                linear-gradient(135deg, #042f55 0%, #064475 58%, #0a5f8f 100%);
+            color: #fff;
+        }
+
+        .finder-modal[data-active-mode="buyer"] .modal-header {
+            background:
+                radial-gradient(circle at 88% 12%, rgba(255, 255, 255, 0.18), transparent 40%),
+                linear-gradient(135deg, #b45309 0%, #F58220 55%, #fb923c 100%);
+        }
+
+        .finder-modal .btn-close {
+            position: absolute;
+            top: 0.95rem;
+            right: 0.95rem;
+            width: 2rem;
+            height: 2rem;
+            padding: 0;
+            margin: 0;
+            border-radius: 999px;
+            background-color: rgba(255, 255, 255, 0.16);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+            opacity: 1;
+            filter: invert(1) grayscale(1) brightness(2);
+        }
+
+        .finder-modal .btn-close:hover {
+            background-color: rgba(255, 255, 255, 0.28);
+        }
+
+        .finder-modal-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-bottom: 0.7rem;
+            padding: 0.35rem 0.7rem;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            background: rgba(255, 255, 255, 0.14);
+            color: #fff;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .finder-modal-icon {
+            display: grid;
+            place-items: center;
+            width: 3rem;
+            height: 3rem;
+            margin-bottom: 0.85rem;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.16);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            color: #fff;
+            font-size: 1.35rem;
+        }
+
+        .finder-modal .modal-title {
+            margin: 0;
+            max-width: 24rem;
+            color: #fff;
+            font-family: var(--t4d-heading);
+            font-size: 1.45rem;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .finder-modal-subtitle {
+            margin: 0.45rem 0 0;
+            max-width: 26rem;
+            color: rgba(255, 255, 255, 0.86);
+            font-size: 0.9rem;
+            line-height: 1.55;
+        }
+
+        .finder-modal .modal-body {
+            padding: 1.25rem 1.35rem 1.4rem;
+            background:
+                linear-gradient(180deg, #f8fafc 0%, #ffffff 42%);
         }
 
         .finder-search-box {
             display: grid;
             grid-template-columns: 1fr auto;
-            gap: 0.65rem;
+            gap: 0.7rem;
+            align-items: stretch;
+        }
+
+        .finder-search-field {
+            position: relative;
+        }
+
+        .finder-search-field i {
+            position: absolute;
+            top: 50%;
+            left: 0.95rem;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1rem;
+            pointer-events: none;
         }
 
         .finder-search-box input {
-            min-height: 48px;
-            border: 1px solid #CBD5E1;
-            border-radius: 10px;
-            padding: 0 0.95rem;
+            width: 100%;
+            min-height: 52px;
+            border: 1px solid #dbe3ee;
+            border-radius: 14px;
+            padding: 0 1rem 0 2.55rem;
+            background: #fff;
+            color: var(--t4d-dark);
+            font-size: 0.95rem;
+            font-weight: 600;
             outline: 0;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+            transition: border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .finder-search-box input::placeholder {
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .finder-search-box input:focus {
+            border-color: var(--t4d-primary);
+            box-shadow: 0 0 0 4px rgba(6, 68, 117, 0.12);
+        }
+
+        .finder-modal[data-active-mode="buyer"] .finder-search-box input:focus {
+            border-color: var(--t4d-accent);
+            box-shadow: 0 0 0 4px rgba(245, 130, 32, 0.16);
+        }
+
+        .finder-search-submit {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            min-height: 52px;
+            min-width: 118px;
+            padding: 0 1.15rem;
+            border: 0;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--t4d-primary), var(--t4d-primary-dark));
+            color: #fff;
+            font-size: 0.92rem;
+            font-weight: 800;
+            box-shadow: 0 10px 22px rgba(6, 68, 117, 0.28);
+            transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+        }
+
+        .finder-modal[data-active-mode="buyer"] .finder-search-submit {
+            background: linear-gradient(135deg, var(--t4d-accent), var(--t4d-accent-dark));
+            box-shadow: 0 10px 22px rgba(245, 130, 32, 0.3);
+        }
+
+        .finder-search-submit:hover {
+            color: #fff;
+            filter: brightness(1.05);
+            transform: translateY(-1px);
+        }
+
+        .finder-hint-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            margin-top: 0.95rem;
+        }
+
+        .finder-hint-label {
+            width: 100%;
+            margin: 0 0 0.1rem;
+            color: #64748b;
+            font-size: 0.74rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .finder-hint-chip {
+            display: inline-flex;
+            align-items: center;
+            min-height: 30px;
+            padding: 0.25rem 0.7rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 999px;
+            background: #fff;
+            color: #334155;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+        }
+
+        .finder-hint-chip:hover {
+            border-color: var(--t4d-primary);
+            background: #eff6ff;
+            color: var(--t4d-primary);
+        }
+
+        .finder-modal[data-active-mode="buyer"] .finder-hint-chip:hover {
+            border-color: var(--t4d-accent);
+            background: #fff7ed;
+            color: var(--t4d-accent-dark);
         }
 
         .finder-mode-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            padding: 0.4rem 0.75rem;
-            border-radius: 999px;
-            background: #F8FAFC;
-            color: var(--t4d-primary);
-            font-weight: 800;
-            font-size: 0.82rem;
+            display: none;
+        }
+
+        @media (max-width: 575px) {
+            .finder-modal .modal-dialog {
+                margin: 0.75rem;
+            }
+
+            .finder-search-box {
+                grid-template-columns: 1fr;
+            }
+
+            .finder-search-submit {
+                width: 100%;
+            }
         }
 
         @media (min-width: 1200px) {
@@ -2384,6 +2590,134 @@
                 gap: 0.5rem;
             }
         }
+
+        /* Product card multi-image hover gallery (IndiaMART-style scan) */
+        .product-media {
+            position: relative;
+        }
+
+        .product-image-gallery {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            overflow: hidden;
+            cursor: ew-resize;
+            touch-action: pan-y;
+        }
+
+        .product-image-track {
+            position: absolute;
+            inset: 0;
+        }
+
+        .product-image-track img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            opacity: 0;
+            transform: none !important;
+            transition: opacity 0.16s ease;
+            pointer-events: none;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        .product-image-track img.is-active {
+            opacity: 1;
+            z-index: 1;
+        }
+
+        .product-image-dots {
+            position: absolute;
+            left: 50%;
+            bottom: 0.45rem;
+            z-index: 3;
+            display: flex;
+            gap: 0.28rem;
+            align-items: center;
+            justify-content: center;
+            transform: translateX(-50%);
+            padding: 0.22rem 0.4rem;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.38);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.16s ease;
+        }
+
+        .product-image-gallery:hover .product-image-dots,
+        .product-image-gallery.is-hovering .product-image-dots {
+            opacity: 1;
+        }
+
+        .product-image-dots span {
+            width: 6px;
+            height: 6px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.45);
+            transition: background 0.16s ease, transform 0.16s ease;
+        }
+
+        .product-image-dots span.is-active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+
+        .product-image-progress {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            z-index: 3;
+            display: grid;
+            grid-auto-flow: column;
+            grid-auto-columns: 1fr;
+            gap: 0.2rem;
+            padding: 0.35rem 0.35rem 0;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.16s ease;
+        }
+
+        .product-image-gallery:hover .product-image-progress,
+        .product-image-gallery.is-hovering .product-image-progress {
+            opacity: 1;
+        }
+
+        .product-image-progress span {
+            height: 2px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.35);
+            box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.08);
+            transition: background 0.16s ease;
+        }
+
+        .product-image-progress span.is-active {
+            background: #fff;
+        }
+
+        .product-media .product-photo-count {
+            z-index: 4;
+        }
+
+        .product-card:hover .product-media .product-image-track img,
+        .product-card-market:hover .product-media .product-image-track img {
+            transform: none !important;
+        }
+
+        @media (hover: none) {
+            .product-image-gallery {
+                cursor: default;
+            }
+
+            .product-image-dots,
+            .product-image-progress {
+                opacity: 1;
+            }
+        }
     </style>
     @stack('styles')
 </head>
@@ -2607,33 +2941,36 @@
 
         @include('marketplace.partials.lead-modal')
 
-        <div class="modal fade finder-modal" id="finderModal" tabindex="-1" aria-labelledby="finderModalTitle" aria-hidden="true">
+        <div class="modal fade finder-modal" id="finderModal" tabindex="-1" aria-labelledby="finderModalTitle" aria-hidden="true" data-active-mode="seller">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <div>
-                            <span class="finder-mode-pill" id="finderModePill"><i class="bi bi-shop-window"></i> Find Seller</span>
-                            <h2 class="modal-title h5 fw-bold mt-2" id="finderModalTitle">Search Trade4Deal Marketplace</h2>
-                        </div>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <span class="finder-modal-kicker" id="finderModePill"><i class="bi bi-shop-window"></i> Find Seller</span>
+                        <div class="finder-modal-icon" id="finderModalIcon" aria-hidden="true"><i class="bi bi-shop-window"></i></div>
+                        <h2 class="modal-title" id="finderModalTitle">Search suppliers & products</h2>
+                        <p class="finder-modal-subtitle" id="finderModalHelp">
+                            Search products, sellers, and categories in the product directory.
+                        </p>
                     </div>
                     <div class="modal-body">
-                        <p class="text-muted small mb-3" id="finderModalHelp">
-                            Search visible products, sellers, and categories on this page.
-                        </p>
                         <form id="finderSearchForm" class="finder-search-box" role="search">
                             <label class="visually-hidden" for="finderSearchInput">Search Trade4Deal</label>
-                            <input id="finderSearchInput" type="search" placeholder="Search product, category, or company" autocomplete="off">
-                            <button type="submit" class="btn btn-primary-t4d text-white px-4">
-                                <i class="bi bi-search me-1"></i>Search
+                            <div class="finder-search-field">
+                                <i class="bi bi-search" aria-hidden="true"></i>
+                                <input id="finderSearchInput" type="search" placeholder="Search product, category, or seller company" autocomplete="off">
+                            </div>
+                            <button type="submit" class="finder-search-submit">
+                                <i class="bi bi-arrow-right"></i>Search
                             </button>
                         </form>
-                    </div>
-                    <div class="modal-footer justify-content-between">
-                        <button type="button" class="btn btn-outline-t4d" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-outline-t4d" data-bs-toggle="modal" data-bs-target="#leadModal" data-bs-dismiss="modal">
-                            Submit Requirement
-                        </button>
+                        <div class="finder-hint-row" id="finderHintRow" aria-label="Suggested searches">
+                            <p class="finder-hint-label">Try searching</p>
+                            <button type="button" class="finder-hint-chip" data-finder-hint>Rice</button>
+                            <button type="button" class="finder-hint-chip" data-finder-hint>Textiles</button>
+                            <button type="button" class="finder-hint-chip" data-finder-hint>Electronics</button>
+                            <button type="button" class="finder-hint-chip" data-finder-hint>Machinery</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -3569,27 +3906,58 @@
 
             const finderModal = document.getElementById('finderModal');
             if (finderModal) {
+                const finderHints = {
+                    seller: ['Rice', 'Textiles', 'Electronics', 'Machinery'],
+                    buyer: ['Rice', 'Apparel', 'Steel', 'Spices'],
+                };
+
+                function renderFinderHints(mode) {
+                    const row = document.getElementById('finderHintRow');
+                    if (!row) return;
+                    const hints = finderHints[mode] || finderHints.seller;
+                    row.innerHTML = '<p class="finder-hint-label">Try searching</p>' + hints.map((hint) => (
+                        '<button type="button" class="finder-hint-chip" data-finder-hint>' + hint + '</button>'
+                    )).join('');
+                }
+
                 finderModal.addEventListener('show.bs.modal', function (event) {
                     const trigger = event.relatedTarget;
                     const mode = trigger?.getAttribute('data-finder-mode') === 'buyer' ? 'buyer' : 'seller';
                     const title = mode === 'buyer' ? 'Find Buyer' : 'Find Seller';
+                    const heading = mode === 'buyer' ? 'Search buyer requirements' : 'Search suppliers & products';
                     const icon = mode === 'buyer' ? 'bi bi-person-lines-fill' : 'bi bi-shop-window';
                     const pill = document.getElementById('finderModePill');
+                    const iconWrap = document.getElementById('finderModalIcon');
+                    const modalTitle = document.getElementById('finderModalTitle');
                     const input = document.getElementById('finderSearchInput');
                     const help = document.getElementById('finderModalHelp');
 
+                    finderModal.setAttribute('data-active-mode', mode);
                     if (pill) pill.innerHTML = '<i class="' + icon + '"></i> ' + title;
+                    if (iconWrap) iconWrap.innerHTML = '<i class="' + icon + '"></i>';
+                    if (modalTitle) modalTitle.textContent = heading;
                     if (help) {
                         help.textContent = mode === 'buyer'
-                            ? 'Search visible leads and buyer requirements on this page.'
-                            : 'Search visible products, sellers, and categories on this page.';
+                            ? 'Search buyer leads by product need, company, or country.'
+                            : 'Search products, sellers, and categories in the product directory.';
                     }
                     if (input) {
+                        input.value = '';
                         input.placeholder = mode === 'buyer'
                             ? 'Search buyer lead, product need, or country'
                             : 'Search product, category, or seller company';
                         setTimeout(() => input.focus(), 250);
                     }
+                    renderFinderHints(mode);
+                });
+
+                finderModal.addEventListener('click', function (event) {
+                    const chip = event.target.closest('[data-finder-hint]');
+                    if (!chip || !finderModal.contains(chip)) return;
+                    const input = document.getElementById('finderSearchInput');
+                    if (!input) return;
+                    input.value = chip.textContent.trim();
+                    input.focus();
                 });
             }
 
@@ -3598,9 +3966,28 @@
                 if (!(form instanceof HTMLFormElement)) return;
                 if (form.id === 'finderSearchForm') {
                     e.preventDefault();
-                    scrollToMarketplaceResult(document.getElementById('finderSearchInput')?.value || '');
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('finderModal'));
-                    modal?.hide();
+                    const query = (document.getElementById('finderSearchInput')?.value || '').trim();
+                    const mode = finderModal?.getAttribute('data-active-mode') === 'buyer' ? 'buyer' : 'seller';
+
+                    if (mode === 'seller') {
+                        // Reuse the existing header search form so location filters and routing stay identical.
+                        const headerInput = document.getElementById('marketplaceSearchInput');
+                        if (headerInput && marketplaceSearch) {
+                            headerInput.value = query;
+                            marketplaceSearch.requestSubmit();
+                            return;
+                        }
+
+                        const sellerUrl = new URL(@json(route('marketplace.page', ['page' => 'product-directory'])), window.location.origin);
+                        if (query) sellerUrl.searchParams.set('search', query);
+                        window.location.href = sellerUrl.toString();
+                        return;
+                    }
+
+                    // Same pattern as Find Seller → product-directory.
+                    const buyerUrl = new URL(@json(route('marketplace.page', ['page' => 'lead-directory'])), window.location.origin);
+                    if (query) buyerUrl.searchParams.set('search', query);
+                    window.location.href = buyerUrl.toString();
                     return;
                 }
                 const btn = form.querySelector('button[type="submit"]');
@@ -3618,6 +4005,61 @@
                     if (modalEl) new bootstrap.Modal(modalEl).show();
                 });
             @endif
+
+            function bindProductImageGalleries(root) {
+                const scope = root && root.querySelectorAll ? root : document;
+                scope.querySelectorAll('[data-product-gallery]').forEach((gallery) => {
+                    if (gallery.dataset.galleryBound === '1') return;
+                    const images = Array.from(gallery.querySelectorAll('.product-image-track img'));
+                    const dots = Array.from(gallery.querySelectorAll('.product-image-dots span'));
+                    const bars = Array.from(gallery.querySelectorAll('.product-image-progress span'));
+                    if (images.length < 2) return;
+
+                    gallery.dataset.galleryBound = '1';
+                    let activeIndex = 0;
+
+                    function setIndex(index) {
+                        if (index === activeIndex) return;
+                        activeIndex = index;
+                        images.forEach((img, idx) => img.classList.toggle('is-active', idx === index));
+                        dots.forEach((dot, idx) => dot.classList.toggle('is-active', idx === index));
+                        bars.forEach((bar, idx) => bar.classList.toggle('is-active', idx === index));
+                    }
+
+                    function indexFromEvent(event) {
+                        const rect = gallery.getBoundingClientRect();
+                        if (rect.width <= 0) return 0;
+                        const clientX = event.touches?.[0]?.clientX ?? event.clientX;
+                        const ratio = Math.min(0.999, Math.max(0, (clientX - rect.left) / rect.width));
+                        return Math.min(images.length - 1, Math.floor(ratio * images.length));
+                    }
+
+                    gallery.addEventListener('mousemove', (event) => {
+                        gallery.classList.add('is-hovering');
+                        setIndex(indexFromEvent(event));
+                    });
+                    gallery.addEventListener('mouseenter', (event) => {
+                        gallery.classList.add('is-hovering');
+                        setIndex(indexFromEvent(event));
+                    });
+                    gallery.addEventListener('mouseleave', () => {
+                        gallery.classList.remove('is-hovering');
+                        setIndex(0);
+                    });
+                    gallery.addEventListener('touchstart', (event) => {
+                        gallery.classList.add('is-hovering');
+                        setIndex(indexFromEvent(event));
+                    }, { passive: true });
+                    gallery.addEventListener('touchmove', (event) => {
+                        setIndex(indexFromEvent(event));
+                    }, { passive: true });
+                    gallery.addEventListener('touchend', () => {
+                        gallery.classList.remove('is-hovering');
+                    }, { passive: true });
+                });
+            }
+
+            bindProductImageGalleries(document);
         })();
     </script>
     @stack('scripts')

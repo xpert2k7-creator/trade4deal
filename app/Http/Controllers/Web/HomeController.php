@@ -20,7 +20,12 @@ class HomeController extends Controller
     {
         $viewer = auth()->user();
         $perPage = max(1, min(24, $request->integer('per_page', 10)));
-        $leads = $leadService->paginateLeadsForViewer($viewer, $perPage);
+        $leadSearch = mb_substr(trim((string) $request->query('lead_search', '')), 0, 120);
+        $leads = $leadService->paginateLeadsForViewer(
+            $viewer,
+            $perPage,
+            $leadSearch !== '' ? $leadSearch : null,
+        );
         $viewerPlan = $leadService->viewerPlan($viewer);
         $isStaffViewer = $viewer?->canModerateLeads() ?? false;
         $categories = collect(ProductType::cases());
@@ -59,6 +64,7 @@ class HomeController extends Controller
             'categories',
             'productsByCategory',
             'marketplaceStats',
+            'leadSearch',
         ));
     }
 }

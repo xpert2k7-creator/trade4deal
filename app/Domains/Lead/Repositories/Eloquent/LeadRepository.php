@@ -80,14 +80,48 @@ class LeadRepository implements LeadRepositoryInterface
             ->values();
     }
 
-    public function paginateVisible(?User $viewer, int $perPage = 10): LengthAwarePaginator
-    {
-        return $this->visibleQuery($viewer)
+    public function paginateVisible(
+        ?User $viewer,
+        int $perPage = 10,
+        ?string $search = null,
+        ?string $productType = null,
+        ?string $country = null,
+        ?string $fragment = 'leads',
+    ): LengthAwarePaginator {
+        $query = $this->visibleQuery($viewer);
+
+        $search = $search !== null ? trim($search) : '';
+        if ($search !== '') {
+            $query->where(function ($q) use ($search): void {
+                $q->where('company_name', 'like', '%'.$search.'%')
+                    ->orWhere('contact_name', 'like', '%'.$search.'%')
+                    ->orWhere('product_interest', 'like', '%'.$search.'%')
+                    ->orWhere('country', 'like', '%'.$search.'%')
+                    ->orWhere('message', 'like', '%'.$search.'%');
+            });
+        }
+
+        $productType = $productType !== null ? trim($productType) : '';
+        if ($productType !== '') {
+            $query->where('product_type', $productType);
+        }
+
+        $country = $country !== null ? trim($country) : '';
+        if ($country !== '') {
+            $query->where('country', $country);
+        }
+
+        $paginator = $query
             ->latest('published_at')
             ->latest('updated_at')
             ->paginate($perPage)
-            ->withQueryString()
-            ->fragment('leads');
+            ->withQueryString();
+
+        if ($fragment !== null && $fragment !== '') {
+            $paginator->fragment($fragment);
+        }
+
+        return $paginator;
     }
 
     /**

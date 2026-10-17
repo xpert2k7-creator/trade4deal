@@ -734,17 +734,21 @@
                                     <article class="product-card">
                                         @php($productImageUrls = $product->imageUrls())
                                         <div class="product-media">
-                                            @if ($productImageUrls !== [])
-                                                <img src="{{ $productImageUrls[0] }}" alt="{{ $product->name }}" loading="lazy">
-                                            @else
+                                            @if ($productImageUrls === [])
                                                 <div class="ph"><i class="bi bi-box-seam"></i></div>
+                                            @else
+                                                @include('marketplace.partials.product-image-gallery', [
+                                                    'urls' => $productImageUrls,
+                                                    'alt' => $product->name,
+                                                    'showCount' => false,
+                                                ])
                                             @endif
                                             @if (count($productImageUrls) > 1)
-                                                <span class="product-type-badge" style="right:auto;left:0.65rem;">
+                                                <span class="product-type-badge" style="right:auto;left:0.65rem;z-index:4;">
                                                     <i class="bi bi-images"></i> {{ count($productImageUrls) }}
                                                 </span>
                                             @endif
-                                            <span class="product-type-badge">{{ $product->product_type?->label() }}</span>
+                                            <span class="product-type-badge" style="z-index:4;">{{ $product->product_type?->label() }}</span>
                                         </div>
                                         <div class="body">
                                             <h3 class="product-title">{{ $product->name }}</h3>
