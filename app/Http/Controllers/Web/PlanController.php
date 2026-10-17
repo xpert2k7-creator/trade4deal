@@ -6,8 +6,6 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Support\Enums\UserPlan;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class PlanController extends Controller
@@ -22,43 +20,4 @@ class PlanController extends Controller
         ]);
     }
 
-    public function checkout(Request $request): RedirectResponse
-    {
-        $priceId = config('trade4deal.gold_stripe_price_id');
-
-        if (! $priceId || ! config('cashier.webhook.secret')) {
-            return back()->with('error', 'Gold plan is not configured yet. Please contact support.');
-        }
-
-        $planName = config('trade4deal.gold_plan_name', 'gold');
-
-        return $request->user()
-            ->newSubscription($planName, $priceId)
-            ->checkout([
-                'success_url' => route('plans.gold.success').'?session_id={CHECKOUT_SESSION_ID}',
-                'cancel_url' => route('plans.gold.cancel'),
-            ])
-            ->redirect();
-    }
-
-    public function success(Request $request): RedirectResponse
-    {
-        $request->user()->syncPlanFromSubscription();
-
-        if ($request->user()->userPlan() !== UserPlan::Gold) {
-            return redirect()->route('plans.index')->with('status',
-                'Your payment is being verified. Gold access will activate after confirmation.');
-        }
-
-        return redirect()
-            ->route('dashboard')
-            ->with('success', 'Welcome to Trade4Deal Gold! You now have instant verified buyer details and supplier benefits.');
-    }
-
-    public function cancel(): RedirectResponse
-    {
-        return redirect()
-            ->route('plans.index')
-            ->with('error', 'Gold checkout was cancelled. You can upgrade anytime.');
-    }
 }

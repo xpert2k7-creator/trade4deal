@@ -60,10 +60,6 @@ Artisan::command('app:check-production', function () {
     if (in_array(config('mail.default'), ['log', 'array'], true)) {
         $errors[] = 'Configure a delivery mailer for email verification.';
     }
-    if (config('trade4deal.gold_stripe_price_id') &&
-        (! config('cashier.secret') || ! config('cashier.key') || ! config('cashier.webhook.secret'))) {
-        $errors[] = 'Configure all Stripe keys and the webhook signing secret before enabling checkout.';
-    }
     if (config('services.razorpay.key_id') &&
         (! str_starts_with(config('services.razorpay.key_id'), 'rzp_live_') ||
             ! config('services.razorpay.key_secret') || ! config('services.razorpay.webhook_secret'))) {

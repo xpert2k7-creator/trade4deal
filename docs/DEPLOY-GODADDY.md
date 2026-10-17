@@ -42,9 +42,8 @@ For a deliberate code rollback, point `current` atomically at a retained compati
 
 Run the new `2026_10_16_000001_add_plan_override_to_users_table` migration as part of release. Subscription entitlements use Cashier records, while explicit administrator grants use `plan_override`. Old `users.plan=gold` values are not trusted because the former success URL could set them without payment. Review legacy manual Gold accounts and reapply legitimate grants in the admin UI. Existing active subscriptions continue to determine access.
 
-Configure `STRIPE_KEY`, `STRIPE_SECRET`, `STRIPE_WEBHOOK_SECRET`, and `STRIPE_GOLD_PRICE_ID` together. Webhooks fail closed without a signing secret; checkout remains unavailable until configured. Keep the Stripe endpoint at `/stripe/webhook` and test signed activation, unpaid state, and cancellation using Stripe test mode before enabling live sales.
 
-Razorpay checkout is also available for USD 174 / six months. Follow [Razorpay configuration and webhook instructions](RAZORPAY.md), including the purchase-ledger migration, automatic capture setting, live credentials for production and a separate webhook signing secret. Local test keys are not shipped by the workflow.
+Razorpay is the only payment gateway, available for USD 174 / six months. Follow [Razorpay configuration and webhook instructions](RAZORPAY.md), including the purchase-ledger migration, automatic capture setting, live credentials for production and a separate webhook signing secret. Local test keys are not shipped by the workflow.
 
 Default database seeding now creates roles only. For a new administrator use `php artisan app:create-admin admin@example.com` and enter a strong password interactively. Existing accounts are never reset by seeding. Rotate any previously deployed seeded admin/staff passwords and revoke their existing sessions. This rotation needs authorized server access and was not performed locally.
 

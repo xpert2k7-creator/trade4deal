@@ -24,7 +24,6 @@ return Application::configure(basePath: dirname(__DIR__))
             'role_or_permission' => RoleOrPermissionMiddleware::class,
         ]);
         $middleware->validateCsrfTokens(except: [
-            'stripe/webhook',
             'razorpay/webhook',
         ]);
     })

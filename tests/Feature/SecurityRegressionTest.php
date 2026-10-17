@@ -15,7 +15,6 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Testing\TestResponse;
 use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
@@ -38,37 +37,8 @@ class SecurityRegressionTest extends TestCase
         $user = User::factory()->create(['plan' => UserPlan::Gold]);
         $this->assertSame(UserPlan::Free, $user->userPlan());
         $user->forceFill(['plan_override' => UserPlan::Gold])->save();
-        $user->syncPlanFromSubscription();
+        $user->syncPlanFromPayments();
         $this->assertSame(UserPlan::Gold, $user->fresh()->userPlan());
-    }
-
-    public function test_signed_webhook_updates_entitlements_after_subscription_state_and_is_idempotent(): void
-    {
-        $user = User::factory()->create(['stripe_id' => 'cus_security']);
-        $payload = ['type' => 'customer.subscription.created', 'data' => ['object' => [
-            'id' => 'sub_security', 'customer' => 'cus_security', 'status' => 'active',
-            'metadata' => ['type' => 'gold'], 'items' => ['data' => [[
-                'id' => 'si_security', 'quantity' => 1,
-                'price' => ['id' => 'price_security', 'product' => 'prod_security'],
-            ]]],
-        ]]];
-        $this->sendWebhook($payload)->assertOk();
-        $this->assertSame(UserPlan::Gold, $user->fresh()->userPlan());
-        $this->assertSame(UserPlan::Gold, $user->fresh()->plan);
-        $this->sendWebhook($payload)->assertOk();
-        $this->assertSame(1, $user->subscriptions()->count());
-        $payload['type'] = 'customer.subscription.updated';
-        $payload['data']['object']['status'] = 'unpaid';
-        $this->sendWebhook($payload)->assertOk();
-        $this->assertSame(UserPlan::Free, $user->fresh()->userPlan());
-        $this->assertSame(UserPlan::Free, $user->fresh()->plan);
-    }
-
-    public function test_webhook_rejects_missing_configuration_and_bad_signature(): void
-    {
-        $this->postJson('/stripe/webhook', ['type' => 'checkout.session.completed'])->assertStatus(403);
-        config(['cashier.webhook.secret' => null]);
-        $this->postJson('/stripe/webhook', [])->assertStatus(503);
     }
 
     public function test_unverified_account_cannot_checkout_or_publish_a_product(): void
@@ -76,7 +46,7 @@ class SecurityRegressionTest extends TestCase
         $this->seed(RolePermissionSeeder::class);
         $user = User::factory()->seller()->unverified()->create();
         $user->assignRole('seller');
-        $this->actingAs($user)->post('/plans/gold/checkout')->assertRedirect(route('verification.notice'));
+        $this->actingAs($user)->post('/plans/gold/razorpay/checkout')->assertRedirect(route('verification.notice'));
         $this->post('/seller/products', [])->assertRedirect(route('verification.notice'));
     }
 
@@ -194,14 +164,4 @@ class SecurityRegressionTest extends TestCase
         $response->assertOk()->assertViewHas('members', fn ($members) => $members->count() === 20 && $members->total() === 21);
     }
 
-    private function sendWebhook(array $payload): TestResponse
-    {
-        $body = json_encode($payload);
-        $time = time();
-        $signature = hash_hmac('sha256', $time.'.'.$body, config('cashier.webhook.secret'));
-
-        return $this->call('POST', '/stripe/webhook', [], [], [], [
-            'CONTENT_TYPE' => 'application/json', 'HTTP_STRIPE_SIGNATURE' => "t={$time},v1={$signature}",
-        ], $body);
-    }
 }

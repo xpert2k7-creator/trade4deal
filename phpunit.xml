@@ -33,10 +33,6 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
-        <env name="STRIPE_KEY" value="pk_test_fake"/>
-        <env name="STRIPE_SECRET" value="sk_test_fake"/>
-        <env name="STRIPE_WEBHOOK_SECRET" value="whsec_fake"/>
-        <env name="STRIPE_GOLD_PRICE_ID" value="price_test_gold"/>
         <env name="RAZORPAY_KEY_ID" value="rzp_test_example" force="true"/>
         <env name="RAZORPAY_KEY_SECRET" value="razorpay_test_secret" force="true"/>
         <env name="RAZORPAY_WEBHOOK_SECRET" value="razorpay_webhook_test_secret" force="true"/>

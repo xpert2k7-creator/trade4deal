@@ -9,7 +9,6 @@ use App\Support\Enums\UserPlan;
 use App\Support\Enums\UserType;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Laravel\Cashier\Events\WebhookHandled;
 use Tests\TestCase;
 
 class GoldPlanTest extends TestCase
@@ -39,11 +38,11 @@ class GoldPlanTest extends TestCase
 
     public function test_checkout_requires_authentication(): void
     {
-        $this->post(route('plans.gold.checkout'))
+        $this->post(route('plans.razorpay.checkout'))
             ->assertRedirect(route('login'));
     }
 
-    public function test_success_route_cannot_grant_gold_without_a_subscription(): void
+    public function test_removed_success_route_cannot_grant_gold(): void
     {
         $user = User::factory()->create([
             'user_type' => UserType::Buyer,
@@ -52,29 +51,20 @@ class GoldPlanTest extends TestCase
         $user->assignRole('buyer');
 
         $this->actingAs($user)
-            ->get(route('plans.gold.success'))
-            ->assertRedirect(route('plans.index'));
+            ->get('/plans/gold/success')
+            ->assertNotFound();
 
         $this->assertEquals(UserPlan::Free, $user->fresh()->plan);
         $this->assertSame(UserPlan::Free, $user->fresh()->userPlan());
     }
 
-    public function test_subscription_deleted_webhook_reverts_user_to_free(): void
+    public function test_stripe_endpoints_are_removed_and_razorpay_is_the_only_checkout(): void
     {
-        $user = User::factory()->create([
-            'stripe_id' => 'cus_test123',
-            'plan' => UserPlan::Gold,
-        ]);
-
-        WebhookHandled::dispatch([
-            'type' => 'customer.subscription.deleted',
-            'data' => [
-                'object' => [
-                    'customer' => 'cus_test123',
-                ],
-            ],
-        ]);
-
-        $this->assertEquals(UserPlan::Free, $user->fresh()->plan);
+        $this->postJson('/stripe/webhook', [])->assertNotFound();
+        $user = User::factory()->create();
+        $this->actingAs($user)->get(route('plans.index'))
+            ->assertOk()->assertSee('Pay with Razorpay')->assertDontSee('Pay with Stripe');
+        $this->post('/plans/gold/checkout')->assertNotFound();
+        $this->get('/plans/gold/cancel')->assertNotFound();
     }
 }

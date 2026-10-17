@@ -22,7 +22,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
-use Laravel\Cashier\Billable;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements MustVerifyEmail
@@ -30,7 +29,6 @@ class User extends Authenticatable implements MustVerifyEmail
     /** @use HasFactory<UserFactory> */
     use Auditable;
 
-    use Billable;
     use HasFactory;
     use HasRoles;
     use HasUuid;
@@ -148,18 +146,16 @@ class User extends Authenticatable implements MustVerifyEmail
         if ($this->plan_override !== null) {
             return $this->plan_override;
         }
-        $planName = config('trade4deal.gold_plan_name', 'gold');
 
-        if ($this->subscribed($planName) || $this->loadMissing('activeRazorpayPayments')->activeRazorpayPayments->isNotEmpty()) {
+        if ($this->loadMissing('activeRazorpayPayments')->activeRazorpayPayments->isNotEmpty()) {
             return UserPlan::Gold;
         }
 
         return UserPlan::Free;
     }
 
-    public function syncPlanFromSubscription(): void
+    public function syncPlanFromPayments(): void
     {
-        $this->unsetRelation('subscriptions');
         $this->unsetRelation('activeRazorpayPayments');
         $plan = $this->userPlan();
 

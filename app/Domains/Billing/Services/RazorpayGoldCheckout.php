@@ -73,7 +73,7 @@ class RazorpayGoldCheckout
                     'starts_at' => $start, 'expires_at' => $start->copy()->addMonthsNoOverflow($purchase->duration_months)]);
             }
             // Duplicate/late callbacks do not re-grant refunded access or extend an existing grant.
-            $user->syncPlanFromSubscription();
+            $user->syncPlanFromPayments();
 
             return $purchase->fresh();
         });

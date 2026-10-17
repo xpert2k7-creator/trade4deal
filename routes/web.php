@@ -16,10 +16,8 @@ use App\Http\Controllers\Web\PlanController;
 use App\Http\Controllers\Web\RazorpayCheckoutController;
 use App\Http\Controllers\Web\RazorpayWebhookController;
 use App\Http\Controllers\Web\SellerProfileController;
-use App\Http\Middleware\RequireStripeWebhookSecret;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
-use Laravel\Cashier\Http\Controllers\WebhookController;
 
 Route::get('/', HomeController::class)->name('home');
 Route::view('/contact', 'marketplace.contact')->name('contact');
@@ -66,9 +64,6 @@ Route::get('/dashboard', function () {
 Route::get('/plans', [PlanController::class, 'index'])->name('plans.index');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::post('/plans/gold/checkout', [PlanController::class, 'checkout'])->name('plans.gold.checkout');
-    Route::get('/plans/gold/success', [PlanController::class, 'success'])->name('plans.gold.success');
-    Route::get('/plans/gold/cancel', [PlanController::class, 'cancel'])->name('plans.gold.cancel');
     Route::post('/plans/gold/razorpay/checkout', [RazorpayCheckoutController::class, 'store'])
         ->middleware('throttle:6,1')->name('plans.razorpay.checkout');
     Route::get('/plans/gold/razorpay/{payment}', [RazorpayCheckoutController::class, 'show'])->name('plans.razorpay.show');
@@ -78,8 +73,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 Route::post('/razorpay/webhook', RazorpayWebhookController::class)->name('razorpay.webhook');
 
-Route::post('/stripe/webhook', [WebhookController::class, 'handleWebhook'])
-    ->middleware(RequireStripeWebhookSecret::class)->name('cashier.webhook');
 
 Route::middleware(['auth', 'verified', 'role:seller|admin'])->prefix('seller')->name('seller.')->group(function () {
     Route::get('/', [SellerDashboardController::class, 'index'])->name('dashboard');

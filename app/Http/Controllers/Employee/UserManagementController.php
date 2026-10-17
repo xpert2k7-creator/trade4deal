@@ -28,7 +28,7 @@ class UserManagementController extends Controller
         $search = $request->string('q')->toString() ?: null;
 
         $users = User::query()
-            ->with(['subscriptions', 'activeRazorpayPayments'])
+            ->with(['activeRazorpayPayments'])
             ->whereIn('user_type', [UserType::Buyer, UserType::Seller])
             ->when($search, function ($query) use ($search): void {
                 $query->where(function ($inner) use ($search): void {

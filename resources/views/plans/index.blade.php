@@ -70,12 +70,6 @@
                                     </button>
                                 </form>
                                 <p class="small text-muted mt-2 mb-0">USD 174 for six months. One-time payment.</p>
-                                @if (config('trade4deal.gold_stripe_price_id'))
-                                    <form method="POST" action="{{ route('plans.gold.checkout') }}" class="mt-2">
-                                        @csrf
-                                        <button class="btn btn-outline-secondary w-100" type="submit">Pay with Stripe</button>
-                                    </form>
-                                @endif
                             @endif
                         @else
                             <a href="{{ route('login') }}" class="btn btn-primary-t4d text-white w-100">Sign in to upgrade</a>

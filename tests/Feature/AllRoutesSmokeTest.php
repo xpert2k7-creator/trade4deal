@@ -165,8 +165,6 @@ class AllRoutesSmokeTest extends TestCase
         $routes = [
             'dashboard',
             'profile.edit',
-            'plans.gold.success',
-            'plans.gold.cancel',
             'seller.dashboard',
             'seller.products.index',
             'seller.products.create',
