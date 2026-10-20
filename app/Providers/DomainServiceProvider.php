@@ -51,10 +51,5 @@ class DomainServiceProvider extends ServiceProvider
             Login::class,
             \App\Domains\Auth\Listeners\RecordLoginHistory::class,
         );
-
-        Event::listen(
-            \Laravel\Cashier\Events\WebhookReceived::class,
-            \App\Listeners\SyncUserPlanFromStripeWebhook::class,
-        );
     }
 }

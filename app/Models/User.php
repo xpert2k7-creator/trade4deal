@@ -20,14 +20,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
-use Laravel\Cashier\Billable;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use Auditable;
-    use Billable;
     use HasFactory;
     use HasRoles;
     use HasUuid;
@@ -66,6 +64,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'country',
         'user_type',
         'plan',
+        'gold_expires_at',
         'status',
         'email_verified_at',
     ];
@@ -79,6 +78,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return [
             'email_verified_at' => 'datetime',
+            'gold_expires_at' => 'datetime',
             'password' => 'hashed',
             'user_type' => UserType::class,
             'plan' => UserPlan::class,
@@ -132,23 +132,17 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function userPlan(): UserPlan
     {
-        $planName = config('trade4deal.gold_plan_name', 'gold');
-
-        if ($this->subscribed($planName)) {
-            return UserPlan::Gold;
+        if (($this->plan ?? UserPlan::Free) !== UserPlan::Gold) {
+            return UserPlan::Free;
         }
 
-        return $this->plan ?? UserPlan::Free;
-    }
-
-    public function syncPlanFromSubscription(): void
-    {
-        $planName = config('trade4deal.gold_plan_name', 'gold');
-        $plan = $this->subscribed($planName) ? UserPlan::Gold : UserPlan::Free;
-
-        if ($this->plan !== $plan) {
-            $this->forceFill(['plan' => $plan])->save();
+        // Legacy/manual Gold without an expiry date stays Gold.
+        // Paid Gold expires automatically once gold_expires_at passes.
+        if ($this->gold_expires_at !== null && $this->gold_expires_at->isPast()) {
+            return UserPlan::Free;
         }
+
+        return UserPlan::Gold;
     }
 
     public function ensureSellerSlug(): string

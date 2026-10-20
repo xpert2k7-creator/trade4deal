@@ -166,8 +166,6 @@ class AllRoutesSmokeTest extends TestCase
         $routes = [
             'dashboard',
             'profile.edit',
-            'plans.gold.success',
-            'plans.gold.cancel',
             'seller.dashboard',
             'seller.products.index',
             'seller.products.create',
@@ -176,6 +174,7 @@ class AllRoutesSmokeTest extends TestCase
             'verification.leads.index',
             'verification.leads.create',
             'verification.users.index',
+            'verification.payments.index',
             'sourcing.dashboard',
             'sourcing.leads.index',
             'sourcing.leads.create',
@@ -283,7 +282,6 @@ class AllRoutesSmokeTest extends TestCase
         $skipUriPatterns = [
             '/^livewire/',
             '/^storage\//',
-            '/^stripe\/payment\//',
             '/^verify-email\//',
             '/^reset-password\//',
             '/^up$/',

@@ -321,6 +321,9 @@
                 <a href="{{ route('verification.users.index') }}" class="{{ request()->routeIs('verification.users.*') ? 'active' : '' }}">
                     <i class="bi bi-people"></i> Users & Sellers
                 </a>
+                <a href="{{ route('verification.payments.index') }}" class="{{ request()->routeIs('verification.payments.*') ? 'active' : '' }}">
+                    <i class="bi bi-credit-card"></i> Payments
+                </a>
             @endif
             @if (auth()->user()->isAdmin())
                 <a href="{{ route('verification.employee-team.index') }}" class="{{ request()->routeIs('verification.employee-team.*') ? 'active' : '' }}">

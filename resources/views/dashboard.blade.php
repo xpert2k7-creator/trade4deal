@@ -21,17 +21,7 @@
 
         <div class="row g-3 mb-4">
             <div class="col-md-3">
-                <div class="card card-t4d h-100">
-                    <div class="card-body">
-                        <div class="text-muted small mb-1">Membership</div>
-                        <div class="fw-bold fs-5">
-                            <span class="badge {{ Auth::user()->userPlan()->badgeClass() }}">{{ Auth::user()->userPlan()->label() }}</span>
-                        </div>
-                        @unless(Auth::user()->userPlan()->isGold())
-                            <a href="{{ route('plans.index') }}" class="small text-primary text-decoration-none">Upgrade to Gold</a>
-                        @endunless
-                    </div>
-                </div>
+                <x-membership-status-card :user="Auth::user()" />
             </div>
             <div class="col-md-3">
                 <div class="card card-t4d h-100">

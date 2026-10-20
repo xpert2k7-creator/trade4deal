@@ -40,4 +40,10 @@ return [
         'base_url' => env('LOCATION_GEOCODER_BASE_URL', 'https://nominatim.openstreetmap.org'),
     ],
 
+    'razorpay' => [
+        'key' => env('RAZORPAY_KEY_ID'),
+        'secret' => env('RAZORPAY_KEY_SECRET'),
+        'webhook_secret' => env('RAZORPAY_WEBHOOK_SECRET'),
+    ],
+
 ];

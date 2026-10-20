@@ -48,7 +48,11 @@
                             <div class="text-warning small fw-bold text-uppercase">Gold</div>
                             <span class="badge bg-warning text-dark">Popular</span>
                         </div>
-                        <h2 class="fw-bold mb-3">$174 <span class="fs-6 text-muted fw-normal">/ half year</span></h2>
+                        <h2 class="fw-bold mb-3">{{ $price['label'] }} <span class="fs-6 text-muted fw-normal">/ year</span></h2>
+                        <p class="text-muted small mb-3">One-time payment · Gold active for 1 year · Pay again to renew</p>
+                        @if(($goldExpiresAt ?? null))
+                            <p class="small mb-3"><span class="badge bg-warning text-dark">Gold active until {{ $goldExpiresAt->format('d M Y') }}</span></p>
+                        @endif
                         <ul class="list-unstyled mb-4">
                             <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i><strong>Instant</strong> verified buyer details</li>
                             <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i>Verified supplier tag mark by Trade4Deal</li>
@@ -57,16 +61,12 @@
                             <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i>Export business exposure</li>
                         </ul>
                         @auth
-                            @if(auth()->user()->userPlan()->isGold())
-                                <button class="btn btn-warning w-100 fw-semibold" disabled>You're on Gold</button>
-                            @else
-                                <form method="POST" action="{{ route('plans.gold.checkout') }}">
-                                    @csrf
-                                    <button type="submit" class="btn btn-primary-t4d text-white w-100 py-2">
-                                        <i class="bi bi-star-fill me-1"></i> Upgrade to Gold
-                                    </button>
-                                </form>
-                            @endif
+                            <form method="POST" action="{{ route('plans.gold.razorpay.checkout') }}">
+                                @csrf
+                                <button type="submit" class="btn btn-primary-t4d text-white w-100 py-2">
+                                    <i class="bi bi-star-fill me-1"></i> {{ auth()->user()->userPlan()->isGold() ? 'Renew Gold for 1 Year' : 'Upgrade to Gold' }} · {{ $price['label'] }}
+                                </button>
+                            </form>
                         @else
                             <a href="{{ route('login') }}" class="btn btn-primary-t4d text-white w-100">Sign in to upgrade</a>
                         @endauth

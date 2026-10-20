@@ -24,6 +24,10 @@
                     </div>
                 </div>
             </div>
+
+            <div class="col-lg-4">
+                <x-membership-status-card :user="Auth::user()" />
+            </div>
         </div>
     </div>
 </x-app-layout>

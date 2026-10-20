@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Employee\LeadModerationController;
 use App\Http\Controllers\Employee\EmployeeTeamController;
+use App\Http\Controllers\Employee\PaymentDashboardController;
 use App\Http\Controllers\Employee\SourcingTeamController;
 use App\Http\Controllers\Employee\UserManagementController;
 use App\Http\Controllers\Sourcing\DashboardController as SourcingDashboardController;
@@ -14,10 +15,10 @@ use App\Http\Controllers\Web\LeadController;
 use App\Http\Controllers\Web\LocationController;
 use App\Http\Controllers\Web\MarketplacePageController;
 use App\Http\Controllers\Web\PlanController;
+use App\Http\Controllers\Web\RazorpayController;
 use App\Http\Controllers\Web\SellerProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
-use Laravel\Cashier\Http\Controllers\WebhookController;
 
 Route::get('/', HomeController::class)->name('home');
 Route::get('/contact', [ContactController::class, 'show'])->name('contact');
@@ -67,12 +68,11 @@ Route::get('/dashboard', function () {
 Route::get('/plans', [PlanController::class, 'index'])->name('plans.index');
 
 Route::middleware('auth')->group(function () {
-    Route::post('/plans/gold/checkout', [PlanController::class, 'checkout'])->name('plans.gold.checkout');
-    Route::get('/plans/gold/success', [PlanController::class, 'success'])->name('plans.gold.success');
-    Route::get('/plans/gold/cancel', [PlanController::class, 'cancel'])->name('plans.gold.cancel');
+    Route::post('/plans/gold/razorpay/checkout', [RazorpayController::class, 'checkout'])->name('plans.gold.razorpay.checkout');
+    Route::post('/plans/gold/razorpay/verify', [RazorpayController::class, 'verify'])->name('plans.gold.razorpay.verify');
 });
 
-Route::post('/stripe/webhook', [WebhookController::class, 'handleWebhook'])->name('cashier.webhook');
+Route::post('/razorpay/webhook', [RazorpayController::class, 'webhook'])->name('razorpay.webhook');
 
 Route::middleware(['auth', 'role:seller|admin'])->prefix('seller')->name('seller.')->group(function () {
     Route::get('/', [SellerDashboardController::class, 'index'])->name('dashboard');
@@ -103,6 +103,7 @@ Route::middleware(['auth', 'role:admin|employee'])->prefix('verification')->name
         Route::patch('/users/{user}/plan', [UserManagementController::class, 'updatePlan'])->name('users.plan.update');
         Route::get('/users/{user}/seller', [UserManagementController::class, 'editSeller'])->name('users.sellers.edit');
         Route::put('/users/{user}/seller', [UserManagementController::class, 'updateSeller'])->name('users.sellers.update');
+        Route::get('/payments', [PaymentDashboardController::class, 'index'])->name('payments.index');
     });
 
     Route::middleware('role:admin')->prefix('sourcing-team')->name('sourcing-team.')->group(function () {

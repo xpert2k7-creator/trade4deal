@@ -118,13 +118,19 @@ class UserManagementController extends Controller
 
         $plan = UserPlan::from($request->validated('plan'));
 
-        if ($user->plan === $plan) {
+        if ($user->plan === $plan && $plan->isGold() && $user->userPlan()->isGold()) {
             return redirect()
                 ->route('verification.users.index', $request->only('q'))
                 ->with('success', "{$user->name} is already on the {$plan->label()} plan.");
         }
 
-        $user->forceFill(['plan' => $plan])->save();
+        $user->forceFill([
+            'plan' => $plan,
+            // Manual Gold gets 1 year when expired; downgrading clears the expiry.
+            'gold_expires_at' => $plan->isGold()
+                ? (($user->gold_expires_at !== null && $user->gold_expires_at->isPast()) || $user->plan !== $plan ? now()->addYear() : $user->gold_expires_at)
+                : null,
+        ])->save();
 
         $action = $plan->isGold() ? 'upgraded to Gold' : 'downgraded to Free';
 

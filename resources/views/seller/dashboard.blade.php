@@ -11,6 +11,12 @@
 
 @section('content')
 <div class="row g-3 mb-4">
+    <div class="col-12">
+        <x-membership-status-card :user="auth()->user()" />
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
     <div class="col-6 col-lg-3">
         <div class="kpi">
             <div class="label">Products</div>
