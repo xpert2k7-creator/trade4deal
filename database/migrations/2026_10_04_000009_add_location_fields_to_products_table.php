@@ -10,14 +10,26 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('products', function (Blueprint $table): void {
-            $table->string('location_city', 120)->nullable()->after('image_path');
-            $table->string('location_state', 120)->nullable()->after('location_city');
-            $table->string('location_country', 120)->nullable()->after('location_state');
-            $table->string('location_id', 191)->nullable()->after('location_country');
+        $columns = [
+            'location_city' => 'image_path',
+            'location_state' => 'location_city',
+            'location_country' => 'location_state',
+            'location_id' => 'location_country',
+        ];
 
-            $table->index('location_id');
-        });
+        foreach ($columns as $column => $after) {
+            if (! Schema::hasColumn('products', $column)) {
+                Schema::table('products', function (Blueprint $table) use ($column, $after): void {
+                    $table->string($column, $column === 'location_id' ? 191 : 120)->nullable()->after($after);
+                });
+            }
+        }
+
+        if (! Schema::hasIndex('products', 'products_location_id_index')) {
+            Schema::table('products', function (Blueprint $table): void {
+                $table->index('location_id');
+            });
+        }
     }
 
     public function down(): void

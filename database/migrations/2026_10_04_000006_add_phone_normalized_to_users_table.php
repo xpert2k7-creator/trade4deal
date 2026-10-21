@@ -13,9 +13,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('phone_normalized', 20)->nullable()->after('phone');
-        });
+        if (! Schema::hasColumn('users', 'phone_normalized')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->string('phone_normalized', 20)->nullable()->after('phone');
+            });
+        }
 
         User::query()->withTrashed()->orderBy('created_at')->each(function (User $user): void {
             $normalized = PhoneNumber::normalize($user->phone, $user->country);
@@ -47,9 +49,11 @@ return new class extends Migration
             }
         }
 
-        Schema::table('users', function (Blueprint $table) {
-            $table->unique('phone_normalized');
-        });
+        if (! Schema::hasIndex('users', 'users_phone_normalized_unique')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->unique('phone_normalized');
+            });
+        }
     }
 
     public function down(): void

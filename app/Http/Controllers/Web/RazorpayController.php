@@ -11,6 +11,7 @@ use App\Support\RazorpayPayments;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class RazorpayController extends Controller
@@ -23,7 +24,12 @@ class RazorpayController extends Controller
 
         try {
             $payment = $razorpay->createOrder($request->user(), $pricing->price($request));
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            Log::error('razorpay.order_create_failed', [
+                'user_id' => $request->user()?->id,
+                'error' => $e->getMessage(),
+            ]);
+
             return redirect()->route('plans.index')->with('error', 'Could not start payment. Please try again.');
         }
 

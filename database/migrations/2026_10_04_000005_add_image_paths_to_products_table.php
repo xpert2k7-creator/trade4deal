@@ -10,9 +10,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->json('image_paths')->nullable()->after('image_path');
-        });
+        if (! Schema::hasColumn('products', 'image_paths')) {
+            Schema::table('products', function (Blueprint $table) {
+                $table->json('image_paths')->nullable()->after('image_path');
+            });
+        }
     }
 
     public function down(): void

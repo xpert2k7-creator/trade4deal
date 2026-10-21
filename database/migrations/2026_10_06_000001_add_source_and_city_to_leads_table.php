@@ -10,13 +10,29 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('leads', function (Blueprint $table) {
-            $table->string('source', 20)->default('user')->after('user_id');
-            $table->string('city', 100)->nullable()->after('country');
+        if (! Schema::hasColumn('leads', 'source')) {
+            Schema::table('leads', function (Blueprint $table) {
+                $table->string('source', 20)->default('user')->after('user_id');
+            });
+        }
 
-            $table->index('source');
-            $table->index(['created_by', 'created_at']);
-        });
+        if (! Schema::hasColumn('leads', 'city')) {
+            Schema::table('leads', function (Blueprint $table) {
+                $table->string('city', 100)->nullable()->after('country');
+            });
+        }
+
+        if (! Schema::hasIndex('leads', 'leads_source_index')) {
+            Schema::table('leads', function (Blueprint $table) {
+                $table->index('source');
+            });
+        }
+
+        if (! Schema::hasIndex('leads', 'leads_created_by_created_at_index')) {
+            Schema::table('leads', function (Blueprint $table) {
+                $table->index(['created_by', 'created_at']);
+            });
+        }
     }
 
     public function down(): void

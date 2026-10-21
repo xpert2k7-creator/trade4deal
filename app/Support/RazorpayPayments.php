@@ -8,6 +8,7 @@ use App\Models\RazorpayPayment;
 use App\Models\User;
 use App\Support\Enums\UserPlan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Razorpay\Api\Api;
 
 /**
@@ -34,7 +35,8 @@ class RazorpayPayments
     public function createOrder(User $user, array $price): RazorpayPayment
     {
         $order = $this->api()->order->create([
-            'receipt' => 'gold_'.$user->id.'_'.now()->timestamp,
+            // Razorpay receipt max is 40 chars; user UUID alone is 36, so keep this short.
+            'receipt' => 'gold_'.now()->timestamp.'_'.Str::random(8),
             'amount' => $price['amount_minor'],
             'currency' => $price['currency'],
             'notes' => [
