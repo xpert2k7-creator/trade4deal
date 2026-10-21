@@ -21,7 +21,17 @@ return new class extends Migration
 
         User::query()->withTrashed()->orderBy('created_at')->each(function (User $user): void {
             $normalized = PhoneNumber::normalize($user->phone, $user->country);
-            if ($normalized === null) {
+            if ($normalized === null || $user->phone_normalized === $normalized) {
+                return;
+            }
+
+            // Unique index on phone_normalized may already exist (e.g. restored
+            // production DB) — never write a value another user already holds.
+            $taken = User::query()->withTrashed()
+                ->where('phone_normalized', $normalized)
+                ->whereKeyNot($user->id)
+                ->exists();
+            if ($taken) {
                 return;
             }
 
