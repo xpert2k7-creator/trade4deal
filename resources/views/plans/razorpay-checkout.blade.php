@@ -11,7 +11,23 @@
                     <div class="card-body p-4 text-center">
                         <div class="text-warning small fw-bold text-uppercase mb-2">Gold — 1 Year</div>
                         <h1 class="h3 fw-bold mb-2">{{ $payment->amountLabel() }}</h1>
-                        <p class="text-muted mb-4">Complete your payment securely with Razorpay to activate Gold for 1 year.</p>
+                        <p class="text-muted mb-3">Complete your payment securely with Razorpay to activate Gold for 1 year.</p>
+
+                        @if($payment->currency === 'INR')
+                            <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
+                                <span class="badge bg-success-subtle text-success-emphasis border"><i class="bi bi-qr-code-scan me-1"></i>UPI / QR</span>
+                                <span class="badge bg-light text-dark border">Cards</span>
+                                <span class="badge bg-light text-dark border">NetBanking</span>
+                                <span class="badge bg-light text-dark border">Wallets</span>
+                            </div>
+                            <p class="small text-muted mb-4"><i class="bi bi-phone me-1"></i>Scan the QR code with GPay, PhonePe, Paytm or any UPI app — or pay with your UPI ID.</p>
+                        @else
+                            <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
+                                <span class="badge bg-success-subtle text-success-emphasis border"><i class="bi bi-credit-card me-1"></i>Cards</span>
+                                <span class="badge bg-light text-dark border">NetBanking</span>
+                                <span class="badge bg-light text-dark border">Wallets</span>
+                            </div>
+                        @endif
 
                         <button id="payNowBtn" type="button" class="btn btn-primary-t4d text-white w-100 py-2 mb-2">
                             <i class="bi bi-lock-fill me-1"></i> Pay {{ $payment->amountLabel() }}
@@ -45,8 +61,33 @@
         order_id: @json($payment->razorpay_order_id),
         prefill: {
             name: @json($user->name),
-            email: @json($user->email)
+            email: @json($user->email),
+            contact: @json($user->phone)
         },
+        @if($payment->currency === 'INR')
+        // Show UPI (incl. QR code) first for INR orders. Razorpay Checkout
+        // renders a scannable QR inside the UPI block on desktop.
+        config: {
+            display: {
+                blocks: {
+                    upi: {
+                        name: 'Pay using UPI / QR',
+                        instruments: [{ method: 'upi' }]
+                    },
+                    other: {
+                        name: 'Other Payment Methods',
+                        instruments: [
+                            { method: 'card' },
+                            { method: 'netbanking' },
+                            { method: 'wallet' }
+                        ]
+                    }
+                },
+                sequence: ['block.upi', 'block.other'],
+                preferences: { show_default_blocks: false }
+            }
+        },
+        @endif
         theme: { color: '#064475' },
         handler: function (response) {
             document.getElementById('rzp_order_id').value = response.razorpay_order_id;
