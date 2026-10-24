@@ -55,6 +55,31 @@ class GoldPlanTest extends TestCase
             ->assertRedirect(route('login'));
     }
 
+    public function test_inr_checkout_prefers_upi_qr_payment_option(): void
+    {
+        $user = User::factory()->create(['user_type' => UserType::Buyer, 'plan' => UserPlan::Free]);
+        $user->assignRole('buyer');
+
+        $payment = RazorpayPayment::factory()->make([
+            'user_id' => $user->id,
+            'amount_minor' => 2500000,
+            'currency' => 'INR',
+            'razorpay_order_id' => 'order_upi1',
+        ]);
+
+        $this->mock(RazorpayPayments::class, function ($mock) use ($payment): void {
+            $mock->shouldReceive('isConfigured')->andReturnTrue();
+            $mock->shouldReceive('createOrder')->andReturn($payment);
+        });
+
+        $this->actingAs($user)
+            ->post(route('plans.gold.razorpay.checkout'))
+            ->assertOk()
+            ->assertSee('UPI / QR')
+            ->assertSee('Pay using UPI / QR')
+            ->assertSee('block.upi', false);
+    }
+
     public function test_verify_grants_one_year_gold(): void
     {
         $user = User::factory()->create(['user_type' => UserType::Buyer, 'plan' => UserPlan::Free]);
