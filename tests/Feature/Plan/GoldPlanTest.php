@@ -77,7 +77,9 @@ class GoldPlanTest extends TestCase
             ->assertOk()
             ->assertSee('UPI / QR')
             ->assertSee('Pay using UPI / QR')
-            ->assertSee('block.upi', false);
+            ->assertSee('block.upi', false)
+            ->assertSee("flows: ['collect']", false)
+            ->assertSee('show_default_blocks: false', false);
     }
 
     public function test_verify_grants_one_year_gold(): void

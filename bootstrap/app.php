@@ -11,6 +11,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Shared hosts / reverse proxies (e.g. GoDaddy) so $request->ip() is the real client.
+        $middleware->trustProxies(at: '*');
         $middleware->append(\App\Http\Middleware\SecureHeaders::class);
         $middleware->alias([
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,

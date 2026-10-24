@@ -20,7 +20,7 @@
                                 <span class="badge bg-light text-dark border">NetBanking</span>
                                 <span class="badge bg-light text-dark border">Wallets</span>
                             </div>
-                            <p class="small text-muted mb-4"><i class="bi bi-phone me-1"></i>Scan the QR code with GPay, PhonePe, Paytm or any UPI app — or pay with your UPI ID.</p>
+                            <p class="small text-muted mb-4"><i class="bi bi-phone me-1"></i>On desktop, scan the QR with GPay, PhonePe, Paytm or any UPI app. On mobile, open your UPI app to pay.</p>
                         @else
                             <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
                                 <span class="badge bg-success-subtle text-success-emphasis border"><i class="bi bi-credit-card me-1"></i>Cards</span>
@@ -65,26 +65,26 @@
             contact: @json($user->phone)
         },
         @if($payment->currency === 'INR')
-        // Show UPI (incl. QR code) first for INR orders. Razorpay Checkout
-        // renders a scannable QR inside the UPI block on desktop.
+        // Prefer UPI first for INR. Hide UPI Collect so Standard Checkout
+        // shows UPI QR on desktop (and Intent on mobile web) per Razorpay docs.
         config: {
             display: {
                 blocks: {
                     upi: {
                         name: 'Pay using UPI / QR',
-                        instruments: [{ method: 'upi' }]
-                    },
-                    other: {
-                        name: 'Other Payment Methods',
                         instruments: [
+                            { method: 'upi' },
                             { method: 'card' },
                             { method: 'netbanking' },
                             { method: 'wallet' }
                         ]
                     }
                 },
-                sequence: ['block.upi', 'block.other'],
-                preferences: { show_default_blocks: false }
+                sequence: ['block.upi'],
+                preferences: { show_default_blocks: false },
+                hide: [
+                    { method: 'upi', flows: ['collect'] }
+                ]
             }
         },
         @endif

@@ -29,23 +29,21 @@ class GeoPricing
             return $cfCountry;
         }
 
+        // GoDaddy (and similar hosts) often have no CF-IPCountry. Prefer the
+        // signed-in user's profile country so Indian buyers still get INR/UPI
+        // when IP geo lookup fails or is rate-limited.
+        $profileCountry = $this->countryCodeFromUser($request);
+        if ($profileCountry !== null) {
+            return $profileCountry;
+        }
+
         $ip = (string) $request->ip();
         if ($ip === '' || $this->isPrivateOrReserved($ip)) {
             return null;
         }
 
-        return Cache::remember('geo-pricing.country.'.sha1($ip), now()->addDay(), function () use ($ip): ?string {
-            try {
-                $response = Http::timeout(2)->acceptJson()->get('https://ipapi.co/'.$ip.'/country/');
-                if (! $response->ok()) {
-                    return null;
-                }
-                $code = strtoupper(trim($response->body()));
-
-                return preg_match('/^[A-Z]{2}$/', $code) ? $code : null;
-            } catch (\Throwable) {
-                return null;
-            }
+        return Cache::remember('geo-pricing.country.v2.'.sha1($ip), now()->addDay(), function () use ($ip): ?string {
+            return $this->lookupCountryFromIp($ip);
         });
     }
 
@@ -82,5 +80,58 @@ class GeoPricing
     private function isPrivateOrReserved(string $ip): bool
     {
         return filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false;
+    }
+
+    private function countryCodeFromUser(Request $request): ?string
+    {
+        $user = $request->user();
+        if ($user === null) {
+            return null;
+        }
+
+        $country = strtolower(trim((string) ($user->country ?? '')));
+        if (in_array($country, ['india', 'in', 'bharat', 'ind'], true)) {
+            return 'IN';
+        }
+
+        $phone = preg_replace('/\s+/', '', (string) ($user->phone ?? '')) ?? '';
+        if (str_starts_with($phone, '+91')) {
+            $digits = preg_replace('/\D+/', '', $phone) ?? '';
+            if (strlen($digits) >= 12) {
+                return 'IN';
+            }
+        }
+
+        return null;
+    }
+
+    private function lookupCountryFromIp(string $ip): ?string
+    {
+        foreach ([
+            'https://ipapi.co/'.$ip.'/country/',
+            'https://ipwho.is/'.$ip,
+        ] as $url) {
+            try {
+                $response = Http::timeout(2)->acceptJson()->get($url);
+                if (! $response->ok()) {
+                    continue;
+                }
+
+                if (str_contains($url, 'ipwho.is')) {
+                    $json = $response->json();
+                    $code = strtoupper(trim((string) ($json['country_code'] ?? '')));
+                } else {
+                    $code = strtoupper(trim($response->body()));
+                }
+
+                if (preg_match('/^[A-Z]{2}$/', $code) && $code !== 'XX') {
+                    return $code;
+                }
+            } catch (\Throwable) {
+                continue;
+            }
+        }
+
+        return null;
     }
 }
