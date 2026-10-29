@@ -26,7 +26,16 @@ class LeadPolicy
 
     public function update(User $user, Lead $lead): bool
     {
-        return $user->canModerateLeads();
+        if (! $user->canModerateLeads()) {
+            return false;
+        }
+
+        // Admin can work any lead; verification employees only their assigned leads.
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        return $lead->assigned_to === $user->id;
     }
 
     public function delete(User $user, Lead $lead): bool

@@ -100,5 +100,53 @@ interface LeadRepositoryInterface
         LeadSource $source = LeadSource::Sourcing,
     ): Collection;
 
+    /**
+     * Daily counts of leads currently marked verified, by the day they were last updated.
+     *
+     * @return Collection<int, object{day: string, total: int}>
+     */
+    public function dailyVerifiedCountsForCreator(
+        string $creatorId,
+        Carbon $from,
+        Carbon $to,
+    ): Collection;
+
     public function countBySource(LeadSource $source, ?Carbon $from = null, ?Carbon $to = null): int;
+
+    /**
+     * @return array{overdue: int, next_7_days: int, next_month: int, with_follow_up: int, verified: int, not_connected: int, not_interested: int, invalid_number: int, talk_later_7_days: int}
+     */
+    public function followUpCountsForCreator(string $creatorId): array;
+
+    /**
+     * @return Collection<int, Lead>
+     */
+    public function getFollowUpsForCreator(string $creatorId, int $limit = 10): Collection;
+
+    /**
+     * @return Collection<int, Lead>
+     */
+    public function getRecentForCreator(string $creatorId, int $limit = 8): Collection;
+
+    public function paginateForEmployeeCreator(
+        string $creatorId,
+        ?string $followUpFilter = null,
+        ?string $search = null,
+        int $perPage = 15,
+        array $filters = [],
+    ): LengthAwarePaginator;
+
+    public function countAssignedTo(string $assigneeId): int;
+
+    public function countUnassigned(): int;
+
+    /**
+     * Assign the oldest matching leads to an employee. Returns how many were assigned.
+     */
+    public function assignOldestLeadsTo(
+        string $assigneeId,
+        string $assignedById,
+        int $count,
+        ?string $fromAssigneeId = null,
+    ): int;
 }

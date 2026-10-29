@@ -314,8 +314,8 @@
             <a href="{{ route('verification.leads.create') }}" class="{{ request()->routeIs('verification.leads.create') ? 'active' : '' }}">
                 <i class="bi bi-plus-circle"></i> Submit Lead
             </a>
-            <a href="{{ route('verification.leads.index', ['status' => 'pending']) }}" class="{{ request()->routeIs('verification.leads.index') || request()->routeIs('verification.leads.edit') ? 'active' : '' }}">
-                <i class="bi bi-inbox"></i> Leads
+            <a href="{{ route('verification.leads.index', auth()->user()?->isAdmin() ? ['status' => 'pending'] : ['follow_up' => 'all']) }}" class="{{ request()->routeIs('verification.leads.index') || request()->routeIs('verification.leads.edit') ? 'active' : '' }}">
+                <i class="bi bi-inbox"></i> {{ auth()->user()?->isAdmin() ? 'Leads' : 'My Leads' }}
             </a>
             @if (auth()->user()->isAdmin())
                 <a href="{{ route('verification.users.index') }}" class="{{ request()->routeIs('verification.users.*') ? 'active' : '' }}">
@@ -360,6 +360,11 @@
             @if (session('success'))
                 <div class="alert alert-success border-0 shadow-sm mb-3">
                     <i class="bi bi-check-circle me-1"></i>{{ session('success') }}
+                </div>
+            @endif
+            @if (session('error'))
+                <div class="alert alert-danger border-0 shadow-sm mb-3">
+                    <i class="bi bi-exclamation-circle me-1"></i>{{ session('error') }}
                 </div>
             @endif
             @if ($errors->any())

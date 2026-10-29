@@ -153,6 +153,7 @@
                     <th>Product</th>
                     <th>Trade</th>
                     <th>Status</th>
+                    <th>Call status</th>
                     <th>Submitted</th>
                     @if ($status === 'active' || $status === 'all')
                         <th>Published</th>
@@ -178,6 +179,17 @@
                         <td>
                             <div>{{ $lead->contact_name }}</div>
                             <div class="small text-muted">{{ $lead->email }}</div>
+                            @if (filled($lead->phone))
+                                <div class="d-flex align-items-center gap-2 mt-1">
+                                    <span class="small">{{ $lead->phone }}</span>
+                                    <a href="tel:{{ preg_replace('/[^\d+]/', '', $lead->phone) }}"
+                                       class="btn btn-sm btn-outline-success py-0 px-1"
+                                       title="Call {{ $lead->phone }}"
+                                       aria-label="Call {{ $lead->phone }}">
+                                        <i class="bi bi-telephone-fill"></i>
+                                    </a>
+                                </div>
+                            @endif
                         </td>
                         <td class="small">{{ $lead->country }}</td>
                         <td>{{ $lead->business_type?->label() }}</td>
@@ -193,6 +205,28 @@
                             @endif
                         </td>
                         <td><span class="badge {{ $badge }}">{{ $statusLabel }}</span></td>
+                        <td style="min-width: 210px;">
+                            @if ($lead->call_status)
+                                <span class="badge {{ $lead->call_status->badgeClass() }} mb-1">{{ $lead->call_status->label() }}</span>
+                                @if ($lead->call_follow_up_at)
+                                    <div class="small text-muted mb-1">Follow up: {{ $lead->call_follow_up_at->format('M j, Y') }}</div>
+                                @endif
+                            @else
+                                <span class="badge text-bg-light text-dark border mb-1">Not set</span>
+                            @endif
+                            <form method="POST" action="{{ route('verification.leads.call-status', $lead) }}" class="d-flex gap-1 align-items-center">
+                                @csrf
+                                @method('PATCH')
+                                <select name="call_status" class="form-select form-select-sm" style="min-width: 160px;" onchange="this.form.submit()">
+                                    <option value="">Not set</option>
+                                    @foreach (\App\Support\Enums\LeadCallStatus::cases() as $callStatus)
+                                        <option value="{{ $callStatus->value }}" @selected($lead->call_status === $callStatus)>
+                                            {{ $callStatus->label() }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </form>
+                        </td>
                         <td class="small text-muted">{{ $lead->created_at?->format('M j, Y') }}</td>
                         @if ($status === 'active' || $status === 'all')
                             <td class="small text-muted">{{ $lead->published_at?->format('M j, Y g:i A') ?? '—' }}</td>

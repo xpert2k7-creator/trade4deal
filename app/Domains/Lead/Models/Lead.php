@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Support\Enums\BusinessType;
 use App\Support\Enums\Currency;
 use App\Support\Enums\Incoterm;
+use App\Support\Enums\LeadCallStatus;
 use App\Support\Enums\LeadPaymentTerm;
 use App\Support\Enums\LeadSource;
 use App\Support\Enums\LeadUnit;
@@ -50,6 +51,11 @@ class Lead extends BaseModel
         'user_id',
         'source',
         'status',
+        'call_status',
+        'call_follow_up_at',
+        'assigned_to',
+        'assigned_at',
+        'assigned_by',
         'published_at',
     ];
 
@@ -65,12 +71,25 @@ class Lead extends BaseModel
         'payment_terms' => LeadPaymentTerm::class,
         'source' => LeadSource::class,
         'status' => RecordStatus::class,
+        'call_status' => LeadCallStatus::class,
+        'call_follow_up_at' => 'datetime',
+        'assigned_at' => 'datetime',
         'published_at' => 'datetime',
     ];
 
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function assignee(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    public function assignedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_by');
     }
 
     protected static function newFactory(): LeadFactory

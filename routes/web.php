@@ -96,6 +96,7 @@ Route::middleware(['auth', 'role:admin|employee'])->prefix('verification')->name
     Route::put('/leads/{lead}', [LeadModerationController::class, 'update'])->name('leads.update');
     Route::post('/leads/{lead}/approve', [LeadModerationController::class, 'approve'])->name('leads.approve');
     Route::post('/leads/{lead}/reject', [LeadModerationController::class, 'reject'])->name('leads.reject');
+    Route::patch('/leads/{lead}/call-status', [LeadModerationController::class, 'updateCallStatus'])->name('leads.call-status');
 
     Route::middleware('role:admin')->group(function () {
         Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
@@ -119,6 +120,7 @@ Route::middleware(['auth', 'role:admin|employee'])->prefix('verification')->name
         Route::get('/', [EmployeeTeamController::class, 'index'])->name('index');
         Route::get('/create', [EmployeeTeamController::class, 'create'])->name('create');
         Route::post('/', [EmployeeTeamController::class, 'store'])->name('store');
+        Route::post('/assign-leads', [EmployeeTeamController::class, 'assignLeads'])->name('assign-leads');
         Route::get('/{employeeUser}/edit', [EmployeeTeamController::class, 'edit'])->name('edit');
         Route::put('/{employeeUser}', [EmployeeTeamController::class, 'update'])->name('update');
         Route::delete('/{employeeUser}', [EmployeeTeamController::class, 'destroy'])->name('destroy');

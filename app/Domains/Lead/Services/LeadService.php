@@ -26,10 +26,19 @@ class LeadService
 
     public function createLead(CreateLeadDTO $dto): Lead
     {
-        return $this->leadRepository->create([
+        $data = [
             ...$dto->toArray(),
             'status' => RecordStatus::Pending,
-        ]);
+        ];
+
+        // Employee-submitted leads are auto-assigned to that employee.
+        if ($dto->source === LeadSource::Employee && auth()->id()) {
+            $data['assigned_to'] = auth()->id();
+            $data['assigned_at'] = now();
+            $data['assigned_by'] = auth()->id();
+        }
+
+        return $this->leadRepository->create($data);
     }
 
     public function updateLead(Lead $lead, UpdateLeadDTO $dto): Lead
@@ -244,5 +253,110 @@ class LeadService
         $to = now()->endOfDay();
 
         return $this->leadRepository->dailyCountsForCreator($user->id, $from, $to, LeadSource::Employee);
+    }
+
+    /**
+     * Full-range daily chart: submitted + verified for the last N days.
+     *
+     * @return array{labels: list<string>, submitted: list<int>, verified: list<int>}
+     */
+    public function employeeDailySubmittedAndVerifiedChart(User $user, int $days = 30): array
+    {
+        $from = now()->subDays($days - 1)->startOfDay();
+        $to = now()->endOfDay();
+
+        $submittedByDay = $this->leadRepository
+            ->dailyCountsForCreator($user->id, $from, $to, LeadSource::Employee)
+            ->keyBy(fn ($row) => (string) $row->day);
+
+        $verifiedByDay = $this->leadRepository
+            ->dailyVerifiedCountsForCreator($user->id, $from, $to)
+            ->keyBy(fn ($row) => (string) $row->day);
+
+        $labels = [];
+        $submitted = [];
+        $verified = [];
+
+        for ($day = $from->copy(); $day->lte($to); $day->addDay()) {
+            $key = $day->toDateString();
+            $labels[] = $key;
+            $submitted[] = (int) ($submittedByDay->get($key)?->total ?? 0);
+            $verified[] = (int) ($verifiedByDay->get($key)?->total ?? 0);
+        }
+
+        return [
+            'labels' => $labels,
+            'submitted' => $submitted,
+            'verified' => $verified,
+        ];
+    }
+
+    /**
+     * @return array{overdue: int, next_7_days: int, next_month: int, with_follow_up: int, verified: int, not_connected: int, not_interested: int, invalid_number: int, talk_later_7_days: int}
+     */
+    public function employeeFollowUpCounts(User $user): array
+    {
+        return $this->leadRepository->followUpCountsForCreator($user->id);
+    }
+
+    /**
+     * @return Collection<int, Lead>
+     */
+    public function employeeFollowUps(User $user, int $limit = 10): Collection
+    {
+        return $this->leadRepository->getFollowUpsForCreator($user->id, $limit);
+    }
+
+    /**
+     * @return Collection<int, Lead>
+     */
+    public function employeeRecentLeads(User $user, int $limit = 8): Collection
+    {
+        return $this->leadRepository->getRecentForCreator($user->id, $limit);
+    }
+
+    public function listForEmployeeCreator(
+        User $user,
+        ?string $followUpFilter = null,
+        ?string $search = null,
+        int $perPage = 15,
+        array $filters = [],
+    ): LengthAwarePaginator {
+        return $this->leadRepository->paginateForEmployeeCreator(
+            $user->id,
+            $followUpFilter,
+            $search,
+            $perPage,
+            $filters,
+        );
+    }
+
+    public function assignedLeadCount(User $user): int
+    {
+        return $this->leadRepository->countAssignedTo($user->id);
+    }
+
+    public function unassignedLeadCount(): int
+    {
+        return $this->leadRepository->countUnassigned();
+    }
+
+    /**
+     * Assign oldest leads to a verification employee.
+     * - fromAssigneeId null => unassigned pool
+     * - fromAssigneeId set => reassign from that employee
+     */
+    public function assignLeadsToEmployee(
+        User $assignee,
+        int $count,
+        User $assignedBy,
+        ?string $fromAssigneeId = null,
+    ): int {
+        return $this->leadRepository->assignOldestLeadsTo(
+            $assignee->id,
+            $assignedBy->id,
+            $count,
+            $fromAssigneeId,
+        );
     }
 }

@@ -7,6 +7,7 @@ namespace App\Domains\Lead\Repositories\Eloquent;
 use App\Domains\Lead\Models\Lead;
 use App\Domains\Lead\Repositories\Contracts\LeadRepositoryInterface;
 use App\Models\User;
+use App\Support\Enums\LeadCallStatus;
 use App\Support\Enums\LeadSource;
 use App\Support\Enums\RecordStatus;
 use App\Support\Enums\UserPlan;
@@ -341,6 +342,21 @@ class LeadRepository implements LeadRepositoryInterface
             ->get();
     }
 
+    public function dailyVerifiedCountsForCreator(
+        string $creatorId,
+        Carbon $from,
+        Carbon $to,
+    ): Collection {
+        return Lead::query()
+            ->selectRaw('DATE(updated_at) as day, COUNT(*) as total')
+            ->where('assigned_to', $creatorId)
+            ->where('call_status', LeadCallStatus::LeadPostVerified)
+            ->whereBetween('updated_at', [$from->copy()->startOfDay(), $to->copy()->endOfDay()])
+            ->groupBy('day')
+            ->orderBy('day')
+            ->get();
+    }
+
     public function countBySource(LeadSource $source, ?Carbon $from = null, ?Carbon $to = null): int
     {
         $query = Lead::query()->where('source', $source);
@@ -354,5 +370,181 @@ class LeadRepository implements LeadRepositoryInterface
         }
 
         return $query->count();
+    }
+
+    public function followUpCountsForCreator(string $creatorId): array
+    {
+        // Employee work queue is scoped by assignment, not submission.
+        $base = Lead::query()->where('assigned_to', $creatorId);
+        $today = now()->startOfDay();
+        $in7Days = now()->copy()->addDays(7)->endOfDay();
+        $monthStart = now()->copy()->addMonthNoOverflow()->startOfMonth();
+        $monthEnd = now()->copy()->addMonthNoOverflow()->endOfMonth();
+
+        return [
+            'overdue' => (clone $base)
+                ->whereNotNull('call_follow_up_at')
+                ->where('call_follow_up_at', '<', $today)
+                ->count(),
+            'next_7_days' => (clone $base)
+                ->whereNotNull('call_follow_up_at')
+                ->whereBetween('call_follow_up_at', [$today, $in7Days])
+                ->count(),
+            'next_month' => (clone $base)
+                ->where(function ($query) use ($monthStart, $monthEnd): void {
+                    $query->where('call_status', LeadCallStatus::NextMonth)
+                        ->orWhereBetween('call_follow_up_at', [$monthStart, $monthEnd]);
+                })
+                ->count(),
+            'with_follow_up' => (clone $base)
+                ->whereNotNull('call_follow_up_at')
+                ->count(),
+            'verified' => (clone $base)
+                ->where('call_status', LeadCallStatus::LeadPostVerified)
+                ->count(),
+            'not_connected' => (clone $base)
+                ->where('call_status', LeadCallStatus::NotConnected)
+                ->count(),
+            'not_interested' => (clone $base)
+                ->where('call_status', LeadCallStatus::NotInterested)
+                ->count(),
+            'invalid_number' => (clone $base)
+                ->where('call_status', LeadCallStatus::InvalidNumber)
+                ->count(),
+            'talk_later_7_days' => (clone $base)
+                ->where('call_status', LeadCallStatus::TalkLater7Days)
+                ->count(),
+        ];
+    }
+
+    public function getFollowUpsForCreator(string $creatorId, int $limit = 10): Collection
+    {
+        return Lead::query()
+            ->where('assigned_to', $creatorId)
+            ->whereNotNull('call_follow_up_at')
+            ->orderBy('call_follow_up_at')
+            ->limit($limit)
+            ->get();
+    }
+
+    public function getRecentForCreator(string $creatorId, int $limit = 8): Collection
+    {
+        return Lead::query()
+            ->where('assigned_to', $creatorId)
+            ->latest('assigned_at')
+            ->latest()
+            ->limit($limit)
+            ->get();
+    }
+
+    public function paginateForEmployeeCreator(
+        string $creatorId,
+        ?string $followUpFilter = null,
+        ?string $search = null,
+        int $perPage = 15,
+        array $filters = [],
+    ): LengthAwarePaginator {
+        $query = Lead::query()
+            ->where('assigned_to', $creatorId)
+            ->latest('assigned_at')
+            ->latest();
+
+        $today = now()->startOfDay();
+        $in7Days = now()->copy()->addDays(7)->endOfDay();
+        $monthStart = now()->copy()->addMonthNoOverflow()->startOfMonth();
+        $monthEnd = now()->copy()->addMonthNoOverflow()->endOfMonth();
+
+        match ($followUpFilter) {
+            'overdue' => $query->whereNotNull('call_follow_up_at')->where('call_follow_up_at', '<', $today),
+            'next_7_days' => $query->whereNotNull('call_follow_up_at')->whereBetween('call_follow_up_at', [$today, $in7Days]),
+            'next_month' => $query->where(function ($inner) use ($monthStart, $monthEnd): void {
+                $inner->where('call_status', LeadCallStatus::NextMonth)
+                    ->orWhereBetween('call_follow_up_at', [$monthStart, $monthEnd]);
+            }),
+            'with_follow_up' => $query->whereNotNull('call_follow_up_at'),
+            'verified' => $query->where('call_status', LeadCallStatus::LeadPostVerified),
+            'not_connected' => $query->where('call_status', LeadCallStatus::NotConnected),
+            'not_interested' => $query->where('call_status', LeadCallStatus::NotInterested),
+            'invalid_number' => $query->where('call_status', LeadCallStatus::InvalidNumber),
+            'talk_later_7_days' => $query->where('call_status', LeadCallStatus::TalkLater7Days),
+            default => null,
+        };
+
+        $callStatus = $filters['call_status'] ?? null;
+        if ($callStatus !== null && $callStatus !== '') {
+            $query->where('call_status', $callStatus);
+        }
+
+        $name = $filters['name'] ?? null;
+        if ($name !== null && $name !== '') {
+            $query->where(function ($q) use ($name): void {
+                $q->where('company_name', 'like', '%'.$name.'%')
+                    ->orWhere('contact_name', 'like', '%'.$name.'%');
+            });
+        }
+
+        if ($search !== null && $search !== '') {
+            $query->where(function ($q) use ($search): void {
+                $q->where('company_name', 'like', '%'.$search.'%')
+                    ->orWhere('contact_name', 'like', '%'.$search.'%')
+                    ->orWhere('email', 'like', '%'.$search.'%')
+                    ->orWhere('product_interest', 'like', '%'.$search.'%')
+                    ->orWhere('country', 'like', '%'.$search.'%');
+            });
+        }
+
+        $productType = $filters['product_type'] ?? null;
+        if ($productType !== null && $productType !== '') {
+            $query->where('product_type', $productType);
+        }
+
+        $country = $filters['country'] ?? null;
+        if ($country !== null && $country !== '') {
+            $query->where('country', 'like', '%'.$country.'%');
+        }
+
+        return $query->paginate($perPage)->withQueryString();
+    }
+
+    public function countAssignedTo(string $assigneeId): int
+    {
+        return Lead::query()->where('assigned_to', $assigneeId)->count();
+    }
+
+    public function countUnassigned(): int
+    {
+        return Lead::query()->whereNull('assigned_to')->count();
+    }
+
+    public function assignOldestLeadsTo(
+        string $assigneeId,
+        string $assignedById,
+        int $count,
+        ?string $fromAssigneeId = null,
+    ): int {
+        if ($count < 1) {
+            return 0;
+        }
+
+        $query = Lead::query()->orderBy('created_at')->orderBy('id');
+
+        if ($fromAssigneeId !== null && $fromAssigneeId !== '') {
+            $query->where('assigned_to', $fromAssigneeId)
+                ->where('assigned_to', '!=', $assigneeId);
+        } else {
+            $query->whereNull('assigned_to');
+        }
+
+        $ids = $query->limit($count)->pluck('id');
+        if ($ids->isEmpty()) {
+            return 0;
+        }
+
+        return Lead::query()->whereIn('id', $ids)->update([
+            'assigned_to' => $assigneeId,
+            'assigned_at' => now(),
+            'assigned_by' => $assignedById,
+            'updated_at' => now(),
+        ]);
     }
 }

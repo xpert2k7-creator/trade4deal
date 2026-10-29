@@ -8,6 +8,7 @@ use App\Domains\Lead\Models\Lead;
 use App\Domains\Lead\Notifications\LeadApprovedNotification;
 use App\Domains\Lead\Notifications\LeadRejectedNotification;
 use App\Models\User;
+use App\Support\Enums\LeadCallStatus;
 use App\Support\Enums\RecordStatus;
 use App\Support\Enums\UserPlan;
 use App\Support\Enums\UserType;
@@ -69,20 +70,109 @@ class LeadModerationTest extends TestCase
         $this->actingAs($this->employee())
             ->get(route('verification.dashboard'))
             ->assertOk()
-            ->assertSee('Moderation Overview');
+            ->assertSee('My Leads Dashboard')
+            ->assertSee('Follow-ups by date')
+            ->assertDontSee('Moderation Overview');
+    }
+
+    public function test_admin_still_sees_moderation_overview_dashboard(): void
+    {
+        $admin = User::factory()->create([
+            'user_type' => UserType::Admin,
+            'email_verified_at' => now(),
+            'status' => RecordStatus::Active,
+        ]);
+        $admin->assignRole('admin');
+
+        $this->actingAs($admin)
+            ->get(route('verification.dashboard'))
+            ->assertOk()
+            ->assertSee('Moderation Overview')
+            ->assertSee('Pending review');
+    }
+
+    public function test_employee_leads_index_shows_only_own_leads_and_follow_up_filters(): void
+    {
+        $employee = $this->employee();
+        $other = $this->employee();
+
+        $mine = Lead::factory()->pending()->create([
+            'company_name' => 'My Own Lead Co',
+            'created_by' => $employee->id,
+            'assigned_to' => $employee->id,
+            'source' => \App\Support\Enums\LeadSource::Employee,
+            'call_follow_up_at' => now()->addDays(3),
+            'call_status' => LeadCallStatus::TalkLater7Days,
+        ]);
+
+        Lead::factory()->pending()->create([
+            'company_name' => 'Someone Else Lead',
+            'created_by' => $other->id,
+            'assigned_to' => $other->id,
+            'source' => \App\Support\Enums\LeadSource::Employee,
+        ]);
+
+        $this->actingAs($employee)
+            ->get(route('verification.leads.index'))
+            ->assertOk()
+            ->assertSee('My Assigned Leads')
+            ->assertSee('Verified')
+            ->assertSee('Due in 7 days')
+            ->assertSee('My Own Lead Co')
+            ->assertDontSee('Someone Else Lead')
+            ->assertSee('follow_up=', false)
+            ->assertSee('Talk later in next 7 days');
+
+        $this->assertSame($employee->id, $mine->created_by);
+    }
+
+    public function test_employee_can_filter_verified_leads(): void
+    {
+        $employee = $this->employee();
+
+        Lead::factory()->pending()->create([
+            'company_name' => 'Verified Lead Co',
+            'created_by' => $employee->id,
+            'assigned_to' => $employee->id,
+            'source' => \App\Support\Enums\LeadSource::Employee,
+            'call_status' => LeadCallStatus::LeadPostVerified,
+            'call_follow_up_at' => null,
+        ]);
+
+        Lead::factory()->pending()->create([
+            'company_name' => 'Not Connected Co',
+            'created_by' => $employee->id,
+            'assigned_to' => $employee->id,
+            'source' => \App\Support\Enums\LeadSource::Employee,
+            'call_status' => LeadCallStatus::NotConnected,
+        ]);
+
+        $this->actingAs($employee)
+            ->get(route('verification.leads.index', ['follow_up' => 'verified']))
+            ->assertOk()
+            ->assertSee('Verified leads')
+            ->assertSee('Verified Lead Co')
+            ->assertDontSee('Not Connected Co');
+
+        $this->actingAs($employee)
+            ->get(route('verification.dashboard'))
+            ->assertOk()
+            ->assertSee('Verified');
     }
 
     public function test_employee_can_approve_lead_and_it_appears_on_homepage(): void
     {
         Notification::fake();
 
+        $employee = $this->employee();
         $lead = Lead::factory()->pending()->create([
             'company_name' => 'Publish Me Corp',
             'email' => 'publish@example.com',
             'product_interest' => 'Textiles',
+            'assigned_to' => $employee->id,
         ]);
 
-        $this->actingAs($this->employee())
+        $this->actingAs($employee)
             ->post(route('verification.leads.approve', $lead))
             ->assertRedirect();
 
@@ -111,12 +201,14 @@ class LeadModerationTest extends TestCase
     {
         Notification::fake();
 
+        $employee = $this->employee();
         $lead = Lead::factory()->pending()->create([
             'company_name' => 'Reject Me LLC',
             'email' => 'reject@example.com',
+            'assigned_to' => $employee->id,
         ]);
 
-        $this->actingAs($this->employee())
+        $this->actingAs($employee)
             ->post(route('verification.leads.reject', $lead))
             ->assertRedirect();
 
@@ -134,12 +226,14 @@ class LeadModerationTest extends TestCase
 
     public function test_employee_can_update_lead_fields(): void
     {
+        $employee = $this->employee();
         $lead = Lead::factory()->pending()->create([
             'company_name' => 'Old Name',
             'payment_methods' => ['wire_transfer'],
+            'assigned_to' => $employee->id,
         ]);
 
-        $this->actingAs($this->employee())
+        $this->actingAs($employee)
             ->put(route('verification.leads.update', $lead), [
                 'company_name' => 'New Name Co',
                 'contact_name' => 'Jane Doe',
@@ -173,14 +267,16 @@ class LeadModerationTest extends TestCase
 
     public function test_employee_edit_form_shows_trade_term_fields(): void
     {
+        $employee = $this->employee();
         $lead = Lead::factory()->pending()->create([
             'company_name' => 'CVF Test',
             'currency' => 'INR',
             'units' => 'pieces',
             'payment_methods' => ['wire_transfer'],
+            'assigned_to' => $employee->id,
         ]);
 
-        $this->actingAs($this->employee())
+        $this->actingAs($employee)
             ->get(route('verification.leads.edit', $lead))
             ->assertOk()
             ->assertSee('Currency')
@@ -208,6 +304,35 @@ class LeadModerationTest extends TestCase
             ->assertSee('Preferred incoterm');
     }
 
+
+    public function test_employee_cannot_update_lead_assigned_to_someone_else(): void
+    {
+        $employee = $this->employee();
+        $other = $this->employee();
+        $lead = Lead::factory()->pending()->create([
+            'assigned_to' => $other->id,
+            'company_name' => 'Other Assignee Co',
+        ]);
+
+        $this->actingAs($employee)
+            ->put(route('verification.leads.update', $lead), [
+                'company_name' => 'Hacked Name',
+                'contact_name' => 'Jane Doe',
+                'email' => 'jane@example.com',
+                'country' => 'India',
+                'business_type' => 'seller',
+                'product_interest' => 'Electronics',
+                'product_type' => 'electronics',
+                'currency' => 'USD',
+                'units' => 'pieces',
+                'payment_methods' => ['wire_transfer'],
+                'required_quantity' => '10',
+                'preferred_incoterm' => 'fob',
+                'payment_terms' => 'tt',
+            ])
+            ->assertForbidden();
+    }
+
     public function test_buyer_cannot_update_verification_lead(): void
     {
         $lead = Lead::factory()->pending()->create();
@@ -227,6 +352,110 @@ class LeadModerationTest extends TestCase
                 'required_quantity' => '10',
                 'preferred_incoterm' => 'fob',
                 'payment_terms' => 'tt',
+            ])
+            ->assertForbidden();
+    }
+
+    public function test_employee_can_update_lead_call_status_and_sees_tag_with_dialer(): void
+    {
+        $employee = $this->employee();
+
+        $lead = Lead::factory()->pending()->create([
+            'phone' => '+91 98765 43210',
+            'call_status' => null,
+            'created_by' => $employee->id,
+            'assigned_to' => $employee->id,
+            'source' => \App\Support\Enums\LeadSource::Employee,
+        ]);
+
+        $this->actingAs($employee)
+            ->get(route('verification.leads.index', ['follow_up' => 'all']))
+            ->assertOk()
+            ->assertSee('Call status')
+            ->assertSee('tel:+919876543210', false)
+            ->assertSee('Not set');
+
+        $this->actingAs($employee)
+            ->from(route('verification.leads.index', ['follow_up' => 'all']))
+            ->patch(route('verification.leads.call-status', $lead), [
+                'call_status' => LeadCallStatus::TalkLater7Days->value,
+            ])
+            ->assertRedirect();
+
+        $lead->refresh();
+        $this->assertSame(LeadCallStatus::TalkLater7Days, $lead->call_status);
+        $this->assertNotNull($lead->call_follow_up_at);
+        $this->assertTrue($lead->call_follow_up_at->isSameDay(now()->addDays(7)));
+
+        $this->actingAs($employee)
+            ->get(route('verification.leads.index', ['follow_up' => 'all']))
+            ->assertOk()
+            ->assertSee('Talk later in next 7 days');
+    }
+
+    public function test_employee_can_submit_lead_and_update_call_status_from_edit_page(): void
+    {
+        $employee = $this->employee();
+
+        $this->actingAs($employee)
+            ->post(route('verification.leads.store'), [
+                'company_name' => 'Call Status Test Co',
+                'contact_name' => 'Ravi Kumar',
+                'email' => 'ravi.calltest@example.com',
+                'phone' => '+91 90000 11111',
+                'country' => 'India',
+                'business_type' => 'buyer',
+                'product_interest' => 'Cotton yarn',
+                'product_type' => 'textiles',
+                'currency' => 'INR',
+                'units' => 'pieces',
+                'required_quantity' => '100',
+                'preferred_incoterm' => 'fob',
+                'payment_terms' => 'tt',
+                'message' => 'Need samples',
+            ])
+            ->assertRedirect(route('verification.leads.index', ['follow_up' => 'all']));
+
+        $lead = Lead::query()->where('company_name', 'Call Status Test Co')->first();
+        $this->assertNotNull($lead);
+        $this->assertSame($employee->id, $lead->assigned_to);
+
+        $editPage = $this->actingAs($employee)
+            ->get(route('verification.leads.edit', $lead))
+            ->assertOk()
+            ->assertSee('Call tracking')
+            ->assertSee('tel:+919000011111', false);
+
+        // Call-status form must not be nested inside the update form.
+        $html = $editPage->getContent();
+        $callFormPos = strpos($html, 'verification/leads/'.$lead->id.'/call-status');
+        $updateFormPos = strpos($html, 'action="'.e(route('verification.leads.update', $lead)).'"');
+        $this->assertNotFalse($callFormPos);
+        $this->assertNotFalse($updateFormPos);
+        $this->assertLessThan($updateFormPos, $callFormPos, 'Call status form must appear before (outside) the update form');
+
+        $this->actingAs($employee)
+            ->from(route('verification.leads.edit', $lead))
+            ->patch(route('verification.leads.call-status', $lead), [
+                'call_status' => LeadCallStatus::NotConnected->value,
+            ])
+            ->assertRedirect(route('verification.leads.edit', $lead));
+
+        $this->assertSame(LeadCallStatus::NotConnected, $lead->fresh()->call_status);
+
+        $this->actingAs($employee)
+            ->get(route('verification.leads.edit', $lead))
+            ->assertOk()
+            ->assertSee('Not connected');
+    }
+
+    public function test_buyer_cannot_update_lead_call_status(): void
+    {
+        $lead = Lead::factory()->pending()->create();
+
+        $this->actingAs($this->buyer())
+            ->patch(route('verification.leads.call-status', $lead), [
+                'call_status' => LeadCallStatus::NotInterested->value,
             ])
             ->assertForbidden();
     }

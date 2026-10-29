@@ -16,6 +16,39 @@
 
 <div class="row g-4">
     <div class="col-lg-8">
+        <div class="panel mb-3">
+            <div class="panel-header">
+                <h2>Call tracking</h2>
+                @if ($lead->call_status)
+                    <span class="badge {{ $lead->call_status->badgeClass() }}">{{ $lead->call_status->label() }}</span>
+                @else
+                    <span class="badge text-bg-light text-dark border">Not set</span>
+                @endif
+            </div>
+            <div class="panel-body">
+                <form method="POST" action="{{ route('verification.leads.call-status', $lead) }}" class="row g-3 align-items-end">
+                    @csrf
+                    @method('PATCH')
+                    <div class="col-md-8">
+                        <label for="call_status" class="form-label">Call status</label>
+                        <select id="call_status" name="call_status" class="form-select" onchange="this.form.submit()">
+                            <option value="">Not set</option>
+                            @foreach (\App\Support\Enums\LeadCallStatus::cases() as $callStatus)
+                                <option value="{{ $callStatus->value }}" @selected($lead->call_status === $callStatus)>
+                                    {{ $callStatus->label() }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    @if ($lead->call_follow_up_at)
+                        <div class="col-md-4">
+                            <div class="small text-muted">Follow up: {{ $lead->call_follow_up_at->format('M j, Y') }}</div>
+                        </div>
+                    @endif
+                </form>
+            </div>
+        </div>
+
         <div class="panel">
             <div class="panel-header">
                 <h2>{{ $lead->company_name }}</h2>
@@ -50,10 +83,20 @@
                         </div>
                         <div class="col-md-6">
                             <label for="phone" class="form-label">Phone</label>
-                            <input id="phone" name="phone" type="text"
-                                   class="form-control @error('phone') is-invalid @enderror"
-                                   value="{{ old('phone', $lead->phone) }}">
-                            @error('phone')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            <div class="input-group">
+                                <input id="phone" name="phone" type="text"
+                                       class="form-control @error('phone') is-invalid @enderror"
+                                       value="{{ old('phone', $lead->phone) }}">
+                                @if (filled(old('phone', $lead->phone)))
+                                    <a href="tel:{{ preg_replace('/[^\d+]/', '', (string) old('phone', $lead->phone)) }}"
+                                       class="btn btn-outline-success"
+                                       title="Call {{ old('phone', $lead->phone) }}"
+                                       aria-label="Call {{ old('phone', $lead->phone) }}">
+                                        <i class="bi bi-telephone-fill"></i>
+                                    </a>
+                                @endif
+                            </div>
+                            @error('phone')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                         </div>
                         <div class="col-md-6">
                             <label for="country" class="form-label">Country</label>

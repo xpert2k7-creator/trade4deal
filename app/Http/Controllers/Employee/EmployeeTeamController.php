@@ -29,23 +29,83 @@ class EmployeeTeamController extends Controller
             ->get()
             ->map(function (User $user) use ($leadService): array {
                 $counts = $leadService->employeeSubmissionCounts($user);
-                $chart = $leadService->employeeDailyChart($user, 30);
+                $counts['assigned'] = $leadService->assignedLeadCount($user);
+                $followUpCounts = $leadService->employeeFollowUpCounts($user);
+                $chart = $leadService->employeeDailySubmittedAndVerifiedChart($user, 30);
 
                 return [
                     'user' => $user,
                     'counts' => $counts,
-                    'chartLabels' => $chart->pluck('day')->all(),
-                    'chartValues' => $chart->pluck('total')->map(fn ($value) => (int) $value)->all(),
+                    'followUpCounts' => $followUpCounts,
+                    'chartLabels' => $chart['labels'],
+                    'chartSubmittedValues' => $chart['submitted'],
+                    'chartVerifiedValues' => $chart['verified'],
                 ];
             });
 
         $selectedId = $request->string('member')->toString() ?: ($members->first()['user']->id ?? null);
         $selected = $members->firstWhere(fn (array $row) => $row['user']->id === $selectedId) ?? $members->first();
 
+        $followUp = $request->string('follow_up')->toString() ?: 'all';
+        $memberLeads = null;
+
+        if ($selected !== null) {
+            $memberLeads = $leadService->listForEmployeeCreator(
+                user: $selected['user'],
+                followUpFilter: $followUp === 'all' ? null : $followUp,
+                perPage: 10,
+            );
+        }
+
         return view('employee.employee-team.index', [
             'members' => $members,
             'selected' => $selected,
+            'followUp' => $followUp,
+            'memberLeads' => $memberLeads,
+            'unassignedCount' => $leadService->unassignedLeadCount(),
         ]);
+    }
+
+    public function assignLeads(Request $request, LeadService $leadService): RedirectResponse
+    {
+        $this->authorize('manageEmployeeTeam', User::class);
+
+        $admin = $request->user();
+        assert($admin !== null);
+
+        $data = $request->validate([
+            'assignee_id' => ['required', 'uuid', 'exists:users,id'],
+            'count' => ['required', 'integer', 'min:1', 'max:500'],
+            'from_assignee_id' => ['nullable', 'uuid', 'exists:users,id', 'different:assignee_id'],
+        ]);
+
+        $assignee = User::query()->findOrFail($data['assignee_id']);
+        abort_unless($assignee->isEmployee() && ! $assignee->isAdmin(), 422, 'Assignee must be a verification employee.');
+
+        if (! empty($data['from_assignee_id'])) {
+            $from = User::query()->findOrFail($data['from_assignee_id']);
+            abort_unless($from->isEmployee() && ! $from->isAdmin(), 422, 'Source must be a verification employee.');
+        }
+
+        $assigned = $leadService->assignLeadsToEmployee(
+            assignee: $assignee,
+            count: (int) $data['count'],
+            assignedBy: $admin,
+            fromAssigneeId: $data['from_assignee_id'] ?? null,
+        );
+
+        $sourceLabel = empty($data['from_assignee_id'])
+            ? 'unassigned pool'
+            : 'another employee';
+
+        return redirect()
+            ->route('verification.employee-team.index', ['member' => $assignee->id, 'follow_up' => 'all'])
+            ->with(
+                $assigned > 0 ? 'success' : 'error',
+                $assigned > 0
+                    ? "Assigned {$assigned} oldest lead(s) to {$assignee->name} from the {$sourceLabel}."
+                    : 'No matching leads were available to assign.'
+            );
     }
 
     public function create(): View

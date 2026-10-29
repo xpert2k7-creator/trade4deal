@@ -15,10 +15,12 @@ use App\Domains\Lead\Requests\StoreEmployeeLeadRequest;
 use App\Domains\Lead\Requests\UpdateLeadRequest;
 use App\Domains\Lead\Services\LeadService;
 use App\Http\Controllers\Controller;
+use App\Support\Enums\LeadCallStatus;
 use App\Support\Enums\LeadSource;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class LeadModerationController extends Controller
@@ -27,9 +29,25 @@ class LeadModerationController extends Controller
     {
         $this->authorize('moderate', Lead::class);
 
-        return view('employee.dashboard', [
-            'counts' => $leadService->moderationCounts(),
-            'pendingLeads' => $leadService->getRecentPending(8),
+        $user = request()->user();
+        assert($user !== null);
+
+        // Admin keeps the full moderation overview. Employees get their own dashboard only.
+        if ($user->isAdmin()) {
+            return view('employee.dashboard', [
+                'counts' => $leadService->moderationCounts(),
+                'pendingLeads' => $leadService->getRecentPending(8),
+            ]);
+        }
+
+        $submissionCounts = $leadService->employeeSubmissionCounts($user);
+        $submissionCounts['assigned'] = $leadService->assignedLeadCount($user);
+
+        return view('employee.dashboard-employee', [
+            'counts' => $submissionCounts,
+            'followUpCounts' => $leadService->employeeFollowUpCounts($user),
+            'followUps' => $leadService->employeeFollowUps($user, 10),
+            'recentLeads' => $leadService->employeeRecentLeads($user, 8),
         ]);
     }
 
@@ -37,9 +55,43 @@ class LeadModerationController extends Controller
     {
         $this->authorize('moderate', Lead::class);
 
-        $status = $request->string('status')->toString() ?: 'pending';
+        $user = $request->user();
+        assert($user !== null);
+
         $search = $request->string('q')->toString() ?: null;
         $perPage = min(50, max(5, (int) $request->input('per_page', 10)));
+
+        // Employees: only leads assigned to them + follow-up filters (not the global queue).
+        if (! $user->isAdmin()) {
+            $followUp = $request->string('follow_up')->toString() ?: 'all';
+            $filters = [
+                'name' => $request->string('name')->toString() ?: null,
+                'product_type' => $request->string('product_type')->toString() ?: null,
+                'country' => $request->string('country')->toString() ?: null,
+                'call_status' => $request->string('call_status')->toString() ?: null,
+            ];
+
+            $submissionCounts = $leadService->employeeSubmissionCounts($user);
+            $submissionCounts['assigned'] = $leadService->assignedLeadCount($user);
+
+            return view('employee.leads.index-employee', [
+                'leads' => $leadService->listForEmployeeCreator(
+                    user: $user,
+                    followUpFilter: $followUp === 'all' ? null : $followUp,
+                    search: $search,
+                    perPage: $perPage,
+                    filters: $filters,
+                ),
+                'followUpCounts' => $leadService->employeeFollowUpCounts($user),
+                'submissionCounts' => $submissionCounts,
+                'followUp' => $followUp,
+                'search' => $search,
+                'filters' => $filters,
+                'perPage' => $perPage,
+            ]);
+        }
+
+        $status = $request->string('status')->toString() ?: 'pending';
 
         $filters = [
             'name' => $request->string('name')->toString() ?: null,
@@ -97,8 +149,12 @@ class LeadModerationController extends Controller
 
         $createLeadAction->execute(CreateLeadDTO::fromArray($data));
 
+        $redirectParams = auth()->user()?->isAdmin()
+            ? ['status' => 'pending']
+            : ['follow_up' => 'all'];
+
         return redirect()
-            ->route('verification.leads.index', ['status' => 'pending'])
+            ->route('verification.leads.index', $redirectParams)
             ->with('success', 'Lead submitted successfully and added to the pending review queue.');
     }
 
@@ -165,5 +221,29 @@ class LeadModerationController extends Controller
         return redirect()
             ->route('verification.leads.index', ['status' => 'pending'])
             ->with('success', 'Lead rejected. The submitter has been notified.');
+    }
+
+    public function updateCallStatus(Request $request, Lead $lead): RedirectResponse
+    {
+        $this->authorize('update', $lead);
+
+        $validated = $request->validate([
+            'call_status' => ['nullable', 'string', Rule::enum(LeadCallStatus::class)],
+        ]);
+
+        $callStatus = filled($validated['call_status'] ?? null)
+            ? LeadCallStatus::from($validated['call_status'])
+            : null;
+
+        $lead->forceFill([
+            'call_status' => $callStatus,
+            'call_follow_up_at' => $callStatus?->followUpAt(),
+        ])->save();
+
+        return redirect()
+            ->back()
+            ->with('success', $callStatus
+                ? 'Call status updated to "'.$callStatus->label().'".'
+                : 'Call status cleared.');
     }
 }
