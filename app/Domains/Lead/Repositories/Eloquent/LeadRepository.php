@@ -376,29 +376,34 @@ class LeadRepository implements LeadRepositoryInterface
     {
         // Employee work queue is scoped by assignment, not submission.
         $base = Lead::query()->where('assigned_to', $creatorId);
+        $active = (clone $base)->where(function ($query): void {
+            $query->whereNull('call_status')
+                ->orWhere('call_status', '!=', LeadCallStatus::LeadPostVerified);
+        });
         $today = now()->startOfDay();
         $in7Days = now()->copy()->addDays(7)->endOfDay();
         $monthStart = now()->copy()->addMonthNoOverflow()->startOfMonth();
         $monthEnd = now()->copy()->addMonthNoOverflow()->endOfMonth();
 
         return [
-            'overdue' => (clone $base)
+            'overdue' => (clone $active)
                 ->whereNotNull('call_follow_up_at')
                 ->where('call_follow_up_at', '<', $today)
                 ->count(),
-            'next_7_days' => (clone $base)
+            'next_7_days' => (clone $active)
                 ->whereNotNull('call_follow_up_at')
                 ->whereBetween('call_follow_up_at', [$today, $in7Days])
                 ->count(),
-            'next_month' => (clone $base)
+            'next_month' => (clone $active)
                 ->where(function ($query) use ($monthStart, $monthEnd): void {
                     $query->where('call_status', LeadCallStatus::NextMonth)
                         ->orWhereBetween('call_follow_up_at', [$monthStart, $monthEnd]);
                 })
                 ->count(),
-            'with_follow_up' => (clone $base)
+            'with_follow_up' => (clone $active)
                 ->whereNotNull('call_follow_up_at')
                 ->count(),
+            // Verified stays countable for employee + admin dashboards.
             'verified' => (clone $base)
                 ->where('call_status', LeadCallStatus::LeadPostVerified)
                 ->count(),
@@ -421,6 +426,10 @@ class LeadRepository implements LeadRepositoryInterface
     {
         return Lead::query()
             ->where('assigned_to', $creatorId)
+            ->where(function ($query): void {
+                $query->whereNull('call_status')
+                    ->orWhere('call_status', '!=', LeadCallStatus::LeadPostVerified);
+            })
             ->whereNotNull('call_follow_up_at')
             ->orderBy('call_follow_up_at')
             ->limit($limit)
@@ -429,8 +438,13 @@ class LeadRepository implements LeadRepositoryInterface
 
     public function getRecentForCreator(string $creatorId, int $limit = 8): Collection
     {
+        // Active work queue only — verified leads stay in counts, not recent lists.
         return Lead::query()
             ->where('assigned_to', $creatorId)
+            ->where(function ($query): void {
+                $query->whereNull('call_status')
+                    ->orWhere('call_status', '!=', LeadCallStatus::LeadPostVerified);
+            })
             ->latest('assigned_at')
             ->latest()
             ->limit($limit)
@@ -455,19 +469,43 @@ class LeadRepository implements LeadRepositoryInterface
         $monthEnd = now()->copy()->addMonthNoOverflow()->endOfMonth();
 
         match ($followUpFilter) {
-            'overdue' => $query->whereNotNull('call_follow_up_at')->where('call_follow_up_at', '<', $today),
-            'next_7_days' => $query->whereNotNull('call_follow_up_at')->whereBetween('call_follow_up_at', [$today, $in7Days]),
+            'overdue' => $query
+                ->where(function ($inner): void {
+                    $inner->whereNull('call_status')
+                        ->orWhere('call_status', '!=', LeadCallStatus::LeadPostVerified);
+                })
+                ->whereNotNull('call_follow_up_at')
+                ->where('call_follow_up_at', '<', $today),
+            'next_7_days' => $query
+                ->where(function ($inner): void {
+                    $inner->whereNull('call_status')
+                        ->orWhere('call_status', '!=', LeadCallStatus::LeadPostVerified);
+                })
+                ->whereNotNull('call_follow_up_at')
+                ->whereBetween('call_follow_up_at', [$today, $in7Days]),
             'next_month' => $query->where(function ($inner) use ($monthStart, $monthEnd): void {
                 $inner->where('call_status', LeadCallStatus::NextMonth)
                     ->orWhereBetween('call_follow_up_at', [$monthStart, $monthEnd]);
+            })->where(function ($inner): void {
+                $inner->whereNull('call_status')
+                    ->orWhere('call_status', '!=', LeadCallStatus::LeadPostVerified);
             }),
-            'with_follow_up' => $query->whereNotNull('call_follow_up_at'),
+            'with_follow_up' => $query
+                ->where(function ($inner): void {
+                    $inner->whereNull('call_status')
+                        ->orWhere('call_status', '!=', LeadCallStatus::LeadPostVerified);
+                })
+                ->whereNotNull('call_follow_up_at'),
             'verified' => $query->where('call_status', LeadCallStatus::LeadPostVerified),
             'not_connected' => $query->where('call_status', LeadCallStatus::NotConnected),
             'not_interested' => $query->where('call_status', LeadCallStatus::NotInterested),
             'invalid_number' => $query->where('call_status', LeadCallStatus::InvalidNumber),
             'talk_later_7_days' => $query->where('call_status', LeadCallStatus::TalkLater7Days),
-            default => null,
+            // Default "All assigned" work queue hides verified leads (counts still tracked).
+            default => $query->where(function ($inner): void {
+                $inner->whereNull('call_status')
+                    ->orWhere('call_status', '!=', LeadCallStatus::LeadPostVerified);
+            }),
         };
 
         $callStatus = $filters['call_status'] ?? null;
@@ -508,7 +546,14 @@ class LeadRepository implements LeadRepositoryInterface
 
     public function countAssignedTo(string $assigneeId): int
     {
-        return Lead::query()->where('assigned_to', $assigneeId)->count();
+        // Active assigned queue (excludes verified — those stay in verified counts / charts).
+        return Lead::query()
+            ->where('assigned_to', $assigneeId)
+            ->where(function ($query): void {
+                $query->whereNull('call_status')
+                    ->orWhere('call_status', '!=', LeadCallStatus::LeadPostVerified);
+            })
+            ->count();
     }
 
     public function countUnassigned(): int

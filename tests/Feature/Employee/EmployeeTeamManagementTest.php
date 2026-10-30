@@ -130,13 +130,14 @@ class EmployeeTeamManagementTest extends TestCase
             ->assertOk()
             ->assertSee('Verification Team')
             ->assertSee('Stats Employee')
-            ->assertSee('Assigned: 2')
+            ->assertSee('Assigned: 1')
             ->assertSee('Verified: 1')
             ->assertSee('Unassigned pool')
             ->assertSee('Assign leads to')
             ->assertSee('Oldest first')
             ->assertSee('assign-submit', false)
-            ->assertSee('Submitted vs Verified (last 30 days)')
+            ->assertSee('Submitted vs Verified')
+            ->assertSee('Work period')
             ->assertSee('Submitted')
             ->assertSee('Verified');
     }
@@ -185,7 +186,34 @@ class EmployeeTeamManagementTest extends TestCase
         $this->actingAs($this->admin())
             ->get(route('verification.employee-team.index', ['member' => $employee->id]))
             ->assertOk()
-            ->assertSee('Submitted vs Verified (last 30 days)');
+            ->assertSee('Submitted vs Verified')
+            ->assertSee('Work progress')
+            ->assertSee('Work period')
+            ->assertSee('Total');
+
+        $yearChart = app(\App\Domains\Lead\Services\LeadService::class)
+            ->employeeWorkProgressChart($employee, 'year');
+        $this->assertSame('year', $yearChart['period']);
+        $this->assertSame('month', $yearChart['granularity']);
+        $this->assertNotEmpty($yearChart['labels']);
+
+        $this->actingAs($this->admin())
+            ->get(route('verification.employee-team.index', [
+                'member' => $employee->id,
+                'period' => 'day',
+            ]))
+            ->assertOk()
+            ->assertSee('Today')
+            ->assertSee('Work progress');
+
+        $this->actingAs($this->admin())
+            ->get(route('verification.employee-team.index', [
+                'member' => $employee->id,
+                'period' => 'year',
+            ]))
+            ->assertOk()
+            ->assertSee('This year')
+            ->assertSee('>Month<', false);
     }
 
     public function test_admin_can_see_employee_call_status_and_follow_up_filters(): void
@@ -227,8 +255,8 @@ class EmployeeTeamManagementTest extends TestCase
             ->assertSee('Verified')
             ->assertSee('Not connected')
             ->assertSee('Overdue')
-            ->assertSee('Due in 7 days')
-            ->assertSee('Admin Sees Verified Co')
+            ->assertSee('Due 7d')
+            ->assertDontSee('Admin Sees Verified Co')
             ->assertSee('Admin Sees Not Connected Co')
             ->assertDontSee('Other Emp Verified Hidden');
 

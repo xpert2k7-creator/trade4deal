@@ -21,7 +21,7 @@
             @else
                 <div class="list-group list-group-flush">
                     @foreach ($members as $row)
-                        <a href="{{ route('verification.employee-team.index', ['member' => $row['user']->id]) }}"
+                        <a href="{{ route('verification.employee-team.index', ['member' => $row['user']->id, 'period' => $period ?? 'month']) }}"
                            class="list-group-item list-group-item-action {{ ($selected['user']->id ?? null) === $row['user']->id ? 'active' : '' }}">
                             <div class="fw-semibold">{{ $row['user']->name }}</div>
                             <div class="small opacity-75">{{ $row['user']->email }}</div>
@@ -253,61 +253,342 @@
                 ])
             </div>
 
+            @php
+                $activePeriod = $period ?? 'month';
+                $periodLabel = $workProgress['periodLabel'] ?? 'This month';
+                $granularity = $workProgress['granularity'] ?? 'day';
+                $columnLabel = $workProgress['columnLabel'] ?? 'Date';
+                $memberBaseQuery = ['member' => $selected['user']->id, 'period' => $activePeriod];
+            @endphp
+
+            <div class="work-period-filter mb-3">
+                <div class="work-period-label">Work period</div>
+                <div class="work-period-tabs">
+                    @foreach ([
+                        'day' => 'Day',
+                        'month' => 'Month',
+                        'year' => 'Year',
+                    ] as $periodKey => $periodName)
+                        <a href="{{ route('verification.employee-team.index', array_merge($memberBaseQuery, ['period' => $periodKey, 'follow_up' => $followUp ?? 'all'])) }}"
+                           class="work-period-tab {{ $activePeriod === $periodKey ? 'active' : '' }}">
+                            {{ $periodName }}
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+
             @include('partials.sourcing-submission-chart', [
                 'chartId' => 'admin-verification-team-chart',
-                'labels' => $selected['chartLabels'],
-                'values' => $selected['chartSubmittedValues'],
-                'verifiedValues' => $selected['chartVerifiedValues'],
-                'title' => 'Submitted vs Verified (last 30 days)',
+                'labels' => $selected['chartLabels'] ?? [],
+                'values' => $selected['chartSubmittedValues'] ?? [],
+                'verifiedValues' => $selected['chartVerifiedValues'] ?? [],
+                'title' => 'Submitted vs Verified — '.$periodLabel,
                 'datasetLabel' => 'Submitted',
                 'verifiedDatasetLabel' => 'Verified',
             ])
 
             @php
-                $fu = $selected['followUpCounts'];
-                $memberQuery = ['member' => $selected['user']->id];
+                $dailyLabels = $selected['chartLabels'] ?? [];
+                $dailySubmitted = $selected['chartSubmittedValues'] ?? [];
+                $dailyVerified = $selected['chartVerifiedValues'] ?? [];
+                $dailyRows = [];
+                $totalSubmitted = 0;
+                $totalVerified = 0;
+
+                foreach ($dailyLabels as $i => $day) {
+                    $submitted = (int) ($dailySubmitted[$i] ?? 0);
+                    $verified = (int) ($dailyVerified[$i] ?? 0);
+                    $totalSubmitted += $submitted;
+                    $totalVerified += $verified;
+                    $dailyRows[] = [
+                        'day' => $day,
+                        'submitted' => $submitted,
+                        'verified' => $verified,
+                        'total' => $submitted + $verified,
+                    ];
+                }
+
+                $dailyRows = array_reverse($dailyRows);
             @endphp
 
-            <div class="panel mb-3 mt-4">
-                <ul class="nav status-tabs px-2 flex-wrap">
-                    @foreach ([
-                        'all' => ['label' => 'All assigned', 'count' => $selected['counts']['assigned'] ?? 0, 'badge' => 'light text-dark border'],
-                        'verified' => ['label' => 'Verified', 'count' => $fu['verified'], 'badge' => 'success'],
-                        'talk_later_7_days' => ['label' => 'Talk later', 'count' => $fu['talk_later_7_days'], 'badge' => 'warning text-dark'],
-                        'not_connected' => ['label' => 'Not connected', 'count' => $fu['not_connected'], 'badge' => 'secondary'],
-                        'next_month' => ['label' => 'Next month', 'count' => $fu['next_month'], 'badge' => 'info text-dark'],
-                        'not_interested' => ['label' => 'Not interested', 'count' => $fu['not_interested'], 'badge' => 'dark'],
-                        'invalid_number' => ['label' => 'Invalid number', 'count' => $fu['invalid_number'], 'badge' => 'danger'],
-                        'overdue' => ['label' => 'Overdue', 'count' => $fu['overdue'], 'badge' => 'danger'],
-                        'next_7_days' => ['label' => 'Due in 7 days', 'count' => $fu['next_7_days'], 'badge' => 'warning text-dark'],
-                    ] as $tab => $meta)
-                        <li class="nav-item">
-                            <a class="nav-link {{ ($followUp ?? 'all') === $tab ? 'active' : '' }}"
-                               href="{{ route('verification.employee-team.index', array_merge($memberQuery, ['follow_up' => $tab])) }}">
-                                {{ $meta['label'] }}
-                                <span class="badge text-bg-{{ $meta['badge'] }} ms-1">{{ $meta['count'] }}</span>
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
+            <div class="panel mb-3 mt-3 daily-progress-panel">
+                <div class="panel-header">
+                    <h2>Work progress — {{ $selected['user']->name }}</h2>
+                    <span class="small text-muted">{{ $periodLabel }} · newest first</span>
+                </div>
+                <div class="table-responsive daily-progress-scroll">
+                    <table class="table table-emp align-middle mb-0 daily-progress-table">
+                        <thead>
+                            <tr>
+                                <th>{{ $columnLabel }}</th>
+                                <th class="text-end">Submitted</th>
+                                <th class="text-end">Verified</th>
+                                <th class="text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($dailyRows as $row)
+                                <tr class="{{ $row['total'] > 0 ? 'daily-progress-active' : 'daily-progress-empty' }}">
+                                    <td class="fw-semibold text-nowrap">
+                                        @if ($granularity === 'month')
+                                            {{ \Illuminate\Support\Carbon::createFromFormat('Y-m', $row['day'])->format('M Y') }}
+                                        @else
+                                            {{ \Illuminate\Support\Carbon::parse($row['day'])->format('D, M j, Y') }}
+                                        @endif
+                                    </td>
+                                    <td class="text-end tabular-nums">{{ $row['submitted'] }}</td>
+                                    <td class="text-end tabular-nums">
+                                        @if ($row['verified'] > 0)
+                                            <span class="daily-verified-count">{{ $row['verified'] }}</span>
+                                        @else
+                                            {{ $row['verified'] }}
+                                        @endif
+                                    </td>
+                                    <td class="text-end tabular-nums fw-semibold">{{ $row['total'] }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-4">No activity in this period.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                        @if (count($dailyRows) > 0)
+                            <tfoot>
+                                <tr>
+                                    <th>Total</th>
+                                    <th class="text-end tabular-nums">{{ $totalSubmitted }}</th>
+                                    <th class="text-end tabular-nums">{{ $totalVerified }}</th>
+                                    <th class="text-end tabular-nums">{{ $totalSubmitted + $totalVerified }}</th>
+                                </tr>
+                            </tfoot>
+                        @endif
+                    </table>
+                </div>
             </div>
 
-            <div class="panel">
-                <div class="panel-header">
-                    <h2>
-                        @if (($followUp ?? 'all') === 'verified') Verified leads
-                        @elseif (($followUp ?? 'all') === 'talk_later_7_days') Talk later
-                        @elseif (($followUp ?? 'all') === 'not_connected') Not connected
-                        @elseif (($followUp ?? 'all') === 'not_interested') Not interested
-                        @elseif (($followUp ?? 'all') === 'invalid_number') Invalid number
-                        @elseif (($followUp ?? 'all') === 'overdue') Overdue follow-ups
-                        @elseif (($followUp ?? 'all') === 'next_7_days') Due in next 7 days
-                        @elseif (($followUp ?? 'all') === 'next_month') Next month
-                        @else All submitted leads
-                        @endif
-                        <span class="small text-muted fw-normal">— {{ $selected['user']->name }}</span>
-                    </h2>
-                    <span class="small text-muted">{{ $memberLeads?->total() ?? 0 }} result{{ ($memberLeads?->total() ?? 0) === 1 ? '' : 's' }}</span>
+            <style>
+                .work-period-filter {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 0.75rem;
+                    flex-wrap: wrap;
+                }
+
+                .work-period-label {
+                    font-size: 0.72rem;
+                    font-weight: 700;
+                    letter-spacing: 0.05em;
+                    text-transform: uppercase;
+                    color: var(--t4d-muted);
+                }
+
+                .work-period-tabs {
+                    display: inline-flex;
+                    gap: 0.35rem;
+                    padding: 0.25rem;
+                    border: 1px solid var(--t4d-border);
+                    border-radius: 999px;
+                    background: #fff;
+                }
+
+                .work-period-tab {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    min-width: 4.5rem;
+                    padding: 0.4rem 0.85rem;
+                    border-radius: 999px;
+                    font-size: 0.82rem;
+                    font-weight: 700;
+                    color: var(--t4d-muted);
+                    text-decoration: none;
+                    transition: background 0.15s ease, color 0.15s ease;
+                }
+
+                .work-period-tab:hover {
+                    color: var(--t4d-primary);
+                    background: rgba(11, 58, 110, 0.06);
+                }
+
+                .work-period-tab.active {
+                    background: var(--t4d-primary);
+                    color: #fff;
+                }
+
+                .daily-progress-scroll {
+                    max-height: 360px;
+                    overflow-y: auto;
+                }
+
+                .daily-progress-table thead th,
+                .daily-progress-table tfoot th {
+                    position: sticky;
+                    background: #fff;
+                    z-index: 1;
+                }
+
+                .daily-progress-table thead th {
+                    top: 0;
+                    box-shadow: inset 0 -1px 0 var(--t4d-border);
+                }
+
+                .daily-progress-table tfoot th {
+                    bottom: 0;
+                    box-shadow: inset 0 1px 0 var(--t4d-border);
+                    background: #F8FAFC;
+                    font-size: 0.78rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.04em;
+                    color: var(--t4d-muted);
+                }
+
+                .daily-progress-table .tabular-nums {
+                    font-variant-numeric: tabular-nums;
+                }
+
+                .daily-progress-empty td {
+                    color: #94A3B8;
+                }
+
+                .daily-progress-active td {
+                    color: var(--t4d-dark);
+                }
+
+                .daily-verified-count {
+                    display: inline-block;
+                    min-width: 1.75rem;
+                    padding: 0.15rem 0.45rem;
+                    border-radius: 999px;
+                    background: rgba(25, 135, 84, 0.12);
+                    color: #198754;
+                    font-weight: 700;
+                    text-align: center;
+                }
+
+                .lead-filter-header h2 {
+                    font-size: 0.95rem;
+                }
+
+                .lead-filter-bar {
+                    padding: 0.55rem 0.85rem;
+                    border-bottom: 1px solid var(--t4d-border);
+                    background: #F8FAFC;
+                }
+
+                .lead-filter-scroll {
+                    display: flex;
+                    flex-wrap: nowrap;
+                    gap: 0.35rem;
+                    overflow-x: auto;
+                    scrollbar-width: thin;
+                    padding-bottom: 0.1rem;
+                }
+
+                .lead-filter-chip {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.3rem;
+                    flex: 0 0 auto;
+                    padding: 0.28rem 0.55rem;
+                    border-radius: 999px;
+                    border: 1px solid #E2E8F0;
+                    background: #fff;
+                    color: #475569;
+                    text-decoration: none;
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                    line-height: 1.2;
+                    white-space: nowrap;
+                }
+
+                .lead-filter-chip span {
+                    min-width: 1.1rem;
+                    padding: 0.05rem 0.3rem;
+                    border-radius: 999px;
+                    background: #F1F5F9;
+                    color: #64748B;
+                    font-size: 0.68rem;
+                    font-weight: 700;
+                    font-variant-numeric: tabular-nums;
+                    text-align: center;
+                }
+
+                .lead-filter-chip:hover {
+                    border-color: rgba(11, 58, 110, 0.3);
+                    color: var(--t4d-primary);
+                }
+
+                .lead-filter-chip.is-zero {
+                    color: #94A3B8;
+                }
+
+                .lead-filter-chip.is-zero span {
+                    background: #F8FAFC;
+                    color: #CBD5E1;
+                }
+
+                .lead-filter-chip.active {
+                    background: var(--t4d-primary);
+                    border-color: var(--t4d-primary);
+                    color: #fff;
+                }
+
+                .lead-filter-chip.active span,
+                .lead-filter-chip.active.is-zero span {
+                    background: rgba(255, 255, 255, 0.22);
+                    color: #fff;
+                }
+            </style>
+
+            @php
+                $fu = $selected['followUpCounts'];
+                $memberQuery = $memberBaseQuery;
+                $activeFollowUp = $followUp ?? 'all';
+                $leadFilters = [
+                    'all' => ['label' => 'All', 'count' => $selected['counts']['assigned'] ?? 0],
+                    'verified' => ['label' => 'Verified', 'count' => $fu['verified']],
+                    'talk_later_7_days' => ['label' => 'Talk later', 'count' => $fu['talk_later_7_days']],
+                    'not_connected' => ['label' => 'Not connected', 'count' => $fu['not_connected']],
+                    'next_month' => ['label' => 'Next month', 'count' => $fu['next_month']],
+                    'not_interested' => ['label' => 'Not interested', 'count' => $fu['not_interested']],
+                    'invalid_number' => ['label' => 'Invalid', 'count' => $fu['invalid_number']],
+                    'overdue' => ['label' => 'Overdue', 'count' => $fu['overdue']],
+                    'next_7_days' => ['label' => 'Due 7d', 'count' => $fu['next_7_days']],
+                ];
+                $leadFilterTitles = [
+                    'all' => 'All assigned leads',
+                    'verified' => 'Verified leads',
+                    'talk_later_7_days' => 'Talk later',
+                    'not_connected' => 'Not connected',
+                    'not_interested' => 'Not interested',
+                    'invalid_number' => 'Invalid number',
+                    'overdue' => 'Overdue follow-ups',
+                    'next_7_days' => 'Due in next 7 days',
+                    'next_month' => 'Next month',
+                ];
+            @endphp
+
+            <div class="panel mt-4 lead-filter-panel">
+                <div class="panel-header lead-filter-header py-2 px-3">
+                    <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap w-100">
+                        <div class="d-flex align-items-baseline gap-2 flex-wrap">
+                            <h2 class="mb-0">{{ $leadFilterTitles[$activeFollowUp] ?? 'Leads' }}</h2>
+                            <span class="small text-muted">{{ $selected['user']->name }} · {{ $memberLeads?->total() ?? 0 }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lead-filter-bar">
+                    <div class="lead-filter-scroll">
+                        @foreach ($leadFilters as $tab => $meta)
+                            <a href="{{ route('verification.employee-team.index', array_merge($memberQuery, ['follow_up' => $tab])) }}"
+                               class="lead-filter-chip {{ $activeFollowUp === $tab ? 'active' : '' }} {{ (int) $meta['count'] === 0 && $activeFollowUp !== $tab ? 'is-zero' : '' }}">
+                                {{ $meta['label'] }}
+                                <span>{{ $meta['count'] }}</span>
+                            </a>
+                        @endforeach
+                    </div>
                 </div>
 
                 @if ($memberLeads === null || $memberLeads->isEmpty())

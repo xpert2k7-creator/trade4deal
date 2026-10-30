@@ -325,11 +325,27 @@ class LeadAssignmentTest extends TestCase
 
         $this->assertSame(LeadCallStatus::LeadPostVerified, $userLead->fresh()->call_status);
 
-        // 9) Team page reflects assigned counts for both members.
+        // 9) Verified lead leaves the active table but remains in Verified count/list.
         $this->actingAs($admin)
             ->get(route('verification.employee-team.index', ['member' => $empB->id, 'follow_up' => 'all']))
             ->assertOk()
-            ->assertSee('Flow User Lead')
-            ->assertSee('Assigned:');
+            ->assertDontSee('Flow User Lead')
+            ->assertSee('Assigned:')
+            ->assertSee('Verified:');
+
+        $this->actingAs($admin)
+            ->get(route('verification.employee-team.index', ['member' => $empB->id, 'follow_up' => 'verified']))
+            ->assertOk()
+            ->assertSee('Flow User Lead');
+
+        $this->actingAs($empB)
+            ->get(route('verification.leads.index', ['follow_up' => 'all']))
+            ->assertOk()
+            ->assertDontSee('Flow User Lead');
+
+        $this->actingAs($empB)
+            ->get(route('verification.leads.index', ['follow_up' => 'verified']))
+            ->assertOk()
+            ->assertSee('Flow User Lead');
     }
 }

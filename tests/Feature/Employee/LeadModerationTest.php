@@ -148,16 +148,28 @@ class LeadModerationTest extends TestCase
         ]);
 
         $this->actingAs($employee)
+            ->get(route('verification.leads.index', ['follow_up' => 'all']))
+            ->assertOk()
+            ->assertDontSee('Verified Lead Co')
+            ->assertSee('Not Connected Co');
+
+        $this->actingAs($employee)
             ->get(route('verification.leads.index', ['follow_up' => 'verified']))
             ->assertOk()
             ->assertSee('Verified leads')
             ->assertSee('Verified Lead Co')
             ->assertDontSee('Not Connected Co');
 
-        $this->actingAs($employee)
+        $dashboard = $this->actingAs($employee)
             ->get(route('verification.dashboard'))
             ->assertOk()
             ->assertSee('Verified');
+
+        $this->assertStringContainsString(
+            (string) 1,
+            $dashboard->getContent(),
+            'Verified count should remain visible on the employee dashboard'
+        );
     }
 
     public function test_employee_can_approve_lead_and_it_appears_on_homepage(): void

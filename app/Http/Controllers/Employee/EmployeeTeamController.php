@@ -23,6 +23,11 @@ class EmployeeTeamController extends Controller
     {
         $this->authorize('manageEmployeeTeam', User::class);
 
+        $period = $request->string('period')->toString() ?: 'month';
+        if (! in_array($period, ['day', 'month', 'year'], true)) {
+            $period = 'month';
+        }
+
         $members = User::query()
             ->where('user_type', UserType::Employee)
             ->orderBy('name')
@@ -31,15 +36,11 @@ class EmployeeTeamController extends Controller
                 $counts = $leadService->employeeSubmissionCounts($user);
                 $counts['assigned'] = $leadService->assignedLeadCount($user);
                 $followUpCounts = $leadService->employeeFollowUpCounts($user);
-                $chart = $leadService->employeeDailySubmittedAndVerifiedChart($user, 30);
 
                 return [
                     'user' => $user,
                     'counts' => $counts,
                     'followUpCounts' => $followUpCounts,
-                    'chartLabels' => $chart['labels'],
-                    'chartSubmittedValues' => $chart['submitted'],
-                    'chartVerifiedValues' => $chart['verified'],
                 ];
             });
 
@@ -48,8 +49,14 @@ class EmployeeTeamController extends Controller
 
         $followUp = $request->string('follow_up')->toString() ?: 'all';
         $memberLeads = null;
+        $workProgress = null;
 
         if ($selected !== null) {
+            $workProgress = $leadService->employeeWorkProgressChart($selected['user'], $period);
+            $selected['chartLabels'] = $workProgress['labels'];
+            $selected['chartSubmittedValues'] = $workProgress['submitted'];
+            $selected['chartVerifiedValues'] = $workProgress['verified'];
+
             $memberLeads = $leadService->listForEmployeeCreator(
                 user: $selected['user'],
                 followUpFilter: $followUp === 'all' ? null : $followUp,
@@ -61,6 +68,8 @@ class EmployeeTeamController extends Controller
             'members' => $members,
             'selected' => $selected,
             'followUp' => $followUp,
+            'period' => $period,
+            'workProgress' => $workProgress,
             'memberLeads' => $memberLeads,
             'unassignedCount' => $leadService->unassignedLeadCount(),
         ]);

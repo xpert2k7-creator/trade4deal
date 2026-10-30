@@ -265,6 +265,68 @@ class LeadService
         $from = now()->subDays($days - 1)->startOfDay();
         $to = now()->endOfDay();
 
+        return $this->buildEmployeeSubmittedVerifiedSeries($user, $from, $to, 'day');
+    }
+
+    /**
+     * Work progress chart/table for admin filters: day | month | year.
+     *
+     * @return array{
+     *     labels: list<string>,
+     *     submitted: list<int>,
+     *     verified: list<int>,
+     *     period: string,
+     *     periodLabel: string,
+     *     granularity: string,
+     *     columnLabel: string
+     * }
+     */
+    public function employeeWorkProgressChart(User $user, string $period = 'month'): array
+    {
+        $period = in_array($period, ['day', 'month', 'year'], true) ? $period : 'month';
+        $to = now()->endOfDay();
+
+        [$from, $granularity, $periodLabel, $columnLabel] = match ($period) {
+            'day' => [
+                now()->startOfDay(),
+                'day',
+                'Today',
+                'Date',
+            ],
+            'year' => [
+                now()->startOfYear(),
+                'month',
+                'This year ('.now()->format('Y').')',
+                'Month',
+            ],
+            default => [
+                now()->startOfMonth(),
+                'day',
+                'This month ('.now()->format('M Y').')',
+                'Date',
+            ],
+        };
+
+        $series = $this->buildEmployeeSubmittedVerifiedSeries($user, $from, $to, $granularity);
+
+        return [
+            ...$series,
+            'period' => $period,
+            'periodLabel' => $periodLabel,
+            'granularity' => $granularity,
+            'columnLabel' => $columnLabel,
+        ];
+    }
+
+    /**
+     * @return array{labels: list<string>, submitted: list<int>, verified: list<int>}
+     */
+    private function buildEmployeeSubmittedVerifiedSeries(
+        User $user,
+        Carbon $from,
+        Carbon $to,
+        string $granularity,
+    ): array {
         $submittedByDay = $this->leadRepository
             ->dailyCountsForCreator($user->id, $from, $to, LeadSource::Employee)
             ->keyBy(fn ($row) => (string) $row->day);
@@ -277,7 +339,36 @@ class LeadService
         $submitted = [];
         $verified = [];
 
-        for ($day = $from->copy(); $day->lte($to); $day->addDay()) {
+        if ($granularity === 'month') {
+            for ($month = $from->copy()->startOfMonth(); $month->lte($to); $month->addMonth()) {
+                $key = $month->format('Y-m');
+                $monthStart = $month->copy()->startOfMonth();
+                $monthEnd = $month->copy()->endOfMonth();
+                if ($monthEnd->gt($to)) {
+                    $monthEnd = $to->copy();
+                }
+
+                $submittedTotal = 0;
+                $verifiedTotal = 0;
+                for ($day = $monthStart->copy(); $day->lte($monthEnd); $day->addDay()) {
+                    $dayKey = $day->toDateString();
+                    $submittedTotal += (int) ($submittedByDay->get($dayKey)?->total ?? 0);
+                    $verifiedTotal += (int) ($verifiedByDay->get($dayKey)?->total ?? 0);
+                }
+
+                $labels[] = $key;
+                $submitted[] = $submittedTotal;
+                $verified[] = $verifiedTotal;
+            }
+
+            return [
+                'labels' => $labels,
+                'submitted' => $submitted,
+                'verified' => $verified,
+            ];
+        }
+
+        for ($day = $from->copy()->startOfDay(); $day->lte($to); $day->addDay()) {
             $key = $day->toDateString();
             $labels[] = $key;
             $submitted[] = (int) ($submittedByDay->get($key)?->total ?? 0);
