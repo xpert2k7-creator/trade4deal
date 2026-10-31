@@ -30,4 +30,19 @@ enum ProductType: string
             self::Other => 'Other',
         };
     }
+
+    public function description(): string
+    {
+        return match ($this) {
+            self::Machinery => 'Industrial machines and equipment from verified suppliers.',
+            self::Textiles => 'Fabrics, garments, and apparel ready for wholesale trade.',
+            self::Electronics => 'Consumer and industrial electronics from trusted sellers.',
+            self::Agriculture => 'Farm produce, inputs, and agri supplies for global buyers.',
+            self::Chemicals => 'Industrial and specialty chemicals from verified exporters.',
+            self::Construction => 'Building materials and supplies for construction projects.',
+            self::Medical => 'Medical devices and healthcare equipment for buyers.',
+            self::Food => 'Packaged foods and beverages for domestic and export trade.',
+            self::Other => 'Additional trade products across emerging categories.',
+        };
+    }
 }

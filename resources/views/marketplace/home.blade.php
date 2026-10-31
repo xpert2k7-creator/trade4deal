@@ -1885,7 +1885,7 @@
                         <div class="section-heading-row mb-2">
                             <div>
                                 <h2>{{ $category->label() }}</h2>
-                                <p>{{ $products->count() }} active product{{ $products->count() === 1 ? '' : 's' }}</p>
+                                <p>{{ $category->description() }}</p>
                             </div>
                             <a
                                 class="category-view-all-btn"
