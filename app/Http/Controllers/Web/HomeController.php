@@ -39,11 +39,20 @@ class HomeController extends Controller
                     ->whereNotNull('slug');
             });
 
-        $productsByCategory = (clone $publicProductQuery)
-            ->latest()
-            ->limit(72)
-            ->get()
-            ->groupBy(fn (Product $product): string => $product->product_type?->value ?? 'other');
+        // Load up to 12 newest public products per category so each slider
+        // is filled when stock exists (instead of one global newest-72 pool).
+        $perCategoryLimit = 12;
+        $productsByCategory = $categories->mapWithKeys(
+            function (ProductType $category) use ($publicProductQuery, $perCategoryLimit) {
+                return [
+                    $category->value => (clone $publicProductQuery)
+                        ->where('product_type', $category->value)
+                        ->latest()
+                        ->limit($perCategoryLimit)
+                        ->get(),
+                ];
+            }
+        );
 
         $marketplaceStats = [
             'visible_leads' => $leads->total(),
