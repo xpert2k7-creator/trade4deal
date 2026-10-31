@@ -35,6 +35,8 @@ class GoldPlanTest extends TestCase
             ->assertOk()
             ->assertSee('Choose your plan')
             ->assertSee('Gold')
+            ->assertSee('₹0')
+            ->assertDontSee('/ month')
             ->assertSee('₹25,000')
             ->assertSee('/ year');
     }
@@ -45,7 +47,26 @@ class GoldPlanTest extends TestCase
 
         $this->get(route('plans.index'))
             ->assertOk()
+            ->assertSee('$0')
+            ->assertDontSee('/ month')
             ->assertSee('$265')
+            ->assertSee('/ year');
+    }
+
+    public function test_plans_page_uses_us_cf_ip_country_for_dollar_pricing(): void
+    {
+        // Simulate a US visitor IP country signal (no hard override).
+        config(['trade4deal.pricing_country_override' => null]);
+
+        $this->withServerVariables(['REMOTE_ADDR' => '8.8.8.8'])
+            ->withHeader('CF-IPCountry', 'US')
+            ->get(route('plans.index'))
+            ->assertOk()
+            ->assertSee('$0')
+            ->assertSee('$265')
+            ->assertDontSee('₹0')
+            ->assertDontSee('₹25,000')
+            ->assertDontSee('/ month')
             ->assertSee('/ year');
     }
 
