@@ -286,6 +286,11 @@
         color: inherit;
     }
 
+    .similar-card-media {
+        position: relative;
+        background: #E8EEF5;
+    }
+
     .similar-card img,
     .similar-card .ph {
         width: 100%;
@@ -303,7 +308,84 @@
         font-size: 1.5rem;
     }
 
+    .similar-card-posted {
+        position: absolute;
+        left: 0.5rem;
+        bottom: 0.5rem;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.28rem;
+        max-width: calc(100% - 1rem);
+        padding: 0.24rem 0.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.65);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.94);
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12);
+        color: #334155;
+        font-size: 0.66rem;
+        font-weight: 700;
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .similar-card-posted i {
+        color: var(--t4d-accent);
+        font-size: 0.7rem;
+        flex-shrink: 0;
+    }
+
     .similar-card .body { padding: 0.85rem 0.95rem 1rem; }
+
+    .similar-card-title {
+        margin-bottom: 0.55rem;
+        font-size: 0.92rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        line-height: 1.35;
+    }
+
+    .similar-card-facts {
+        display: grid;
+        gap: 0.35rem;
+    }
+
+    .similar-card-fact {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.4rem;
+        min-width: 0;
+        color: #334155;
+        font-size: 0.76rem;
+        line-height: 1.35;
+    }
+
+    .similar-card-fact i {
+        margin-top: 0.08rem;
+        color: var(--t4d-primary);
+        font-size: 0.82rem;
+        flex-shrink: 0;
+    }
+
+    .similar-card-fact strong {
+        display: block;
+        margin-bottom: 0.08rem;
+        color: #64748b;
+        font-size: 0.62rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .similar-card-fact span {
+        display: block;
+        min-width: 0;
+        color: #0f172a;
+        font-weight: 700;
+        overflow-wrap: anywhere;
+    }
 
     @media (max-width: 991px) {
         .contact-card { position: static; }
@@ -521,17 +603,37 @@
                         @foreach ($similarLeads as $similar)
                             <div class="col-md-6 col-xl-3">
                                 <a href="{{ route('leads.show', $similar) }}" class="similar-card">
-                                    @if ($similar->productImageUrl())
-                                        <img src="{{ $similar->productImageUrl() }}" alt="" onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');">
-                                        <div class="ph d-none" aria-hidden="true"><i class="bi bi-box-seam"></i></div>
-                                    @else
-                                        <div class="ph" aria-hidden="true"><i class="bi bi-box-seam"></i></div>
-                                    @endif
+                                    <div class="similar-card-media">
+                                        @if ($similar->productImageUrl())
+                                            <img src="{{ $similar->productImageUrl() }}" alt="" onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');">
+                                            <div class="ph d-none" aria-hidden="true"><i class="bi bi-box-seam"></i></div>
+                                        @else
+                                            <div class="ph" aria-hidden="true"><i class="bi bi-box-seam"></i></div>
+                                        @endif
+                                        @if ($similar->published_at)
+                                            <span class="similar-card-posted" title="{{ $similar->published_at->format('M j, Y') }}">
+                                                <i class="bi bi-clock" aria-hidden="true"></i>
+                                                Posted {{ $similar->published_at->diffForHumans() }}
+                                            </span>
+                                        @endif
+                                    </div>
                                     <div class="body">
-                                        <div class="fw-bold mb-1" style="font-size:0.92rem;letter-spacing:-0.02em;">{{ Str::limit($similar->product_interest, 42) }}</div>
-                                        <div class="small text-muted">Qty · {{ $similar->quantityLabel() }}</div>
-                                        <div class="small fw-semibold mt-2" style="color: var(--t4d-accent);">
-                                            <i class="bi bi-geo-alt me-1"></i>{{ $similar->locationLabel() }}
+                                        <div class="similar-card-title">{{ Str::limit($similar->product_interest, 42) }}</div>
+                                        <div class="similar-card-facts">
+                                            <div class="similar-card-fact">
+                                                <i class="bi bi-boxes" aria-hidden="true"></i>
+                                                <div>
+                                                    <strong>Qty</strong>
+                                                    <span>{{ $similar->quantityLabel() }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="similar-card-fact">
+                                                <i class="bi bi-geo-alt" aria-hidden="true"></i>
+                                                <div>
+                                                    <strong>Location</strong>
+                                                    <span>{{ $similar->locationLabel() }}</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </a>
