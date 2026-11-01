@@ -1069,6 +1069,7 @@
     }
 
     .lead-card-media {
+        position: relative;
         height: 148px;
         border: 1px solid #d6dce8;
         border-width: 0 0 1px;
@@ -1078,6 +1079,35 @@
         background: linear-gradient(145deg, #f8fafc, #eef5ff 55%, #f0fdfa);
         color: var(--t4d-primary);
         font-size: 2rem;
+    }
+
+    .lead-card-posted {
+        position: absolute;
+        left: 0.55rem;
+        bottom: 0.55rem;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        max-width: calc(100% - 1.1rem);
+        padding: 0.28rem 0.55rem;
+        border: 1px solid rgba(255, 255, 255, 0.65);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.94);
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12);
+        color: #334155;
+        font-size: 0.68rem;
+        font-weight: 700;
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .lead-card-posted i {
+        color: var(--t4d-accent);
+        font-size: 0.72rem;
+        flex-shrink: 0;
     }
 
     .lead-card-media img {
@@ -2131,6 +2161,12 @@
                                             <i class="bi bi-box-seam d-none" aria-hidden="true"></i>
                                         @else
                                             <i class="bi bi-box-seam" aria-hidden="true"></i>
+                                        @endif
+                                        @if($lead->published_at)
+                                            <span class="lead-card-posted" title="{{ $lead->published_at->format('M j, Y') }}">
+                                                <i class="bi bi-clock" aria-hidden="true"></i>
+                                                Posted {{ $lead->published_at->diffForHumans() }}
+                                            </span>
                                         @endif
                                     </div>
                                     <div class="lead-card-body">
