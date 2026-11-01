@@ -136,7 +136,14 @@ class Lead extends BaseModel
     {
         $location = collect([$this->city, $this->country])
             ->map(fn (?string $part) => is_string($part) ? trim($part) : '')
-            ->filter(fn (string $part) => $part !== '')
+            ->filter(function (string $part): bool {
+                if ($part === '') {
+                    return false;
+                }
+
+                // Ignore placeholder city/country values like "-", "—", "N/A".
+                return ! preg_match('/^(?:[-–—_|]+|n\/?a|null|none|unknown)$/i', $part);
+            })
             ->implode(', ');
 
         return $location !== '' ? $location : 'Global';
