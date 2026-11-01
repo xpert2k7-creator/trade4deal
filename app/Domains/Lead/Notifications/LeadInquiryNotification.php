@@ -32,7 +32,7 @@ class LeadInquiryNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('New inquiry about your Trade4Deal lead: '.$this->lead->product_interest)
+            ->subject('New inquiry about your Trade4Deal buyer lead: '.$this->lead->product_interest)
             ->replyTo($this->inquiry['email'], $this->inquiry['name'])
             ->view('emails.leads.inquiry', [
                 'lead' => $this->lead,

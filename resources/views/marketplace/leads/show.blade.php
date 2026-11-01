@@ -1,6 +1,6 @@
 @extends('layouts.marketplace')
 
-@section('title', $lead->product_interest.' — '.$lead->company_name.' | Trade4Deal')
+@section('title', $lead->product_interest.' | Trade4Deal')
 
 @push('styles')
 <style>
@@ -336,15 +336,12 @@
             <div class="d-flex flex-column flex-lg-row align-items-lg-end justify-content-between gap-3">
                 <div>
                     <h1 class="lead-hero-title">{{ $lead->product_interest }}</h1>
-                    <p class="lead-hero-sub">
-                        Posted by <strong>{{ $lead->company_name }}</strong>
-                        @if ($lead->published_at)
-                            · {{ $lead->published_at->diffForHumans() }}
-                        @endif
-                    </p>
+                    @if ($lead->published_at)
+                        <p class="lead-hero-sub">Published {{ $lead->published_at->diffForHumans() }}</p>
+                    @endif
                 </div>
-                <a href="#contact-supplier" class="btn btn-light btn-sm fw-semibold px-3">
-                    <i class="bi bi-envelope-paper me-1"></i>Contact supplier
+                <a href="#contact-buyer" class="btn btn-light btn-sm fw-semibold px-3">
+                    <i class="bi bi-envelope-paper me-1"></i>Contact buyer
                 </a>
             </div>
         </div>
@@ -358,9 +355,10 @@
                         <div class="panel-pad">
                             <div class="media-row mb-3">
                                 @if ($lead->productImageUrl())
-                                    <img src="{{ $lead->productImageUrl() }}" alt="{{ $lead->product_interest }}" class="product-thumb">
+                                    <img src="{{ $lead->productImageUrl() }}" alt="" class="product-thumb" onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');">
+                                    <div class="product-thumb-ph d-none" aria-hidden="true"><i class="bi bi-box-seam"></i></div>
                                 @else
-                                    <div class="product-thumb-ph"><i class="bi bi-box-seam"></i></div>
+                                    <div class="product-thumb-ph" aria-hidden="true"><i class="bi bi-box-seam"></i></div>
                                 @endif
                                 <div>
                                     <h2 class="mb-2">Lead overview</h2>
@@ -399,7 +397,7 @@
                                 <p class="desc-body">{{ $lead->message }}</p>
                             @else
                                 <p class="desc-fallback">
-                                    {{ $lead->company_name }} is seeking opportunities related to
+                                    A verified buyer is seeking opportunities related to
                                     <strong>{{ $lead->product_interest }}</strong>
                                     ({{ $lead->product_type?->label() }}) in {{ $lead->country }}.
                                     Use the contact form to introduce your offer or sourcing needs.
@@ -411,20 +409,20 @@
                     <div class="panel">
                         <div class="panel-pad">
                             <div class="poster-head">
-                                <div class="poster-avatar">{{ strtoupper(substr($lead->company_name, 0, 1)) }}</div>
+                                <div class="poster-avatar"><i class="bi bi-shield-check"></i></div>
                                 <div>
-                                    <div class="small text-uppercase fw-bold text-muted" style="letter-spacing:0.05em;font-size:0.65rem;">Lead poster</div>
-                                    <div class="fw-bold" style="letter-spacing:-0.02em;">{{ $lead->company_name }}</div>
+                                    <div class="small text-uppercase fw-bold text-muted" style="letter-spacing:0.05em;font-size:0.65rem;">Buyer details</div>
+                                    <div class="fw-bold" style="letter-spacing:-0.02em;">Identity protected</div>
                                 </div>
                             </div>
                             <div class="poster-meta">
                                 <div class="item">
-                                    <div class="label">Contact person</div>
-                                    <div class="value">{{ $lead->contact_name }}</div>
+                                    <div class="label">Location</div>
+                                    <div class="value">{{ $lead->locationLabel() }}</div>
                                 </div>
                                 <div class="item">
-                                    <div class="label">Country</div>
-                                    <div class="value">{{ $lead->country }}</div>
+                                    <div class="label">Qty</div>
+                                    <div class="value">{{ $lead->quantityLabel() }}</div>
                                 </div>
                                 <div class="item">
                                     <div class="label">Business type</div>
@@ -437,20 +435,20 @@
                             </div>
                             <p class="privacy-line">
                                 <i class="bi bi-shield-lock me-1"></i>
-                                Phone number is kept private. Reach this supplier using the contact form.
+                                Buyer company and contact details stay private. Reach them using the contact form.
                             </p>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-lg-5">
-                    <div class="contact-card" id="contact-supplier">
+                    <div class="contact-card" id="contact-buyer">
                         <div class="eyebrow">Connect securely</div>
-                        <h2>Contact with Supplier</h2>
-                        <p class="text-muted small mb-0">Your message is emailed directly to the poster.</p>
+                        <h2>Connect with Buyer</h2>
+                        <p class="text-muted small mb-0">Your message is emailed directly to the buyer behind this lead.</p>
                         <div class="privacy-note">
                             <i class="bi bi-eye-slash me-1"></i>
-                            The supplier's phone is never shown. They reply to the email you provide.
+                            The buyer's phone is never shown. They reply to the email you provide.
                         </div>
 
                         <form method="POST" action="{{ route('leads.contact', $lead) }}">
@@ -524,16 +522,16 @@
                             <div class="col-md-6 col-xl-3">
                                 <a href="{{ route('leads.show', $similar) }}" class="similar-card">
                                     @if ($similar->productImageUrl())
-                                        <img src="{{ $similar->productImageUrl() }}" alt="{{ $similar->product_interest }}">
+                                        <img src="{{ $similar->productImageUrl() }}" alt="" onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');">
+                                        <div class="ph d-none" aria-hidden="true"><i class="bi bi-box-seam"></i></div>
                                     @else
-                                        <div class="ph"><i class="bi bi-box-seam"></i></div>
+                                        <div class="ph" aria-hidden="true"><i class="bi bi-box-seam"></i></div>
                                     @endif
                                     <div class="body">
-                                        <div class="small text-muted mb-1">{{ $similar->country }} · {{ $similar->business_type?->label() }}</div>
                                         <div class="fw-bold mb-1" style="font-size:0.92rem;letter-spacing:-0.02em;">{{ Str::limit($similar->product_interest, 42) }}</div>
-                                        <div class="small text-muted">{{ $similar->company_name }}</div>
+                                        <div class="small text-muted">Qty · {{ $similar->quantityLabel() }}</div>
                                         <div class="small fw-semibold mt-2" style="color: var(--t4d-accent);">
-                                            {{ $similar->currency?->value }} · {{ $similar->units?->label() }}
+                                            <i class="bi bi-geo-alt me-1"></i>{{ $similar->locationLabel() }}
                                         </div>
                                     </div>
                                 </a>

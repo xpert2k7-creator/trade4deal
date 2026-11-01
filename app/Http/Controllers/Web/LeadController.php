@@ -20,8 +20,14 @@ use Illuminate\View\View;
 
 class LeadController extends Controller
 {
-    public function show(Lead $lead, LeadService $leadService): View
+    public function show(Lead $lead, LeadService $leadService): View|RedirectResponse
     {
+        if (! auth()->check()) {
+            return redirect()
+                ->guest(route('login'))
+                ->with('status', 'Please login or register to view this lead.');
+        }
+
         $this->authorize('view', $lead);
 
         $viewer = auth()->user();
@@ -40,6 +46,14 @@ class LeadController extends Controller
         Lead $lead,
         LeadService $leadService,
     ): RedirectResponse {
+        if (! auth()->check()) {
+            session(['url.intended' => route('leads.show', $lead)]);
+
+            return redirect()
+                ->route('login')
+                ->with('status', 'Please login or register to view this lead.');
+        }
+
         $this->authorize('view', $lead);
 
         abort_unless($leadService->isVisibleToViewer($lead, auth()->user()), 404);
@@ -51,7 +65,7 @@ class LeadController extends Controller
 
         return redirect()
             ->route('leads.show', $lead)
-            ->with('success', 'Your message has been sent to the supplier. They can reply to you by email.');
+            ->with('success', 'Your message has been sent to the buyer. They can reply to you by email.');
     }
 
     public function store(

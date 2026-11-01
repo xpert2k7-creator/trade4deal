@@ -35,6 +35,7 @@ class LeadVisibilityPlanTest extends TestCase
 
         $this->get(route('home'))
             ->assertOk()
+            ->assertDontSee('Copper Wire')
             ->assertDontSee('Fresh Lead Corp');
     }
 
@@ -43,12 +44,17 @@ class LeadVisibilityPlanTest extends TestCase
         Lead::factory()->create([
             'company_name' => 'Old Lead Corp',
             'product_interest' => 'Steel Beams',
+            'city' => 'Dubai',
+            'country' => 'UAE',
+            'required_quantity' => 100,
             'published_at' => now()->subDays(8),
         ]);
 
         $this->get(route('home'))
             ->assertOk()
-            ->assertSee('Old Lead Corp');
+            ->assertSee('Steel Beams')
+            ->assertSee('Dubai, UAE')
+            ->assertDontSee('Old Lead Corp');
     }
 
     public function test_gold_user_sees_recently_published_lead_immediately(): void
@@ -67,7 +73,8 @@ class LeadVisibilityPlanTest extends TestCase
         $this->actingAs($user)
             ->get(route('home'))
             ->assertOk()
-            ->assertSee('Gold Instant Corp');
+            ->assertSee('Solar Panels')
+            ->assertDontSee('Gold Instant Corp');
     }
 
     public function test_free_user_cannot_see_recently_published_lead(): void
@@ -80,11 +87,13 @@ class LeadVisibilityPlanTest extends TestCase
 
         Lead::factory()->publishedRecently()->create([
             'company_name' => 'Delayed For Free Corp',
+            'product_interest' => 'Delayed Free Product',
         ]);
 
         $this->actingAs($user)
             ->get(route('home'))
             ->assertOk()
+            ->assertDontSee('Delayed Free Product')
             ->assertDontSee('Delayed For Free Corp');
     }
 }

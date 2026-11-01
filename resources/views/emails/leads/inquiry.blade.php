@@ -19,12 +19,13 @@
                 <tr>
                     <td style="padding:32px;">
                         <div style="display:inline-block;background:rgba(14,116,144,0.12);color:#0E7490;font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px;margin-bottom:16px;">INQUIRY</div>
-                        <h1 style="margin:0 0 12px;font-size:22px;line-height:1.3;color:#0B3A6E;">Someone wants to connect</h1>
+                        <h1 style="margin:0 0 12px;font-size:22px;line-height:1.3;color:#0B3A6E;">New inquiry on your buyer lead</h1>
                         <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#334155;">
                             Hello {{ $lead->contact_name }},
                         </p>
                         <p style="margin:0 0 20px;font-size:15px;line-height:1.6;color:#334155;">
-                            A Trade4Deal member reached out about your lead <strong>{{ $lead->product_interest }}</strong> from {{ $lead->company_name }}.
+                            A Trade4Deal member reached out about your buyer lead
+                            <strong>{{ $lead->product_interest }}</strong>.
                         </p>
 
                         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#F7F8FA;border-radius:12px;border:1px solid #E2E8F0;margin-bottom:20px;">

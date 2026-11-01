@@ -33,7 +33,8 @@ class MarketplaceLeadDirectoryTest extends TestCase
         $this->get(route('marketplace.page', ['page' => 'lead-directory']))
             ->assertOk()
             ->assertSee('Basmati Rice Buyers Needed')
-            ->assertSee('Rice Traders LLC')
+            ->assertSee('Login to view')
+            ->assertDontSee('Rice Traders LLC')
             ->assertDontSee('Hidden Pending Rice Lead');
     }
 
@@ -61,7 +62,7 @@ class MarketplaceLeadDirectoryTest extends TestCase
         ]))
             ->assertOk()
             ->assertSee('Apple Juice Concentrate')
-            ->assertSee('Fruit Buyers Inc')
+            ->assertDontSee('Fruit Buyers Inc')
             ->assertDontSee('Industrial Bearings');
     }
 

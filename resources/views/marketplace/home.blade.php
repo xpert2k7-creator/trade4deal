@@ -1048,7 +1048,7 @@
         scroll-snap-align: start;
         overflow: hidden;
         border: 1px solid #d6dce8;
-        border-radius: 9px;
+        border-radius: 12px;
         background: #fff;
         box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
         transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
@@ -1060,14 +1060,22 @@
         transform: translateY(-2px);
     }
 
+    .lead-card-link {
+        display: grid;
+        grid-template-rows: 148px auto;
+        color: inherit;
+        text-decoration: none;
+        height: 100%;
+    }
+
     .lead-card-media {
-        height: 128px;
+        height: 148px;
         border: 1px solid #d6dce8;
         border-width: 0 0 1px;
         display: grid;
         place-items: center;
         overflow: hidden;
-        background: linear-gradient(135deg, #f8fafc, #eef5ff);
+        background: linear-gradient(145deg, #f8fafc, #eef5ff 55%, #f0fdfa);
         color: var(--t4d-primary);
         font-size: 2rem;
     }
@@ -1076,68 +1084,97 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
+        transition: transform 0.28s ease;
+    }
+
+    .lead-card-market:hover .lead-card-media img {
+        transform: scale(1.04);
     }
 
     .lead-card-body {
         display: grid;
-        gap: 0.64rem;
-        padding: 0.8rem;
+        gap: 0.7rem;
+        padding: 0.85rem 0.9rem 0.95rem;
     }
 
     .lead-card-title {
-        display: block;
+        display: -webkit-box;
+        overflow: hidden;
         color: #061224;
-        font-size: 1rem;
+        font-size: 0.95rem;
         font-weight: 800;
         line-height: 1.35;
-        text-decoration: none;
-        overflow-wrap: anywhere;
+        letter-spacing: -0.01em;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
     }
 
-    .lead-card-title:hover {
+    .lead-card-market:hover .lead-card-title {
         color: var(--t4d-primary);
     }
 
-    .lead-card-meta {
-        color: #64748b;
-        font-size: 0.82rem;
-        line-height: 1.45;
+    .lead-card-facts {
+        display: grid;
+        gap: 0.45rem;
     }
 
-    .lead-updated-meta {
-        color: #0f766e;
-        font-size: 0.75rem;
-        font-weight: 800;
+    .lead-card-fact {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.45rem;
+        min-width: 0;
+        color: #334155;
+        font-size: 0.78rem;
         line-height: 1.35;
     }
 
-    .lead-card-company {
-        color: #0f172a;
-        font-size: 0.9rem;
+    .lead-card-fact i {
+        margin-top: 0.1rem;
+        color: var(--t4d-primary);
+        font-size: 0.85rem;
+        flex-shrink: 0;
+    }
+
+    .lead-card-fact strong {
+        display: block;
+        color: #64748b;
+        font-size: 0.65rem;
         font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        margin-bottom: 0.1rem;
+    }
+
+    .lead-card-fact span {
+        display: block;
+        min-width: 0;
+        color: #0f172a;
+        font-weight: 700;
         overflow-wrap: anywhere;
     }
 
-    .lead-card-info {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 0.5rem;
+    .lead-card-cta {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+        width: 100%;
+        min-height: 2.05rem;
+        border: 1px solid var(--t4d-border, #d6dce8);
+        border-radius: 10px;
+        background: var(--t4d-card, #fff);
+        color: var(--t4d-dark, #0f172a);
+        font-size: 0.74rem;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
     }
 
-    .lead-info-label {
-        display: block;
-        margin-bottom: 0.2rem;
-        color: #64748b;
-        font-size: 0.68rem;
-        font-weight: 800;
-        text-transform: uppercase;
-    }
-
-    .lead-info-value {
-        color: #061224;
-        font-size: 0.82rem;
-        font-weight: 800;
-        line-height: 1.35;
+    .lead-card-market:hover .lead-card-cta {
+        border-color: var(--t4d-primary);
+        background: var(--t4d-primary);
+        color: #fff;
+        box-shadow: 0 8px 18px rgba(6, 68, 117, 0.22);
     }
 
     .lead-payment-row {
@@ -1708,7 +1745,11 @@
         }
 
         .lead-card-media {
-            height: 132px;
+            height: 136px;
+        }
+
+        .lead-card-link {
+            grid-template-rows: 136px auto;
         }
     }
 
@@ -2082,48 +2123,43 @@
                 @else
                     <div class="lead-card-grid">
                         @foreach($leads as $lead)
-                            <article class="lead-card-market marketplace-search-item" data-search-text="{{ strtolower($lead->product_interest.' '.$lead->company_name.' '.$lead->country.' '.$lead->product_type?->label().' '.$lead->business_type?->label()) }}">
-                                <a href="{{ route('leads.show', $lead) }}" class="lead-card-media" aria-label="View {{ $lead->product_interest }}">
-                                    @if($lead->productImageUrl())
-                                        <img src="{{ $lead->productImageUrl() }}" alt="{{ $lead->product_interest }}" loading="lazy">
-                                    @else
-                                        <i class="bi bi-image"></i>
-                                    @endif
+                            <article class="lead-card-market marketplace-search-item" data-search-text="{{ strtolower(trim($lead->product_interest.' '.$lead->city.' '.$lead->country.' '.($lead->product_type ? $lead->product_type->label() : ''))) }}">
+                                <a href="{{ route('leads.show', $lead) }}" class="lead-card-link" aria-label="{{ auth()->check() ? 'View lead' : 'Login to view' }}: {{ $lead->product_interest }}">
+                                    <div class="lead-card-media">
+                                        @if($lead->productImageUrl())
+                                            <img src="{{ $lead->productImageUrl() }}" alt="" loading="lazy" onerror="this.nextElementSibling.classList.remove('d-none'); this.remove();">
+                                            <i class="bi bi-box-seam d-none" aria-hidden="true"></i>
+                                        @else
+                                            <i class="bi bi-box-seam" aria-hidden="true"></i>
+                                        @endif
+                                    </div>
+                                    <div class="lead-card-body">
+                                        <div class="lead-card-title">{{ $lead->product_interest }}</div>
+                                        <div class="lead-card-facts">
+                                            <div class="lead-card-fact">
+                                                <i class="bi bi-boxes" aria-hidden="true"></i>
+                                                <div>
+                                                    <strong>Qty</strong>
+                                                    <span>{{ $lead->quantityLabel() }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="lead-card-fact">
+                                                <i class="bi bi-geo-alt" aria-hidden="true"></i>
+                                                <div>
+                                                    <strong>Location</strong>
+                                                    <span>{{ $lead->locationLabel() }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="lead-card-cta">
+                                            @if(auth()->check())
+                                                <i class="bi bi-eye"></i> View lead
+                                            @else
+                                                <i class="bi bi-lock"></i> View lead
+                                            @endif
+                                        </div>
+                                    </div>
                                 </a>
-                                <div class="lead-card-body">
-                                    <div>
-                                        <a href="{{ route('leads.show', $lead) }}" class="lead-card-title">{{ $lead->product_interest }}</a>
-                                        <div class="lead-card-meta">{{ $lead->published_at?->diffForHumans() }}</div>
-                                    </div>
-
-                                    <div>
-                                        <div class="lead-card-company">{{ $lead->company_name }}</div>
-                                        <div class="lead-card-meta"><i class="bi bi-geo-alt me-1"></i>{{ $lead->country }}</div>
-                                    </div>
-
-                                    <div class="lead-card-info">
-                                        <div>
-                                            <span class="lead-info-label">Category</span>
-                                            <span class="chip-market">{{ $lead->product_type?->label() ?? 'Product' }}</span>
-                                        </div>
-                                        <div>
-                                            <span class="lead-info-label">Trade</span>
-                                            <div class="lead-info-value">{{ $lead->currency?->value }} &middot; {{ $lead->units?->label() }}</div>
-                                            <div class="lead-card-meta">{{ $lead->business_type?->label() }}</div>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <span class="lead-info-label">Payment</span>
-                                        <div class="lead-payment-row">
-                                            @foreach($lead->paymentMethodEnums() as $method)
-                                                <span class="chip-market">{{ $method->label() }}</span>
-                                            @endforeach
-                                        </div>
-                                    </div>
-
-                                    <a href="{{ route('leads.show', $lead) }}" class="btn btn-sm btn-outline-t4d w-100">View &amp; contact</a>
-                                </div>
                             </article>
                         @endforeach
                     </div>

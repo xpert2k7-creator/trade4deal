@@ -32,6 +32,7 @@ class LeadFactory extends Factory
             'email' => fake()->unique()->companyEmail(),
             'phone' => fake()->phoneNumber(),
             'country' => fake()->country(),
+            'city' => fake()->city(),
             'business_type' => fake()->randomElement(BusinessType::cases()),
             'product_interest' => fake()->randomElement([
                 'Industrial Machinery',
@@ -45,6 +46,7 @@ class LeadFactory extends Factory
             'product_image_path' => null,
             'currency' => fake()->randomElement(Currency::cases())->value,
             'units' => fake()->randomElement(LeadUnit::cases())->value,
+            'required_quantity' => fake()->randomFloat(2, 10, 5000),
             'payment_methods' => [PaymentMethod::WireTransfer->value, PaymentMethod::LetterOfCredit->value],
             'message' => fake()->optional()->sentence(),
             'source' => LeadSource::User,

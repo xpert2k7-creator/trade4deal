@@ -109,11 +109,37 @@ class Lead extends BaseModel
 
     public function productImageUrl(): ?string
     {
-        if ($this->product_image_path === null) {
+        $path = is_string($this->product_image_path) ? trim($this->product_image_path) : '';
+
+        if ($path === '') {
             return null;
         }
 
-        return '/uploads/'.ltrim($this->product_image_path, '/');
+        return '/uploads/'.ltrim($path, '/');
+    }
+
+    public function quantityLabel(): string
+    {
+        if ($this->required_quantity === null) {
+            return 'On request';
+        }
+
+        $quantity = rtrim(rtrim(number_format((float) $this->required_quantity, 3, '.', ''), '0'), '.');
+        $unit = $this->units?->label();
+
+        return $unit !== null && $unit !== ''
+            ? $quantity.' '.$unit
+            : $quantity;
+    }
+
+    public function locationLabel(): string
+    {
+        $location = collect([$this->city, $this->country])
+            ->map(fn (?string $part) => is_string($part) ? trim($part) : '')
+            ->filter(fn (string $part) => $part !== '')
+            ->implode(', ');
+
+        return $location !== '' ? $location : 'Global';
     }
 
     /**

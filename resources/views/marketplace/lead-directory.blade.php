@@ -630,47 +630,29 @@
         @else
             <section class="product-grid" aria-label="Buyer lead listings">
                 @foreach($leads as $lead)
-                    @php
-                        $leadUrl = route('leads.show', $lead);
-                        $unitLabel = $lead->units?->label() ?? 'Unit';
-                        $roleLabel = $lead->business_type?->label() ?? 'Lead';
-                    @endphp
-
-                    <article class="product-card marketplace-search-item" data-search-text="{{ strtolower($lead->product_interest.' '.$lead->company_name.' '.$lead->country.' '.$lead->product_type?->label().' '.$roleLabel) }}">
-                        <span class="product-badge">{{ $roleLabel }}</span>
-                        <a class="product-media" href="{{ $leadUrl }}" aria-label="View {{ $lead->product_interest }}">
+                    <article class="product-card marketplace-search-item" data-search-text="{{ strtolower(trim($lead->product_interest.' '.$lead->city.' '.$lead->country.' '.($lead->product_type ? $lead->product_type->label() : ''))) }}">
+                        <a class="product-media" href="{{ route('leads.show', $lead) }}" aria-label="{{ auth()->check() ? 'View lead' : 'Login to view' }}: {{ $lead->product_interest }}">
                             @if($lead->productImageUrl())
-                                <img src="{{ $lead->productImageUrl() }}" alt="{{ $lead->product_interest }}" loading="lazy" onerror="this.nextElementSibling.classList.remove('d-none'); this.remove();">
-                                <span class="product-img-fallback d-none" aria-hidden="true"><i class="bi bi-clipboard-check"></i></span>
+                                <img src="{{ $lead->productImageUrl() }}" alt="" loading="lazy" onerror="this.nextElementSibling.classList.remove('d-none'); this.remove();">
+                                <span class="product-img-fallback d-none" aria-hidden="true"><i class="bi bi-box-seam"></i></span>
                             @else
-                                <span class="product-img-fallback" aria-hidden="true"><i class="bi bi-clipboard-check"></i></span>
+                                <span class="product-img-fallback" aria-hidden="true"><i class="bi bi-box-seam"></i></span>
                             @endif
-                            <span class="product-photo-count"><i class="bi bi-clock"></i> {{ $lead->published_at?->diffForHumans() ?? 'New' }}</span>
                         </a>
 
                         <div class="product-body">
-                            <a class="product-name" href="{{ $leadUrl }}">{{ $lead->product_interest }}</a>
-                            <div class="product-price">{{ $lead->currency?->value ?? 'USD' }} · {{ $unitLabel }}</div>
-                            <a class="contact-supplier text-decoration-none" href="{{ $leadUrl }}">
-                                <i class="bi bi-send-fill"></i> View &amp; Contact
-                            </a>
-
+                            <a class="product-name" href="{{ route('leads.show', $lead) }}">{{ $lead->product_interest }}</a>
                             <div class="spec-table" aria-label="{{ $lead->product_interest }} details">
-                                <div class="spec-row"><span>Category</span><span>{{ $lead->product_type?->label() ?? 'Other' }}</span></div>
-                                <div class="spec-row"><span>Trade</span><span>{{ $roleLabel }}</span></div>
-                                <div class="spec-row"><span>Unit</span><span>{{ $unitLabel }}</span></div>
-                                <div class="spec-row"><span>Country</span><span>{{ $lead->country ?: 'Not set' }}</span></div>
+                                <div class="spec-row"><span>Qty</span><span>{{ $lead->quantityLabel() }}</span></div>
+                                <div class="spec-row"><span>Location</span><span>{{ $lead->locationLabel() }}</span></div>
                             </div>
-
-                            <div class="supplier-line">
-                                <strong>{{ $lead->company_name }}</strong>
-                                <span><i class="bi bi-patch-check-fill text-success"></i></span>
-                            </div>
-                            <div class="rating-line">
-                                <span><i class="bi bi-geo-alt-fill"></i> Country</span>
-                                <span>{{ $lead->country ?: 'Global' }}</span>
-                            </div>
-                            <a class="call-line" href="{{ $leadUrl }}"><i class="bi bi-eye"></i> Open Lead</a>
+                            <a class="contact-supplier text-decoration-none mt-2" href="{{ route('leads.show', $lead) }}">
+                                @if(auth()->check())
+                                    <i class="bi bi-eye"></i> View lead
+                                @else
+                                    <i class="bi bi-lock"></i> View lead
+                                @endif
+                            </a>
                         </div>
                     </article>
 
