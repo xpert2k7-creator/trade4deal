@@ -2054,7 +2054,7 @@
                 <div class="alert alert-warning border-0 shadow-sm mb-3"><strong>Gold member</strong> - you see new leads instantly as they are published.</div>
             @else
                 <div class="alert alert-info border-0 shadow-sm mb-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
-                    <span><i class="bi bi-clock me-1"></i>Free accounts see leads <strong>24 hours</strong> after they go live.</span>
+                    <span><i class="bi bi-clock me-1"></i>Free accounts see leads <strong>7 days</strong> after they go live.</span>
                     <a href="{{ route('plans.index') }}" class="btn btn-sm btn-primary-t4d text-white">Upgrade to Gold</a>
                 </div>
             @endif
@@ -2074,7 +2074,7 @@
                             @if(($leadSearch ?? '') !== '')
                                 Try a different product, company, or country keyword.
                             @else
-                                New leads appear here after review. @unless(($isStaffViewer ?? false) || $viewerPlan->isGold()) Gold members see them 24 hours sooner. @endunless
+                                New leads appear here after review. @unless(($isStaffViewer ?? false) || $viewerPlan->isGold()) Gold members see them 7 days sooner. @endunless
                             @endif
                         </p>
                         <button type="button" class="btn btn-primary-t4d text-white" data-bs-toggle="modal" data-bs-target="#leadModal">Submit a Lead</button>

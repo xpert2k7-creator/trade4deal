@@ -38,12 +38,12 @@ class LeadVisibilityPlanTest extends TestCase
             ->assertDontSee('Fresh Lead Corp');
     }
 
-    public function test_guest_can_see_lead_published_over_24_hours_ago(): void
+    public function test_guest_can_see_lead_published_over_7_days_ago(): void
     {
         Lead::factory()->create([
             'company_name' => 'Old Lead Corp',
             'product_interest' => 'Steel Beams',
-            'published_at' => now()->subHours(25),
+            'published_at' => now()->subDays(8),
         ]);
 
         $this->get(route('home'))

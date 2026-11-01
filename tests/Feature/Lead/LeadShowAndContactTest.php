@@ -25,13 +25,13 @@ class LeadShowAndContactTest extends TestCase
         $this->seed(RolePermissionSeeder::class);
     }
 
-    public function test_guest_can_view_lead_published_over_24_hours_ago(): void
+    public function test_guest_can_view_lead_published_over_7_days_ago(): void
     {
         $lead = Lead::factory()->create([
             'company_name' => 'Visible Dealer Co',
             'product_interest' => 'Copper Wire Lots',
             'phone' => '+1 555 SECRET',
-            'published_at' => now()->subHours(25),
+            'published_at' => now()->subDays(8),
         ]);
 
         $this->get(route('leads.show', $lead))
@@ -79,7 +79,7 @@ class LeadShowAndContactTest extends TestCase
             'email' => 'dealer@example.com',
             'contact_name' => 'Dealer Owner',
             'product_interest' => 'Textile Yarn',
-            'published_at' => now()->subHours(25),
+            'published_at' => now()->subDays(8),
         ]);
 
         $this->post(route('leads.contact', $lead), [
@@ -101,20 +101,20 @@ class LeadShowAndContactTest extends TestCase
         $lead = Lead::factory()->create([
             'product_type' => ProductType::Electronics,
             'product_interest' => 'Main Electronics Lead',
-            'published_at' => now()->subHours(30),
+            'published_at' => now()->subDays(8),
         ]);
 
         Lead::factory()->create([
             'product_type' => ProductType::Electronics,
             'company_name' => 'Similar Electronics Corp',
             'product_interest' => 'Circuit Boards',
-            'published_at' => now()->subHours(28),
+            'published_at' => now()->subDays(8),
         ]);
 
         Lead::factory()->create([
             'product_type' => ProductType::Textiles,
             'company_name' => 'Unrelated Textile Corp',
-            'published_at' => now()->subHours(28),
+            'published_at' => now()->subDays(8),
         ]);
 
         $this->get(route('leads.show', $lead))
@@ -128,7 +128,7 @@ class LeadShowAndContactTest extends TestCase
     {
         $lead = Lead::factory()->create([
             'company_name' => 'Linked Dealer Inc',
-            'published_at' => now()->subHours(30),
+            'published_at' => now()->subDays(8),
         ]);
 
         $this->get(route('home'))

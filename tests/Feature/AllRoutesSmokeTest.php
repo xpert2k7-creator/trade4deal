@@ -119,7 +119,7 @@ class AllRoutesSmokeTest extends TestCase
     public function test_public_lead_and_seller_pages(): void
     {
         $lead = Lead::factory()->create([
-            'published_at' => now()->subHours(30),
+            'published_at' => now()->subDays(8),
         ]);
         $seller = User::factory()->seller()->create([
             'status' => RecordStatus::Active,

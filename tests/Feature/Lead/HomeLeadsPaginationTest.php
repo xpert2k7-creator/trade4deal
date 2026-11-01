@@ -15,7 +15,7 @@ class HomeLeadsPaginationTest extends TestCase
     public function test_homepage_live_leads_are_paginated(): void
     {
         Lead::factory()->count(12)->create([
-            'published_at' => now()->subHours(30),
+            'published_at' => now()->subDays(8),
         ]);
 
         $response = $this->get(route('home', ['per_page' => 10]));
@@ -28,7 +28,7 @@ class HomeLeadsPaginationTest extends TestCase
     public function test_homepage_second_page_shows_remaining_leads(): void
     {
         Lead::factory()->count(12)->create([
-            'published_at' => now()->subHours(30),
+            'published_at' => now()->subDays(8),
         ]);
 
         $this->get(route('home', ['page' => 2, 'per_page' => 10]))

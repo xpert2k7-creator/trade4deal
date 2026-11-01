@@ -22,7 +22,7 @@ class MarketplaceLeadDirectoryTest extends TestCase
             'country' => 'India',
             'product_type' => ProductType::Agriculture,
             'status' => RecordStatus::Active,
-            'published_at' => now()->subHours(30),
+            'published_at' => now()->subDays(8),
         ]);
 
         Lead::factory()->pending()->create([
@@ -44,7 +44,7 @@ class MarketplaceLeadDirectoryTest extends TestCase
             'company_name' => 'Fruit Buyers Inc',
             'country' => 'UAE',
             'status' => RecordStatus::Active,
-            'published_at' => now()->subHours(30),
+            'published_at' => now()->subDays(8),
         ]);
 
         Lead::factory()->create([
@@ -52,7 +52,7 @@ class MarketplaceLeadDirectoryTest extends TestCase
             'company_name' => 'Machinery Hub',
             'country' => 'India',
             'status' => RecordStatus::Active,
-            'published_at' => now()->subHours(30),
+            'published_at' => now()->subDays(8),
         ]);
 
         $this->get(route('marketplace.page', [
@@ -71,14 +71,14 @@ class MarketplaceLeadDirectoryTest extends TestCase
             'product_interest' => 'Cotton Fabric Requirement',
             'product_type' => ProductType::Textiles,
             'status' => RecordStatus::Active,
-            'published_at' => now()->subHours(30),
+            'published_at' => now()->subDays(8),
         ]);
 
         Lead::factory()->create([
             'product_interest' => 'Circuit Board Inquiry',
             'product_type' => ProductType::Electronics,
             'status' => RecordStatus::Active,
-            'published_at' => now()->subHours(30),
+            'published_at' => now()->subDays(8),
         ]);
 
         $this->get(route('marketplace.page', [

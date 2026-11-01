@@ -25,7 +25,7 @@
                         <h2 class="fw-bold mb-3">{{ ($price['currency'] ?? 'USD') === 'INR' ? '₹0' : '$0' }} <span class="fs-6 text-muted fw-normal">/ year</span></h2>
                         <ul class="list-unstyled mb-4">
                             <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i>Submit business leads</li>
-                            <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i>View leads after 24h delay</li>
+                            <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i>View leads after 7-day delay</li>
                             <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i>Basic marketplace access</li>
                         </ul>
                         @guest

@@ -141,7 +141,7 @@ class LeadRepository implements LeadRepositoryInterface
         $plan = $viewer?->userPlan() ?? UserPlan::Free;
 
         if (! $plan->canViewLeadImmediately()) {
-            $delayHours = config('trade4deal.lead_visibility_delay_hours', 24);
+            $delayHours = config('trade4deal.lead_visibility_delay_hours', 168);
             $query->where('published_at', '<=', now()->subHours($delayHours));
         }
 
@@ -257,7 +257,7 @@ class LeadRepository implements LeadRepositoryInterface
             return true;
         }
 
-        $delayHours = config('trade4deal.lead_visibility_delay_hours', 24);
+        $delayHours = config('trade4deal.lead_visibility_delay_hours', 168);
 
         return $lead->published_at->lte(now()->subHours($delayHours));
     }
@@ -277,7 +277,7 @@ class LeadRepository implements LeadRepositoryInterface
             $plan = $viewer?->userPlan() ?? UserPlan::Free;
 
             if (! $plan->canViewLeadImmediately()) {
-                $delayHours = config('trade4deal.lead_visibility_delay_hours', 24);
+                $delayHours = config('trade4deal.lead_visibility_delay_hours', 168);
                 $query->where('published_at', '<=', now()->subHours($delayHours));
             }
         }
