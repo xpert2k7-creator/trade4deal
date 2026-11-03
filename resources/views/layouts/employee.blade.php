@@ -55,12 +55,14 @@
             position: sticky;
             top: 0;
             height: 100vh;
+            overflow: hidden;
         }
 
         .emp-sidebar .logo-wrap {
             padding: 0.25rem 0.5rem 1.5rem;
             border-bottom: 1px solid rgba(255,255,255,0.12);
             margin-bottom: 1.25rem;
+            flex-shrink: 0;
         }
 
         .emp-sidebar .logo-wrap img {
@@ -79,6 +81,10 @@
             flex-direction: column;
             gap: 0.35rem;
             flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            padding-right: 0.15rem;
         }
 
         .emp-nav a {
@@ -109,7 +115,8 @@
         .emp-user {
             border-top: 1px solid rgba(255,255,255,0.12);
             padding-top: 1rem;
-            margin-top: 1rem;
+            margin-top: auto;
+            flex-shrink: 0;
         }
 
         .emp-user .name { font-weight: 700; font-size: 0.9rem; }
@@ -286,9 +293,16 @@
             .emp-sidebar {
                 position: relative;
                 height: auto;
+                max-height: none;
+                overflow: visible;
                 padding-bottom: 1rem;
             }
-            .emp-nav { flex-direction: row; flex-wrap: wrap; }
+            .emp-nav {
+                flex-direction: row;
+                flex-wrap: wrap;
+                overflow: visible;
+                min-height: 0;
+            }
             .emp-content { padding: 1rem; }
             .emp-topbar { padding: 0.85rem 1rem; }
         }
