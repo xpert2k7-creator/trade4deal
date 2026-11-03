@@ -7,7 +7,7 @@
     <x-slot name="header">
         <div>
             <h1 class="h4 fw-bold mb-1">
-                {{ $isDeclined ? 'Seller access not approved' : 'We’re reviewing your seller profile' }}
+                {{ $isDeclined ? 'Seller access not approved' : 'We're reviewing your seller profile' }}
             </h1>
             <p class="text-muted small mb-0">
                 {{ $user->company_name ?? 'Your company' }} · Seller account
