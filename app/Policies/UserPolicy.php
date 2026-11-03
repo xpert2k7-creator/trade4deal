@@ -51,6 +51,34 @@ class UserPolicy
         return $actor->isAdmin();
     }
 
+    public function manageSalesTeam(User $actor): bool
+    {
+        return $actor->isAdmin();
+    }
+
+    public function reviewSellerOnboarding(User $actor): bool
+    {
+        return $actor->canReviewSellerOnboarding();
+    }
+
+    public function updateSellerOnboardingDetails(User $actor, User $target): bool
+    {
+        if (! $actor->canReviewSellerOnboarding()) {
+            return false;
+        }
+
+        return $target->user_type === UserType::Seller;
+    }
+
+    public function approveSellerOnboarding(User $actor, User $target): bool
+    {
+        if (! $actor->canReviewSellerOnboarding()) {
+            return false;
+        }
+
+        return $target->user_type === UserType::Seller;
+    }
+
     public function deleteStaffAccount(User $actor, User $target): bool
     {
         if (! $actor->isAdmin()) {
@@ -61,6 +89,6 @@ class UserPolicy
             return false;
         }
 
-        return $target->isEmployee() || $target->isSourcing();
+        return $target->isEmployee() || $target->isSourcing() || $target->isSales();
     }
 }

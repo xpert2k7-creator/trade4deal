@@ -127,9 +127,10 @@ class AllRoutesSmokeTest extends TestCase
         ]);
         $seller->assignRole('seller');
 
+        // Guests must log in before viewing lead details.
         $leadResponse = $this->get(route('leads.show', $lead));
         $this->assertNotServerError($leadResponse, 'leads.show');
-        $leadResponse->assertOk();
+        $leadResponse->assertRedirect(route('login'));
 
         $sellerResponse = $this->get(route('sellers.show', $seller->slug));
         $this->assertNotServerError($sellerResponse, 'sellers.show');
@@ -175,6 +176,9 @@ class AllRoutesSmokeTest extends TestCase
             'verification.leads.create',
             'verification.users.index',
             'verification.payments.index',
+            'verification.sales-team.index',
+            'sales.onboarding.index',
+            'account.pending',
             'sourcing.dashboard',
             'sourcing.leads.index',
             'sourcing.leads.create',
@@ -225,7 +229,9 @@ class AllRoutesSmokeTest extends TestCase
     public function test_employee_verification_routes_do_not_server_error(): void
     {
         $employee = $this->employee();
-        $lead = Lead::factory()->create();
+        $lead = Lead::factory()->create([
+            'assigned_to' => $employee->id,
+        ]);
 
         $routes = [
             fn () => route('verification.dashboard'),
@@ -247,6 +253,9 @@ class AllRoutesSmokeTest extends TestCase
         $admin = $this->admin();
         $employeeUser = $this->employee();
         $sourcingUser = $this->sourcingUser();
+        $salesUser = $this->salesUser();
+        $pendingSeller = $this->seller();
+        $pendingSeller->forceFill(['status' => RecordStatus::Pending])->save();
 
         $routes = [
             fn () => route('verification.users.index'),
@@ -256,12 +265,36 @@ class AllRoutesSmokeTest extends TestCase
             fn () => route('verification.sourcing-team.index'),
             fn () => route('verification.sourcing-team.create'),
             fn () => route('verification.sourcing-team.edit', $sourcingUser),
+            fn () => route('verification.sales-team.index'),
+            fn () => route('verification.sales-team.create'),
+            fn () => route('verification.sales-team.edit', $salesUser),
+            fn () => route('sales.onboarding.index'),
+            fn () => route('sales.onboarding.edit', $pendingSeller),
         ];
 
         foreach ($routes as $urlResolver) {
             $url = $urlResolver();
             $response = $this->actingAs($admin)->get($url);
             $this->assertNotServerError($response, "admin:{$url}");
+            $response->assertOk();
+        }
+    }
+
+    public function test_sales_routes_do_not_server_error(): void
+    {
+        $sales = $this->salesUser();
+        $seller = $this->seller();
+        $seller->forceFill(['status' => RecordStatus::Pending])->save();
+
+        $routes = [
+            fn () => route('sales.onboarding.index'),
+            fn () => route('sales.onboarding.edit', $seller),
+        ];
+
+        foreach ($routes as $urlResolver) {
+            $url = $urlResolver();
+            $response = $this->actingAs($sales)->get($url);
+            $this->assertNotServerError($response, "sales:{$url}");
             $response->assertOk();
         }
     }
@@ -367,6 +400,18 @@ class AllRoutesSmokeTest extends TestCase
             'status' => RecordStatus::Active,
         ]);
         $user->assignRole('sourcing');
+
+        return $user;
+    }
+
+    private function salesUser(): User
+    {
+        $user = User::factory()->create([
+            'user_type' => UserType::Sales,
+            'email_verified_at' => now(),
+            'status' => RecordStatus::Active,
+        ]);
+        $user->assignRole('sales');
 
         return $user;
     }

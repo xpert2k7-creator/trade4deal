@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Support\Permissions\EmployeeRole;
+use App\Support\Permissions\SalesRole;
 use App\Support\Permissions\SourcingRole;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
@@ -25,6 +26,8 @@ class RolePermissionSeeder extends Seeder
             'seller.profile.manage',
             'users.manage',
             'admin.access',
+            'sellers.review',
+            'sellers.update_details',
         ];
 
         foreach ($permissions as $permission) {
@@ -36,8 +39,9 @@ class RolePermissionSeeder extends Seeder
         $admin = Role::query()->firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
         $buyer->syncPermissions(['leads.view', 'leads.create']);
         $seller->syncPermissions(['leads.view', 'leads.create', 'products.manage', 'seller.profile.manage']);
-        $admin->syncPermissions(Permission::all());
         EmployeeRole::ensureExists();
         SourcingRole::ensureExists();
+        SalesRole::ensureExists();
+        $admin->syncPermissions(Permission::all());
     }
 }

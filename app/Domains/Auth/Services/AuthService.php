@@ -9,6 +9,7 @@ use App\Domains\Auth\Notifications\WelcomeUserNotification;
 use App\Models\User;
 use App\Support\Enums\RecordStatus;
 use App\Support\Enums\UserPlan;
+use App\Support\Enums\UserType;
 use App\Support\PhoneNumber;
 use Spatie\Permission\Models\Role;
 
@@ -27,7 +28,11 @@ class AuthService
             'country' => $dto->country,
             'user_type' => $dto->userType,
             'plan' => UserPlan::Free,
-            'status' => RecordStatus::Active,
+            // New sellers await sales approval. Existing DB rows are untouched.
+            // Buyers (and any non-seller signup) stay Active as before.
+            'status' => $dto->userType === UserType::Seller
+                ? RecordStatus::Pending
+                : RecordStatus::Active,
             // Auto-verify so users can open the dashboard without SMTP setup.
             'email_verified_at' => now(),
         ]);

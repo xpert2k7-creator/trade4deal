@@ -1,10 +1,13 @@
 <?php
 
+use App\Http\Controllers\AccountPendingController;
 use App\Http\Controllers\Employee\LeadModerationController;
 use App\Http\Controllers\Employee\EmployeeTeamController;
 use App\Http\Controllers\Employee\PaymentDashboardController;
+use App\Http\Controllers\Employee\SalesTeamController;
 use App\Http\Controllers\Employee\SourcingTeamController;
 use App\Http\Controllers\Employee\UserManagementController;
+use App\Http\Controllers\Sales\SellerOnboardingController;
 use App\Http\Controllers\Sourcing\DashboardController as SourcingDashboardController;
 use App\Http\Controllers\Sourcing\LeadController as SourcingLeadController;
 use App\Http\Controllers\ProfileController;
@@ -52,8 +55,14 @@ Route::post('/sellers/{slug}/contact', [SellerProfileController::class, 'contact
 
 Route::get('/dashboard', function () {
     $user = auth()->user();
+    if ($user?->isSeller() && ! $user->isApprovedSeller() && ! $user->isAdmin()) {
+        return redirect()->route('account.pending');
+    }
     if ($user?->isSeller()) {
         return redirect()->route('seller.dashboard');
+    }
+    if ($user?->canReviewSellerOnboarding() && $user->isSales() && ! $user->isAdmin()) {
+        return redirect()->route('sales.onboarding.index');
     }
     if ($user?->canModerateLeads()) {
         return redirect()->route('verification.dashboard');
@@ -68,13 +77,14 @@ Route::get('/dashboard', function () {
 Route::get('/plans', [PlanController::class, 'index'])->name('plans.index');
 
 Route::middleware('auth')->group(function () {
+    Route::get('/account/pending', AccountPendingController::class)->name('account.pending');
     Route::post('/plans/gold/razorpay/checkout', [RazorpayController::class, 'checkout'])->name('plans.gold.razorpay.checkout');
     Route::post('/plans/gold/razorpay/verify', [RazorpayController::class, 'verify'])->name('plans.gold.razorpay.verify');
 });
 
 Route::post('/razorpay/webhook', [RazorpayController::class, 'webhook'])->name('razorpay.webhook');
 
-Route::middleware(['auth', 'role:seller|admin'])->prefix('seller')->name('seller.')->group(function () {
+Route::middleware(['auth', 'role:seller|admin', 'seller.approved'])->prefix('seller')->name('seller.')->group(function () {
     Route::get('/', [SellerDashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [SellerDashboardController::class, 'editProfile'])->name('profile.edit');
     Route::put('/profile', [SellerDashboardController::class, 'updateProfile'])->name('profile.update');
@@ -125,6 +135,24 @@ Route::middleware(['auth', 'role:admin|employee'])->prefix('verification')->name
         Route::put('/{employeeUser}', [EmployeeTeamController::class, 'update'])->name('update');
         Route::delete('/{employeeUser}', [EmployeeTeamController::class, 'destroy'])->name('destroy');
     });
+
+    Route::middleware('role:admin')->prefix('sales-team')->name('sales-team.')->group(function () {
+        Route::get('/', [SalesTeamController::class, 'index'])->name('index');
+        Route::get('/create', [SalesTeamController::class, 'create'])->name('create');
+        Route::post('/', [SalesTeamController::class, 'store'])->name('store');
+        Route::get('/{salesUser}/edit', [SalesTeamController::class, 'edit'])->name('edit');
+        Route::put('/{salesUser}', [SalesTeamController::class, 'update'])->name('update');
+        Route::delete('/{salesUser}', [SalesTeamController::class, 'destroy'])->name('destroy');
+    });
+});
+
+Route::middleware(['auth', 'role:admin|sales'])->prefix('sales')->name('sales.')->group(function () {
+    Route::get('/', fn () => redirect()->route('sales.onboarding.index'))->name('dashboard');
+    Route::get('/onboarding', [SellerOnboardingController::class, 'index'])->name('onboarding.index');
+    Route::get('/onboarding/{seller}/edit', [SellerOnboardingController::class, 'edit'])->name('onboarding.edit');
+    Route::put('/onboarding/{seller}', [SellerOnboardingController::class, 'update'])->name('onboarding.update');
+    Route::post('/onboarding/{seller}/approve', [SellerOnboardingController::class, 'approve'])->name('onboarding.approve');
+    Route::post('/onboarding/{seller}/disapprove', [SellerOnboardingController::class, 'disapprove'])->name('onboarding.disapprove');
 });
 
 Route::middleware(['auth', 'role:sourcing'])->prefix('sourcing')->name('sourcing.')->group(function () {

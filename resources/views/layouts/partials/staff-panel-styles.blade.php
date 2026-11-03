@@ -211,6 +211,16 @@
 
     .btn-primary-t4d:hover { background: var(--t4d-primary-dark); color: #fff; }
 
+    .btn-approve {
+        background: #059669;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        color: #fff;
+    }
+
+    .btn-approve:hover { background: #047857; color: #fff; }
+
     .status-tabs .nav-link {
         color: var(--t4d-muted);
         font-weight: 600;

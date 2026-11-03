@@ -326,11 +326,17 @@
                 </a>
             @endif
             @if (auth()->user()->isAdmin())
+                <a href="{{ route('sales.onboarding.index', ['status' => 'pending']) }}" class="{{ request()->routeIs('sales.onboarding.*') ? 'active' : '' }}">
+                    <i class="bi bi-person-check"></i> Seller onboarding
+                </a>
                 <a href="{{ route('verification.employee-team.index') }}" class="{{ request()->routeIs('verification.employee-team.*') ? 'active' : '' }}">
                     <i class="bi bi-person-gear"></i> Verification Team
                 </a>
                 <a href="{{ route('verification.sourcing-team.index') }}" class="{{ request()->routeIs('verification.sourcing-team.*') ? 'active' : '' }}">
                     <i class="bi bi-person-badge"></i> Sourcing team
+                </a>
+                <a href="{{ route('verification.sales-team.index') }}" class="{{ request()->routeIs('verification.sales-team.*') ? 'active' : '' }}">
+                    <i class="bi bi-briefcase"></i> Sales team
                 </a>
             @endif
             <a href="{{ route('home') }}" target="_blank">

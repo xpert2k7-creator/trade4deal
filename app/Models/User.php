@@ -115,6 +115,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasRole('sourcing') || $this->user_type === UserType::Sourcing;
     }
 
+    public function isSales(): bool
+    {
+        return $this->hasRole('sales') || $this->user_type === UserType::Sales;
+    }
+
     public function isSeller(): bool
     {
         return $this->user_type === UserType::Seller || $this->hasRole('seller');
@@ -128,6 +133,20 @@ class User extends Authenticatable implements MustVerifyEmail
     public function canModerateLeads(): bool
     {
         return $this->isAdmin() || $this->isEmployee() || $this->hasAnyRole(['admin', 'employee']);
+    }
+
+    public function canReviewSellerOnboarding(): bool
+    {
+        return $this->isAdmin() || $this->isSales() || $this->hasAnyRole(['admin', 'sales']);
+    }
+
+    /**
+     * Marketplace sellers must be Active to use the seller app / go live.
+     * Pending / Inactive sellers can still log in and see the pending page.
+     */
+    public function isApprovedSeller(): bool
+    {
+        return $this->isSeller() && $this->status === RecordStatus::Active;
     }
 
     public function userPlan(): UserPlan

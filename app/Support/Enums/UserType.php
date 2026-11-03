@@ -11,6 +11,7 @@ enum UserType: string
     case Admin = 'admin';
     case Employee = 'employee';
     case Sourcing = 'sourcing';
+    case Sales = 'sales';
 
     public function label(): string
     {
@@ -20,6 +21,7 @@ enum UserType: string
             self::Admin => 'Administrator',
             self::Employee => 'Employee',
             self::Sourcing => 'Sourcing',
+            self::Sales => 'Sales',
         };
     }
 }
