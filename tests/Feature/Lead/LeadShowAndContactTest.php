@@ -115,12 +115,17 @@ class LeadShowAndContactTest extends TestCase
             'user_type' => UserType::Seller,
             'plan' => UserPlan::Gold,
             'gold_expires_at' => now()->addYear(),
+            'industries' => [ProductType::Electronics->value],
+            'status' => \App\Support\Enums\RecordStatus::Active,
         ]);
         $user->assignRole('seller');
 
         Lead::factory()->create([
             'company_name' => 'Hidden List Company XYZ',
             'product_interest' => 'List Visible Product',
+            'product_type' => ProductType::Electronics,
+            'city' => 'Mumbai',
+            'country' => 'India',
             'published_at' => now()->subDays(8),
         ]);
 
@@ -128,6 +133,13 @@ class LeadShowAndContactTest extends TestCase
             ->get(route('home'))
             ->assertOk()
             ->assertSee('List Visible Product')
+            ->assertDontSee('Hidden List Company XYZ');
+
+        $this->actingAs($user)
+            ->get(route('seller.dashboard'))
+            ->assertOk()
+            ->assertSee('List Visible Product')
+            ->assertSee('Mumbai, India')
             ->assertDontSee('Hidden List Company XYZ');
     }
 
