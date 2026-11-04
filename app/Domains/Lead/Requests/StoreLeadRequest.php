@@ -9,6 +9,7 @@ use App\Support\Enums\Currency;
 use App\Support\Enums\LeadUnit;
 use App\Support\Enums\PaymentMethod;
 use App\Support\Enums\ProductType;
+use App\Support\PhoneNumber;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -25,13 +26,17 @@ class StoreLeadRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'company_name' => ['required', 'string', 'max:255'],
-            'contact_name' => ['required', 'string', 'max:255'],
+            'company_name' => ['required', 'string', 'max:255', 'regex:/\p{L}/u'],
+            'contact_name' => ['required', 'string', 'max:255', 'regex:/^[\p{L}\p{M}\s.\x{0027}\x{2019}-]+$/u', 'regex:/\p{L}/u'],
             'email' => ['required', 'email', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:30'],
+            'phone' => ['required', 'string', 'max:30', function (string $attribute, mixed $value, \Closure $fail): void {
+                if (is_string($value) && PhoneNumber::normalize($value, $this->input('country')) === null) {
+                    $fail('Enter a valid mobile number for your country.');
+                }
+            }],
             'country' => ['required', 'string', 'max:100'],
             'business_type' => ['required', Rule::enum(BusinessType::class)],
-            'product_interest' => ['required', 'string', 'max:255'],
+            'product_interest' => ['required', 'string', 'max:255', 'regex:/\p{L}/u'],
             'product_type' => ['required', Rule::enum(ProductType::class)],
             'product_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'currency' => ['required', Rule::enum(Currency::class)],
@@ -49,6 +54,10 @@ class StoreLeadRequest extends FormRequest
     {
         return [
             'company_name.required' => 'Please enter your company name.',
+            'company_name.regex' => 'Your business name must contain at least one letter.',
+            'contact_name.regex' => 'Enter a valid owner name using letters, spaces, apostrophes, dots or hyphens.',
+            'phone.required' => 'Please enter your mobile number.',
+            'product_interest.regex' => 'Your product description must contain at least one letter.',
             'contact_name.required' => 'Please enter the contact person name.',
             'email.required' => 'Please enter a valid business email.',
             'country.required' => 'Please select your country.',

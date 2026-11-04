@@ -38,6 +38,9 @@ class PhoneNumberTest extends TestCase
         $this->assertNull(PhoneNumber::normalize(''));
         $this->assertNull(PhoneNumber::normalize('   '));
         $this->assertNull(PhoneNumber::normalize('123', 'India'));
+        $this->assertNull(PhoneNumber::normalize('98765abc210', 'India'));
+        $this->assertNull(PhoneNumber::normalize('+1 800 FLOWERS', 'United States'));
+        $this->assertNull(PhoneNumber::normalize('9876543210abc', 'India'));
         $this->assertNull(PhoneNumber::normalize('9876543210', 'Unknown Country XYZ'));
     }
 }

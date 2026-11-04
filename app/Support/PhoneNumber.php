@@ -22,7 +22,7 @@ final class PhoneNumber
         }
 
         $phone = trim($phone);
-        if ($phone === '') {
+        if ($phone === '' || ! preg_match('/^\+?[0-9\s().-]+$/D', $phone)) {
             return null;
         }
 

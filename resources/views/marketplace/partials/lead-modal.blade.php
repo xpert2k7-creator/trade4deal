@@ -619,6 +619,7 @@
 
                     <form class="supplier-register-form" method="POST" action="{{ route('leads.store') }}">
                         @csrf
+                        <input type="hidden" name="_form" value="requirement-modal">
                         <input type="hidden" name="email" value="{{ old('email', 'requirements@trade4deal.com') }}">
                         <input type="hidden" name="country" value="{{ old('country', 'India') }}">
                         <input type="hidden" name="product_type" value="{{ old('product_type', 'other') }}">
@@ -628,27 +629,27 @@
 
                         <div class="supplier-field">
                             <i class="bi bi-building"></i>
-                            <input id="modal_company_name" type="text" class="@error('company_name') is-invalid @enderror" name="company_name" value="{{ old('company_name') }}" placeholder="Bussiness name" required autofocus>
+                            <input id="modal_company_name" type="text" class="@error('company_name') is-invalid @enderror" name="company_name" value="{{ old('company_name') }}" placeholder="Business name" maxlength="255" pattern=".*\p{L}.*" title="Your business name must contain at least one letter." required>
                             @error('company_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
 
                         <div class="supplier-two-col">
                             <div class="supplier-field">
                                 <i class="bi bi-person"></i>
-                                <input id="modal_contact_name" type="text" class="@error('contact_name') is-invalid @enderror" name="contact_name" value="{{ old('contact_name') }}" placeholder="Bussiness Owner Name" required>
+                                <input id="modal_contact_name" type="text" class="@error('contact_name') is-invalid @enderror" name="contact_name" value="{{ old('contact_name') }}" placeholder="Business Owner Name" maxlength="255" pattern="(?=.*\p{L})[\p{L}\p{M}\s.'’\-]+" title="Enter a name using letters, spaces, apostrophes, dots or hyphens." required>
                                 @error('contact_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
 
                             <div class="supplier-field">
                                 <i class="bi bi-telephone"></i>
-                                <input id="modal_phone" type="text" class="@error('phone') is-invalid @enderror" name="phone" value="{{ old('phone') }}" placeholder="Mobile Number" required>
+                                <input id="modal_phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="30" pattern="\+?[0-9\s\(\).\-]+" title="Enter a valid phone number using digits and an optional country code." class="@error('phone') is-invalid @enderror" name="phone" value="{{ old('phone') }}" placeholder="Mobile Number" required>
                                 @error('phone')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                         </div>
 
                         <div class="supplier-field">
                             <i class="bi bi-box-seam"></i>
-                            <input id="modal_product_interest" type="text" class="@error('product_interest') is-invalid @enderror" name="product_interest" value="{{ old('product_interest') }}" placeholder="Product Type" required>
+                            <input id="modal_product_interest" type="text" class="@error('product_interest') is-invalid @enderror" name="product_interest" value="{{ old('product_interest') }}" placeholder="Product Type" maxlength="255" pattern=".*\p{L}.*" title="Your product description must contain at least one letter." required>
                             @error('product_interest')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
 

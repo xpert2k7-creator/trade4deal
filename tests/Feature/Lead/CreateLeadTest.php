@@ -25,7 +25,7 @@ class CreateLeadTest extends TestCase
             'company_name' => 'Zephyr Trading Partners',
             'contact_name' => 'John Smith',
             'email' => 'john@zephyrtrading.test',
-            'phone' => '+1 555 0100',
+            'phone' => '+1 202 555 0104',
             'country' => 'United States',
             'business_type' => 'buyer',
             'product_interest' => 'Industrial Machinery',
@@ -83,6 +83,47 @@ class CreateLeadTest extends TestCase
         ]);
 
         $this->assertDatabaseCount('leads', 0);
+    }
+
+    public function test_requirement_rejects_numeric_names_and_product_and_alphabetic_phone(): void
+    {
+        $this->from('/')->post(route('leads.store'), $this->validPayload([
+            '_form' => 'requirement-modal',
+            'company_name' => '28825',
+            'contact_name' => '25558',
+            'phone' => '98765abc210',
+            'country' => 'India',
+            'product_interest' => '12345',
+        ]))->assertRedirect('/')
+            ->assertSessionHasErrors(['company_name', 'contact_name', 'phone', 'product_interest']);
+
+        $this->assertDatabaseCount('leads', 0);
+        $this->get('/')->assertOk()
+            ->assertSee('Enter a valid mobile number for your country.')
+            ->assertSee('if (modalEl) new bootstrap.Modal(modalEl).show();', false);
+    }
+
+    public function test_requirement_rejects_short_or_missing_phone(): void
+    {
+        foreach (['80098534', ''] as $phone) {
+            $this->post(route('leads.store'), $this->validPayload([
+                'phone' => $phone,
+                'country' => 'India',
+            ]))->assertSessionHasErrors('phone');
+        }
+
+        $this->assertDatabaseCount('leads', 0);
+    }
+
+    public function test_requirement_allows_business_and_product_names_containing_digits(): void
+    {
+        $this->post(route('leads.store'), $this->validPayload([
+            'company_name' => '3M Trading',
+            'contact_name' => "John O'Connor",
+            'product_interest' => 'SS 304 Steel',
+        ]))->assertSessionHasNoErrors()->assertRedirect(route('home'));
+
+        $this->assertDatabaseHas('leads', ['company_name' => '3M Trading']);
     }
 
     private function tinyJpegPath(): string

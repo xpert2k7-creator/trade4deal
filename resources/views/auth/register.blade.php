@@ -576,20 +576,20 @@
 
                 <div class="supplier-field">
                     <i class="bi bi-building"></i>
-                    <input id="company_name" type="text" class="@error('company_name') is-invalid @enderror" name="company_name" value="{{ old('company_name') }}" placeholder="Enter your business name" required autofocus>
+                    <input id="company_name" type="text" class="@error('company_name') is-invalid @enderror" name="company_name" value="{{ old('company_name') }}" placeholder="Enter your business name" maxlength="255" pattern=".*\p{L}.*" title="Your business name must contain at least one letter." required autofocus>
                     @error('company_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
 
                 <div class="supplier-two-col">
                     <div class="supplier-field">
                         <i class="bi bi-person"></i>
-                        <input id="name" type="text" class="@error('name') is-invalid @enderror" name="name" value="{{ old('name') }}" placeholder="Contact person name" required>
+                        <input id="name" type="text" class="@error('name') is-invalid @enderror" name="name" value="{{ old('name') }}" placeholder="Contact person name" maxlength="255" pattern="(?=.*\p{L})[\p{L}\p{M}\s.'’\-]+" title="Enter a name using letters, spaces, apostrophes, dots or hyphens." required>
                         @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
 
                     <div class="supplier-field">
                         <i class="bi bi-telephone"></i>
-                        <input id="phone" type="text" class="@error('phone') is-invalid @enderror" name="phone" value="{{ old('phone') }}" placeholder="Mobile number">
+                        <input id="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="30" pattern="\+?[0-9\s\(\).\-]+" title="Enter a valid phone number using digits and an optional country code." class="@error('phone') is-invalid @enderror" name="phone" value="{{ old('phone') }}" placeholder="Mobile number">
                         @error('phone')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                 </div>

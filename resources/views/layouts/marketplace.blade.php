@@ -3015,7 +3015,7 @@
                                 <div class="join-field-grid">
                                     <div class="join-popup-field">
                                         <i class="bi bi-person"></i>
-                                        <input type="text" name="name" placeholder="Name" autocomplete="name" required>
+                                        <input type="text" name="name" placeholder="Name" autocomplete="name" maxlength="255" pattern="(?=.*\p{L})[\p{L}\p{M}\s.'’\-]+" title="Enter a name using letters, spaces, apostrophes, dots or hyphens." required>
                                     </div>
                                     <div class="join-popup-field has-select">
                                         <span class="fi fi-in join-country-selected-flag" data-join-country-select-flag></span>
@@ -3062,11 +3062,11 @@
                                 <div class="join-field-grid">
                                     <div class="join-popup-field join-seller-only">
                                         <i class="bi bi-box-seam"></i>
-                                        <input type="text" name="selling_products" placeholder="Selling Products">
+                                        <input type="text" name="selling_products" placeholder="Selling Products" maxlength="255" pattern=".*\p{L}.*" title="Selling products must contain at least one letter.">
                                     </div>
                                     <div class="join-popup-field">
                                         <i class="bi bi-building"></i>
-                                        <input type="text" name="company_name" placeholder="Company Name" autocomplete="organization" required>
+                                        <input type="text" name="company_name" placeholder="Company Name" autocomplete="organization" maxlength="255" pattern=".*\p{L}.*" title="Your company name must contain at least one letter." required>
                                     </div>
                                 </div>
 
@@ -3480,6 +3480,9 @@
                     const selected = roleInputs.find((input) => input.checked)?.value || 'seller';
                     sellerFields.forEach((field) => {
                         field.classList.toggle('is-hidden', selected !== 'seller');
+                        field.querySelectorAll('input').forEach((input) => {
+                            input.disabled = selected !== 'seller';
+                        });
                     });
                 }
 
@@ -3999,7 +4002,7 @@
                 }
             });
 
-            @if (isset($errors) && $errors->any())
+            @if (isset($errors) && $errors->any() && old('_form') === 'requirement-modal')
                 document.addEventListener('DOMContentLoaded', function () {
                     const modalEl = document.getElementById('leadModal');
                     if (modalEl) new bootstrap.Modal(modalEl).show();

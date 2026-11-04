@@ -8,6 +8,8 @@ use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\MessageBag;
+use Illuminate\Support\ViewErrorBag;
 use Tests\TestCase;
 
 class RegistrationTest extends TestCase
@@ -25,6 +27,56 @@ class RegistrationTest extends TestCase
         $response = $this->get('/register');
 
         $response->assertStatus(200);
+    }
+
+    public function test_invalid_registration_stays_on_registration_without_opening_requirement_modal(): void
+    {
+        $this->from('/register')->post('/register', [
+            'name' => '25558',
+            'email' => 'invalid@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+            'company_name' => '28825',
+            'country' => 'India',
+            'user_type' => 'buyer',
+            'phone' => '98765abc210',
+        ])->assertRedirect('/register')->assertSessionHasErrors(['name', 'company_name', 'phone']);
+
+        $this->assertGuest();
+        $this->assertDatabaseMissing('users', ['email' => 'invalid@example.com']);
+        $this->get('/register')
+            ->assertOk()
+            ->assertSee('Your business name must contain at least one letter.')
+            ->assertDontSee('if (modalEl) new bootstrap.Modal(modalEl).show();', false);
+    }
+
+    public function test_requirement_modal_reopens_for_its_own_validation_errors(): void
+    {
+        $this->withSession([
+            '_old_input' => ['_form' => 'requirement-modal'],
+            'errors' => (new ViewErrorBag)->put('default', new MessageBag([
+                'company_name' => 'Please enter your company name.',
+            ])),
+        ])->get('/')->assertOk()
+            ->assertSee('if (modalEl) new bootstrap.Modal(modalEl).show();', false);
+    }
+
+    public function test_account_popup_rejects_numeric_selling_products(): void
+    {
+        $this->post('/register', [
+            'name' => 'Test Seller',
+            'email' => 'popup@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+            'company_name' => '3M Trading',
+            'selling_products' => '12345',
+            'country' => 'India',
+            'user_type' => 'seller',
+            'phone' => '+919876543210',
+        ])->assertSessionHasErrors('selling_products');
+
+        $this->assertGuest();
+        $this->assertDatabaseMissing('users', ['email' => 'popup@example.com']);
     }
 
     public function test_new_users_can_register_and_reach_dashboard(): void
