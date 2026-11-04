@@ -2804,19 +2804,19 @@
             <a href="{{ route('register') }}" class="mobile-register-inline">Register Free</a>
 
             <div class="mobile-finder-actions" aria-label="Find marketplace users">
-                <button type="button" class="market-finder-btn" data-bs-toggle="modal" data-bs-target="#finderModal" data-finder-mode="seller">
+                <button type="submit" class="market-finder-btn" form="marketplaceSearch" formaction="{{ route('marketplace.page', ['page' => 'product-directory']) }}">
                     <i class="bi bi-shop-window"></i>Find Seller
                 </button>
-                <button type="button" class="market-finder-btn find-buyer" data-bs-toggle="modal" data-bs-target="#finderModal" data-finder-mode="buyer">
+                <button type="submit" class="market-finder-btn find-buyer" form="marketplaceSearch" formaction="{{ route('marketplace.page', ['page' => 'lead-directory']) }}">
                     <i class="bi bi-person-lines-fill"></i>Find Buyer
                 </button>
             </div>
 
             <div class="market-header-actions">
-                <button type="button" class="market-finder-btn" data-bs-toggle="modal" data-bs-target="#finderModal" data-finder-mode="seller">
+                <button type="submit" class="market-finder-btn" form="marketplaceSearch" formaction="{{ route('marketplace.page', ['page' => 'product-directory']) }}">
                     <i class="bi bi-shop-window"></i>Find Seller
                 </button>
-                <button type="button" class="market-finder-btn find-buyer" data-bs-toggle="modal" data-bs-target="#finderModal" data-finder-mode="buyer">
+                <button type="submit" class="market-finder-btn find-buyer" form="marketplaceSearch" formaction="{{ route('marketplace.page', ['page' => 'lead-directory']) }}">
                     <i class="bi bi-person-lines-fill"></i>Find Buyer
                 </button>
                 <a href="{{ route('marketplace.page', ['page' => 'product-directory']) }}" class="market-header-action">
@@ -2859,12 +2859,12 @@
                     <li class="nav-item"><a class="nav-link" href="{{ route('home') }}#how-it-works">How it works</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ route('plans.index') }}">Plans</a></li>
                     <li class="nav-item">
-                        <button type="button" class="nav-link btn btn-link text-decoration-none fw-bold" data-bs-toggle="modal" data-bs-target="#finderModal" data-finder-mode="seller">
+                        <button type="submit" class="nav-link btn btn-link text-decoration-none fw-bold" form="marketplaceSearch" formaction="{{ route('marketplace.page', ['page' => 'product-directory']) }}">
                             <i class="bi bi-shop-window me-1"></i>Find Seller
                         </button>
                     </li>
                     <li class="nav-item">
-                        <button type="button" class="nav-link btn btn-link text-decoration-none fw-bold" data-bs-toggle="modal" data-bs-target="#finderModal" data-finder-mode="buyer">
+                        <button type="submit" class="nav-link btn btn-link text-decoration-none fw-bold" form="marketplaceSearch" formaction="{{ route('marketplace.page', ['page' => 'lead-directory']) }}">
                             <i class="bi bi-person-lines-fill me-1"></i>Find Buyer
                         </button>
                     </li>
@@ -2907,13 +2907,13 @@
                 <span>Account</span>
             </a>
         @endguest
-        <button type="button" class="bottom-seller" data-bs-toggle="modal" data-bs-target="#finderModal" data-finder-mode="seller" aria-label="Find Seller">
+        <button type="submit" class="bottom-seller" form="marketplaceSearch" formaction="{{ route('marketplace.page', ['page' => 'product-directory']) }}" aria-label="Find Seller">
             <i class="bi bi-shop-window"></i>
         </button>
         <button class="bottom-menu" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false" aria-label="Toggle navigation">
             <span class="mobile-nav-icon" aria-hidden="true">&#9776;</span>
         </button>
-        <button type="button" class="bottom-buyer" data-bs-toggle="modal" data-bs-target="#finderModal" data-finder-mode="buyer" aria-label="Find Buyer">
+        <button type="submit" class="bottom-buyer" form="marketplaceSearch" formaction="{{ route('marketplace.page', ['page' => 'lead-directory']) }}" aria-label="Find Buyer">
             <i class="bi bi-person-lines-fill"></i>
         </button>
         <button type="button" class="bottom-theme" data-theme-toggle aria-label="Toggle theme">
@@ -2940,41 +2940,6 @@
         </main>
 
         @include('marketplace.partials.lead-modal')
-
-        <div class="modal fade finder-modal" id="finderModal" tabindex="-1" aria-labelledby="finderModalTitle" aria-hidden="true" data-active-mode="seller">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        <span class="finder-modal-kicker" id="finderModePill"><i class="bi bi-shop-window"></i> Find Seller</span>
-                        <div class="finder-modal-icon" id="finderModalIcon" aria-hidden="true"><i class="bi bi-shop-window"></i></div>
-                        <h2 class="modal-title" id="finderModalTitle">Search suppliers & products</h2>
-                        <p class="finder-modal-subtitle" id="finderModalHelp">
-                            Search products, sellers, and categories in the product directory.
-                        </p>
-                    </div>
-                    <div class="modal-body">
-                        <form id="finderSearchForm" class="finder-search-box" role="search">
-                            <label class="visually-hidden" for="finderSearchInput">Search Trade4Deal</label>
-                            <div class="finder-search-field">
-                                <i class="bi bi-search" aria-hidden="true"></i>
-                                <input id="finderSearchInput" type="search" placeholder="Search product, category, or seller company" autocomplete="off">
-                            </div>
-                            <button type="submit" class="finder-search-submit">
-                                <i class="bi bi-arrow-right"></i>Search
-                            </button>
-                        </form>
-                        <div class="finder-hint-row" id="finderHintRow" aria-label="Suggested searches">
-                            <p class="finder-hint-label">Try searching</p>
-                            <button type="button" class="finder-hint-chip" data-finder-hint>Rice</button>
-                            <button type="button" class="finder-hint-chip" data-finder-hint>Textiles</button>
-                            <button type="button" class="finder-hint-chip" data-finder-hint>Electronics</button>
-                            <button type="button" class="finder-hint-chip" data-finder-hint>Machinery</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         @guest
             @unless(request()->routeIs('register', 'login', 'password.*', 'verification.*'))
@@ -3907,92 +3872,9 @@
                 }
             }
 
-            const finderModal = document.getElementById('finderModal');
-            if (finderModal) {
-                const finderHints = {
-                    seller: ['Rice', 'Textiles', 'Electronics', 'Machinery'],
-                    buyer: ['Rice', 'Apparel', 'Steel', 'Spices'],
-                };
-
-                function renderFinderHints(mode) {
-                    const row = document.getElementById('finderHintRow');
-                    if (!row) return;
-                    const hints = finderHints[mode] || finderHints.seller;
-                    row.innerHTML = '<p class="finder-hint-label">Try searching</p>' + hints.map((hint) => (
-                        '<button type="button" class="finder-hint-chip" data-finder-hint>' + hint + '</button>'
-                    )).join('');
-                }
-
-                finderModal.addEventListener('show.bs.modal', function (event) {
-                    const trigger = event.relatedTarget;
-                    const mode = trigger?.getAttribute('data-finder-mode') === 'buyer' ? 'buyer' : 'seller';
-                    const title = mode === 'buyer' ? 'Find Buyer' : 'Find Seller';
-                    const heading = mode === 'buyer' ? 'Search buyer requirements' : 'Search suppliers & products';
-                    const icon = mode === 'buyer' ? 'bi bi-person-lines-fill' : 'bi bi-shop-window';
-                    const pill = document.getElementById('finderModePill');
-                    const iconWrap = document.getElementById('finderModalIcon');
-                    const modalTitle = document.getElementById('finderModalTitle');
-                    const input = document.getElementById('finderSearchInput');
-                    const help = document.getElementById('finderModalHelp');
-
-                    finderModal.setAttribute('data-active-mode', mode);
-                    if (pill) pill.innerHTML = '<i class="' + icon + '"></i> ' + title;
-                    if (iconWrap) iconWrap.innerHTML = '<i class="' + icon + '"></i>';
-                    if (modalTitle) modalTitle.textContent = heading;
-                    if (help) {
-                        help.textContent = mode === 'buyer'
-                            ? 'Search buyer leads by product need, company, or country.'
-                            : 'Search products, sellers, and categories in the product directory.';
-                    }
-                    if (input) {
-                        input.value = '';
-                        input.placeholder = mode === 'buyer'
-                            ? 'Search buyer lead, product need, or country'
-                            : 'Search product, category, or seller company';
-                        setTimeout(() => input.focus(), 250);
-                    }
-                    renderFinderHints(mode);
-                });
-
-                finderModal.addEventListener('click', function (event) {
-                    const chip = event.target.closest('[data-finder-hint]');
-                    if (!chip || !finderModal.contains(chip)) return;
-                    const input = document.getElementById('finderSearchInput');
-                    if (!input) return;
-                    input.value = chip.textContent.trim();
-                    input.focus();
-                });
-            }
-
             document.addEventListener('submit', function (e) {
                 const form = e.target;
                 if (!(form instanceof HTMLFormElement)) return;
-                if (form.id === 'finderSearchForm') {
-                    e.preventDefault();
-                    const query = (document.getElementById('finderSearchInput')?.value || '').trim();
-                    const mode = finderModal?.getAttribute('data-active-mode') === 'buyer' ? 'buyer' : 'seller';
-
-                    if (mode === 'seller') {
-                        // Reuse the existing header search form so location filters and routing stay identical.
-                        const headerInput = document.getElementById('marketplaceSearchInput');
-                        if (headerInput && marketplaceSearch) {
-                            headerInput.value = query;
-                            marketplaceSearch.requestSubmit();
-                            return;
-                        }
-
-                        const sellerUrl = new URL(@json(route('marketplace.page', ['page' => 'product-directory'])), window.location.origin);
-                        if (query) sellerUrl.searchParams.set('search', query);
-                        window.location.href = sellerUrl.toString();
-                        return;
-                    }
-
-                    // Same pattern as Find Seller → product-directory.
-                    const buyerUrl = new URL(@json(route('marketplace.page', ['page' => 'lead-directory'])), window.location.origin);
-                    if (query) buyerUrl.searchParams.set('search', query);
-                    window.location.href = buyerUrl.toString();
-                    return;
-                }
                 const btn = form.querySelector('button[type="submit"]');
                 if (btn && !btn.classList.contains('btn-loading')) {
                     btn.classList.add('btn-loading');
