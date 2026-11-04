@@ -122,7 +122,7 @@
                             @foreach ($matchingLeads as $lead)
                                 <a href="{{ route('leads.show', $lead) }}" class="text-decoration-none border rounded p-2">
                                     <div class="fw-semibold text-dark">{{ $lead->product_interest }}</div>
-                                    <div class="small text-muted">{{ $lead->company_name }} · {{ $lead->country }}</div>
+                                    <div class="small text-muted">{{ $lead->locationLabel() }}</div>
                                     <div class="small text-muted">{{ $lead->product_type?->label() }} · {{ $lead->published_at?->diffForHumans() }}</div>
                                 </a>
                             @endforeach
