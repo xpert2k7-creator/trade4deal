@@ -83,24 +83,52 @@ class LeadShowAndContactTest extends TestCase
             ->assertDontSee('+1 555 SECRET');
     }
 
-    public function test_gold_user_can_view_recently_published_lead(): void
+    public function test_gold_user_can_view_recently_published_lead_with_buyer_identity(): void
     {
         $user = User::factory()->create([
             'user_type' => UserType::Buyer,
             'plan' => UserPlan::Gold,
+            'gold_expires_at' => now()->addYear(),
         ]);
         $user->assignRole('buyer');
 
         $lead = Lead::factory()->publishedRecently()->create([
             'company_name' => 'Gold Instant Dealer',
             'product_interest' => 'Solar Inverters',
+            'email' => 'gold-buyer@example.com',
+            'phone' => '+1 555 GOLD',
         ]);
 
         $this->actingAs($user)
             ->get(route('leads.show', $lead))
             ->assertOk()
             ->assertSee('Solar Inverters')
-            ->assertDontSee('Gold Instant Dealer');
+            ->assertSee('Gold Instant Dealer')
+            ->assertSee('gold-buyer@example.com')
+            ->assertSee('+1 555 GOLD')
+            ->assertDontSee('Identity protected');
+    }
+
+    public function test_matched_lead_cards_never_show_buyer_company_name(): void
+    {
+        $user = User::factory()->create([
+            'user_type' => UserType::Seller,
+            'plan' => UserPlan::Gold,
+            'gold_expires_at' => now()->addYear(),
+        ]);
+        $user->assignRole('seller');
+
+        Lead::factory()->create([
+            'company_name' => 'Hidden List Company XYZ',
+            'product_interest' => 'List Visible Product',
+            'published_at' => now()->subDays(8),
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('home'))
+            ->assertOk()
+            ->assertSee('List Visible Product')
+            ->assertDontSee('Hidden List Company XYZ');
     }
 
     public function test_guest_contact_is_redirected_to_login(): void

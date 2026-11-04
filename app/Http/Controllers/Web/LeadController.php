@@ -51,10 +51,14 @@ class LeadController extends Controller
 
         $leadViewQuota->record($viewer, $lead);
 
+        $viewerPlan = $leadService->viewerPlan($viewer);
+
         return view('marketplace.leads.show', [
             'lead' => $lead,
             'similarLeads' => $leadService->getSimilarLeadsForViewer($lead, $viewer, 4),
-            'viewerPlan' => $leadService->viewerPlan($viewer),
+            'viewerPlan' => $viewerPlan,
+            // Gold (and staff) see buyer company/phone/email after a successful open.
+            'canSeeBuyerIdentity' => $viewerPlan->isGold() || $viewer->canModerateLeads(),
         ]);
     }
 

@@ -494,7 +494,13 @@
                                 <div class="poster-avatar"><i class="bi bi-shield-check"></i></div>
                                 <div>
                                     <div class="small text-uppercase fw-bold text-muted" style="letter-spacing:0.05em;font-size:0.65rem;">Buyer details</div>
-                                    <div class="fw-bold" style="letter-spacing:-0.02em;">Identity protected</div>
+                                    <div class="fw-bold" style="letter-spacing:-0.02em;">
+                                        @if ($canSeeBuyerIdentity ?? false)
+                                            {{ $lead->company_name ?: 'Buyer company' }}
+                                        @else
+                                            Identity protected
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                             <div class="poster-meta">
@@ -514,10 +520,36 @@
                                     <div class="label">Published</div>
                                     <div class="value">{{ $lead->published_at?->format('M j, Y') ?? '—' }}</div>
                                 </div>
+                                @if ($canSeeBuyerIdentity ?? false)
+                                    <div class="item">
+                                        <div class="label">Email</div>
+                                        <div class="value">
+                                            @if ($lead->email)
+                                                <a href="mailto:{{ $lead->email }}">{{ $lead->email }}</a>
+                                            @else
+                                                —
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="label">Phone</div>
+                                        <div class="value">
+                                            @if ($lead->phone)
+                                                <a href="tel:{{ $lead->phone }}">{{ $lead->phone }}</a>
+                                            @else
+                                                —
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
                             <p class="privacy-line">
                                 <i class="bi bi-shield-lock me-1"></i>
-                                Buyer company and contact details stay private. Reach them using the contact form.
+                                @if ($canSeeBuyerIdentity ?? false)
+                                    Gold members can view buyer company and contact details for opened leads.
+                                @else
+                                    Buyer company and contact details stay private. Reach them using the contact form.
+                                @endif
                             </p>
                         </div>
                     </div>
@@ -530,7 +562,11 @@
                         <p class="text-muted small mb-0">Your message is emailed directly to the buyer behind this lead.</p>
                         <div class="privacy-note">
                             <i class="bi bi-eye-slash me-1"></i>
-                            The buyer's phone is never shown. They reply to the email you provide.
+                            @if ($canSeeBuyerIdentity ?? false)
+                                Buyer contact details are shown above. You can still send an inquiry from this form.
+                            @else
+                                The buyer's phone is never shown. They reply to the email you provide.
+                            @endif
                         </div>
 
                         <form method="POST" action="{{ route('leads.contact', $lead) }}">
