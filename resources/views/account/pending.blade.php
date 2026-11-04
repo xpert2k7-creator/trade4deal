@@ -7,7 +7,11 @@
     <x-slot name="header">
         <div>
             <h1 class="h4 fw-bold mb-1">
-                {{ $isDeclined ? 'Seller access not approved' : "We're reviewing your seller profile" }}
+                @if ($isDeclined)
+                    Seller access not approved
+                @else
+                    We are reviewing your seller profile
+                @endif
             </h1>
             <p class="text-muted small mb-0">
                 {{ $user->company_name ?? 'Your company' }} · Seller account
@@ -133,7 +137,7 @@
                 </h2>
                 <p class="text-muted mb-0" style="line-height:1.65;max-width:58ch;">
                     Thank you for joining Trade4Deal. Your seller profile is in our onboarding queue.
-                    We’re verifying a few business details so buyers meet trusted suppliers. You’ll get full seller access as soon as you’re approved.
+                    We are verifying a few business details so buyers meet trusted suppliers. You will get full seller access as soon as you are approved.
                 </p>
             @endif
         </div>
@@ -154,7 +158,7 @@
                             <span class="step-num">2</span>
                             <div>
                                 <div class="fw-semibold">You may get a short follow-up</div>
-                                <div class="small text-muted">If we need anything extra, we’ll reach out on your registered email. Most profiles are cleared smoothly.</div>
+                                <div class="small text-muted">If we need anything extra, we will reach out on your registered email. Most profiles are cleared smoothly.</div>
                             </div>
                         </div>
                         <div class="t4d-pending-step">

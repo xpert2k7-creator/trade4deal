@@ -11,6 +11,7 @@ use App\Domains\Lead\Notifications\LeadInquiryNotification;
 use App\Domains\Lead\Requests\ContactLeadRequest;
 use App\Domains\Lead\Requests\StoreLeadRequest;
 use App\Domains\Lead\Services\LeadService;
+use App\Domains\Lead\Services\LeadViewQuotaService;
 use App\Http\Controllers\Controller;
 use App\Support\Enums\LeadSource;
 use Illuminate\Http\RedirectResponse;
@@ -20,8 +21,11 @@ use Illuminate\View\View;
 
 class LeadController extends Controller
 {
-    public function show(Lead $lead, LeadService $leadService): View|RedirectResponse
-    {
+    public function show(
+        Lead $lead,
+        LeadService $leadService,
+        LeadViewQuotaService $leadViewQuota,
+    ): View|RedirectResponse {
         if (! auth()->check()) {
             return redirect()
                 ->guest(route('login'))
@@ -31,13 +35,30 @@ class LeadController extends Controller
         $this->authorize('view', $lead);
 
         $viewer = auth()->user();
+        assert($viewer !== null);
 
         abort_unless($leadService->isVisibleToViewer($lead, $viewer), 404);
+
+        $denyReason = $leadViewQuota->denyReason($viewer, $lead);
+        if ($denyReason !== null) {
+            return view('marketplace.leads.limit-reached', [
+                'lead' => $lead,
+                'denyReason' => $denyReason,
+                'viewerPlan' => $leadService->viewerPlan($viewer),
+                'limit' => $leadViewQuota->limitFor($viewer),
+            ]);
+        }
+
+        $leadViewQuota->record($viewer, $lead);
+
+        $viewerPlan = $leadService->viewerPlan($viewer);
 
         return view('marketplace.leads.show', [
             'lead' => $lead,
             'similarLeads' => $leadService->getSimilarLeadsForViewer($lead, $viewer, 4),
-            'viewerPlan' => $leadService->viewerPlan($viewer),
+            'viewerPlan' => $viewerPlan,
+            // Gold (and staff) see buyer company/phone/email after a successful open.
+            'canSeeBuyerIdentity' => $viewerPlan->isGold() || $viewer->canModerateLeads(),
         ]);
     }
 
@@ -45,6 +66,7 @@ class LeadController extends Controller
         ContactLeadRequest $request,
         Lead $lead,
         LeadService $leadService,
+        LeadViewQuotaService $leadViewQuota,
     ): RedirectResponse {
         if (! auth()->check()) {
             session(['url.intended' => route('leads.show', $lead)]);
@@ -56,7 +78,17 @@ class LeadController extends Controller
 
         $this->authorize('view', $lead);
 
-        abort_unless($leadService->isVisibleToViewer($lead, auth()->user()), 404);
+        $viewer = auth()->user();
+        assert($viewer !== null);
+
+        abort_unless($leadService->isVisibleToViewer($lead, $viewer), 404);
+
+        if (! $leadViewQuota->canOpen($viewer, $lead)) {
+            return redirect()
+                ->route('leads.show', $lead);
+        }
+
+        $leadViewQuota->record($viewer, $lead);
 
         $inquiry = $request->validated();
 

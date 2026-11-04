@@ -9,6 +9,11 @@ return [
     // Optional local/testing override for IP pricing, e.g. IN or US. Leave empty in production.
     'pricing_country_override' => env('PRICING_COUNTRY_OVERRIDE'),
     'lead_visibility_delay_hours' => (int) env('LEAD_VISIBILITY_DELAY_HOURS', 168),
+    // Distinct lead detail opens. Free = lifetime during current free period; Gold = per calendar day.
+    'lead_view_limits' => [
+        'gold_per_day' => (int) env('LEAD_VIEW_GOLD_PER_DAY', 2),
+        'free_lifetime' => (int) env('LEAD_VIEW_FREE_LIFETIME', 2),
+    ],
     'contact_email' => env('CONTACT_EMAIL', 'info@trade4deal.com'),
 
     'sourcing_lead_defaults' => [

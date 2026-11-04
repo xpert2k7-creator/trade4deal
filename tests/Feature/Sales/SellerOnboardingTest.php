@@ -133,6 +133,7 @@ class SellerOnboardingTest extends TestCase
             ->get(route('account.pending'))
             ->assertOk()
             ->assertSee('Under review')
+            ->assertSee('We are reviewing your seller profile')
             ->assertSee('Welcome aboard')
             ->assertSee('Contact support')
             ->assertSee(config('trade4deal.contact_email', 'info@trade4deal.com'));
